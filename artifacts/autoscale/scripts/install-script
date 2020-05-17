@@ -1,1 +1,16 @@
-
+cd opt
+apt-get --assume-yes update
+apt-get --assume-yes install default-jdk
+apt-get --assume-yes install maven
+wget https://raw.githubusercontent.com/IBM/cloud-enterprise-examples/master/artifacts/autoscale/autoscale-webapp.war
+wget https://raw.githubusercontent.com/IBM/cloud-enterprise-examples/master/artifacts/autoscale/scripts/pom.xml
+mvn install
+cp /opt/.m2/repository/com/ibm/websphere/appserver/runtime/wlp-webProfile8/20.0.0.4/wlp-webProfile8-20.0.0.4.zip /opt/wlp.zip
+apt-get install unzip
+unzip wlp.zip
+cd wlp/bin
+./server start
+cp /opt/autoscale-webapp.war /opt/wlp/usr/servers/defaultServer/dropins
+# wget $LICENSE_JAR_URL -O /tmp/license.jar \
+#     && java -jar /tmp/license.jar -acceptLicense /opt/ibm \
+#     && rm /tmp/license.jar; 
