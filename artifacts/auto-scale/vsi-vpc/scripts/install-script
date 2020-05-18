@@ -6,6 +6,7 @@ wget https://github.com/IBM/cloud-enterprise-examples/raw/master/artifacts/auto-
 wget https://raw.githubusercontent.com/IBM/cloud-enterprise-examples/master/artifacts/auto-scale/vsi-vpc/scripts/pom.xml
 mvn install
 cp /root/.m2/repository/com/ibm/websphere/appserver/runtime/wlp-webProfile8/20.0.0.4/wlp-webProfile8-20.0.0.4.zip /root/wlp.zip
+apt-get --assume-yes install unzip
 unzip wlp.zip
 cd wlp/bin
 ./server start
