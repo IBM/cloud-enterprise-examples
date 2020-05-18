@@ -2,8 +2,8 @@ cd root
 apt-get --assume-yes update
 apt-get --assume-yes install default-jdk
 apt-get --assume-yes install maven
-wget https://raw.githubusercontent.com/IBM/cloud-enterprise-examples/master/artifacts/autoscale/autoscale-webapp.war
-wget https://raw.githubusercontent.com/IBM/cloud-enterprise-examples/master/artifacts/autoscale/scripts/pom.xml
+wget https://github.com/IBM/cloud-enterprise-examples/raw/master/artifacts/auto-scale/vsi-vpc/autoscale-webapp.war
+wget https://raw.githubusercontent.com/IBM/cloud-enterprise-examples/master/artifacts/auto-scale/vsi-vpc/scripts/pom.xml
 mvn install
 cp /root/.m2/repository/com/ibm/websphere/appserver/runtime/wlp-webProfile8/20.0.0.4/wlp-webProfile8-20.0.0.4.zip /root/wlp.zip
 unzip wlp.zip
