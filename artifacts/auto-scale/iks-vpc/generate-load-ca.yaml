@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-generator
+spec:
+  selector:
+    matchLabels:
+      demo: deployment
+  replicas: 30
+  template:
+    metadata:
+      labels:
+        demo: deployment
+        version: v1
+    spec:
+      containers:
+      - name: busybox
+        image: busybox
+        command: [ "sh", "-c", "while true; do wget -q -O- http://HOST/autoscale-webapp/LoadCPUSquareRoot?count=10; done" ]
