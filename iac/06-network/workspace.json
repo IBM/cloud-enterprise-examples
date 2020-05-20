@@ -10,7 +10,7 @@
     "env:dev"
   ],
   "template_repo": {
-    "url": "https://github.com/IBM/cloud-enterprise-examples/tree/master/iac/06_network"
+    "url": "https://github.com/IBM/cloud-enterprise-examples/tree/master/iac/06-network"
   },
   "template_data": [{
     "folder": ".",

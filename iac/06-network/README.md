@@ -71,18 +71,18 @@ This project requires the following actions:
 
 1. Create the file `terraform.tfvars` file with values for the variables, this is an example with the required and optional variables:
 
-```hcl
-project_name = iac-network-test-OWNER
-environment  = dev
+   ```hcl
+   project_name = iac-network-test-OWNER
+   environment  = dev
 
-# Optional variables
-port           = 8080
-resource_group = "Default"
-region         = "us-south"
-vpc_zone_names = ["us-south-1", "us-south-2", "us-south-3"]
-```
+   # Optional variables
+   port           = 8080
+   resource_group = "Default"
+   region         = "us-south"
+   vpc_zone_names = ["us-south-1", "us-south-2", "us-south-3"]
+   ```
 
-For better results and avoid name collisions, replace `OWNER` for your username or user Id. It will fail if the word `OWNER` (uppercase) is used.
+   For better results and avoid name collisions, replace `OWNER` for your username or user Id. It will fail if the word `OWNER` (uppercase) is used.
 
 2. Modify the `workspace.json` file to change the values of the variables `project_name` and `environment`, currently `iac-network-test-OWNER` and `dev` respectively. It's recommended to replace `OWNER` by your username or user Id to avoid name collisions. It will fail if the word `OWNER` (uppercase) is used.
 
@@ -113,7 +113,7 @@ ibmcloud schematics workspace new --file workspace.json
 ibmcloud schematics workspace list          # Identify the WORKSPACE_ID
 WORKSPACE_ID=
 
-# ... wait until the status is ACTIVE
+# ... wait until the status is INACTIVE
 
 # (Optional) Planing:
 ibmcloud schematics plan --id $WORKSPACE_ID  # Identify the Activity_ID
@@ -126,12 +126,32 @@ ibmcloud schematics apply --id $WORKSPACE_ID # Identify the Activity_ID
 ibmcloud schematics logs  --id $WORKSPACE_ID --act-id Activity_ID
 ```
 
+After the validations in the **Project Validation** section below, cleanup everything you created with the execution of:
+
+```bash
+
+ibmcloud schematics destroy --id $WORKSPACE_ID # Identify the Activity_ID
+ibmcloud schematics logs  --id $WORKSPACE_ID --act-id Activity_ID
+
+# ... wait until it's done
+
+ibmcloud schematics workspace delete --id $WORKSPACE_ID
+ibmcloud schematics workspace list
+```
+
 ## Project Validation
 
-Verify the results executing these commands:
+If the project was executed with **Terraform**, verify the results executing these commands:
 
 ```bash
 terraform output
 ```
 
-You should see the IP addresses of the Public Gateways.
+If the project was executed with **IBM Cloud Schematics**, verify the results executing these commands:
+
+```bash
+ibmcloud schematics workspace list          # Identify the WORKSPACE_ID
+ibmcloud schematics workspace output --id $WORKSPACE_ID --json
+```
+
+In both cases, you should see the IP addresses of the Public Gateways.
