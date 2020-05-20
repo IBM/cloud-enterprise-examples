@@ -1,0 +1,30 @@
+{
+  "name": "iac_schematics_test",
+  "type": [
+    "terraform_v0.12"
+  ],
+  "description": "Sample workspace to test IBM Cloud Schematics. Deploys an web server on a VSI with a Hello World response",
+  "tags": [
+    "app:iac_network_test",
+    "owner:OWNER",
+    "env:dev"
+  ],
+  "template_repo": {
+    "url": "https://github.com/IBM/cloud-enterprise-examples/tree/master/iac/06_network"
+  },
+  "template_data": [{
+    "folder": ".",
+    "type": "terraform_v0.12",
+    "variablestore": [{
+        "name": "project_name",
+        "value": "iac-network-test-OWNER",
+        "type": "string"
+      },
+      {
+        "name": "environment",
+        "value": "dev",
+        "type": "string"
+      }
+    ]
+  }]
+}

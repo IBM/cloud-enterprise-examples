@@ -1,3 +1,2 @@
-workspace.json
+.terraform
 terraform.tfvars
-tmp
