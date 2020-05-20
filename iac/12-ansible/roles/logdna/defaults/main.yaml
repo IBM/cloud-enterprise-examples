@@ -1,6 +1,0 @@
-conf_tags: ""
-conf_logdir: "" # default to /var/log
-
-ubuntu_api_host: api.us-south.logging.cloud.ibm.com
-ubuntu_log_host: logs.us-south.logging.cloud.ibm.com
-agent_service: started
