@@ -5,7 +5,8 @@
   ],
   "description": "Sample workspace to test IBM Cloud Schematics. Deploys an web server on a VSI with a Hello World response",
   "tags": [
-    "app:helloworld",
+    "app:iac_schematics_test",
+    "owner:OWNER",
     "env:dev"
   ],
   "template_repo": {
@@ -16,7 +17,7 @@
     "type": "terraform_v0.12",
     "variablestore": [{
         "name": "project_name",
-        "value": "iac_schematics_test",
+        "value": "iac-schematics-test-OWNER",
         "type": "string"
       },
       {
