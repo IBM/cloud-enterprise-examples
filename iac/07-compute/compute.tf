@@ -24,7 +24,7 @@ resource "ibm_is_instance" "iac_app_instance" {
   }
 
   vpc     = ibm_is_vpc.iac_app_vpc.id
-  zone    = "us-south-1"
+  zone    = var.vpc_zone_names[count.index]
   keys    = [ibm_is_ssh_key.iac_app_key.id]
   volumes = [ibm_is_volume.iac_app_volume[count.index].id]
 

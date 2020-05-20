@@ -16,6 +16,6 @@ resource "ibm_is_volume" "iac_app_volume" {
   count    = local.max_size
   name     = "${var.project_name}-${var.environment}-volume-${format("%02s", count.index)}"
   profile  = "10iops-tier"
-  zone     = "us-south-1"
+  zone     = var.vpc_zone_names[count.index]
   capacity = 100
 }

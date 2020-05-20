@@ -1,4 +1,4 @@
-# Infrastructure as Code: Managing Network & Storage Resources
+# Infrastructure as Code: Managing Compute & Storage Resources
 
 <!--
 
@@ -9,14 +9,14 @@ Check list for every README:
 
 -->
 
-- [Infrastructure as Code: Managing Network & Storage Resources](#infrastructure-as-code-managing-network--storage-resources)
+- [Infrastructure as Code: Managing Compute & Storage Resources](#infrastructure-as-code-managing-compute--storage-resources)
   - [General Requirements](#general-requirements)
   - [Project Requirements](#project-requirements)
   - [How to use with Terraform](#how-to-use-with-terraform)
   - [How to use with Schematics](#how-to-use-with-schematics)
   - [Project Validation](#project-validation)
 
-This example is covered in the [IBM Cloud Schematics](https://ibm.github.io/cloud-enterprise-examples/iac/schematics) page of the Infrastructure as Code pattern. Refer to that page to know how to use it and execute it.
+This example is covered in the [Network & Storage Resources](https://ibm.github.io/cloud-enterprise-examples/iac-resources/compute) page of the Infrastructure as Code pattern. Refer to that page to know how to use it and execute it.
 
 ## General Requirements
 
@@ -98,7 +98,7 @@ This project requires the following actions:
    sed "s|{ PUBLIC_KEY }|$PUBLIC_KEY|" workspace.tmpl.json > workspace.json
    ```
 
-5. Change the values of the variables `project_name` and `environment`, currently `iac-network-test-OWNER` and `dev` respectively. It's recommended to replace `OWNER` by your username or user Id to avoid name collisions. It will fail if the word `OWNER` (uppercase) is used.
+5. Change the values of the variables `project_name` and `environment`, currently `iac-network-test-OWNER` and `dev` respectively. It's recommended to replace `OWNER` by your username or user Id to avoid name collisions. It will fail if the word `OWNER` (uppercase) is used. Don't assign a project name with more than 24 characters.
 
 ## How to use with Terraform
 
@@ -160,8 +160,7 @@ If the project was executed with **Terraform**, verify the results executing the
 ```bash
 terraform output
 
-curl "http://$(terraform output entrypoint)"
-ssh -i ~/.ssh/id_rsa ubuntu@$(terraform output ip_address) "echo 'Hello World'"
+curl "$(terraform output entrypoint)/movies/675"
 ```
 
 If the project was executed with **IBM Cloud Schematics**, verify the results executing these commands:
@@ -170,9 +169,7 @@ If the project was executed with **IBM Cloud Schematics**, verify the results ex
 ibmcloud schematics workspace list          # Identify the WORKSPACE_ID
 ibmcloud schematics workspace output --id $WORKSPACE_ID --json
 
-curl $(ibmcloud schematics workspace output --id $WORKSPACE_ID --json | jq -r '.[].output_values[].entrypoint.value')
-IP=$(ibmcloud schematics workspace output --id $WORKSPACE_ID --json | jq -r '.[].output_values[].ip_address.value')
-ssh -i ~/.ssh/id_rsa ubuntu@$IP "echo 'Hello World'"
+curl "$(ibmcloud schematics workspace output --id $WORKSPACE_ID --json | jq -r '.[].output_values[].entrypoint.value')/movies/675"
 ```
 
-In both cases, you should see the the same output variables, the "Hello World" after executing `curl` and login to the VSI when execute `ssh`.
+In both cases, you should see the the same output variables, the JSON values of the movie "" identified by the ID `675` after executing the `curl` command.
