@@ -13,7 +13,7 @@ resource "ibm_cos_bucket" "iac_app_cos_bucket" {
 }
 
 resource "ibm_is_volume" "iac_app_volume" {
-  count    = var.max_size
+  count    = local.max_size
   name     = "${var.project_name}-${var.environment}-volume-${format("%02s", count.index)}"
   profile  = "10iops-tier"
   zone     = "us-south-1"

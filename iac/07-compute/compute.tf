@@ -12,14 +12,14 @@ data "ibm_is_image" "ds_iac_app_image" {
 }
 
 resource "ibm_is_instance" "iac_app_instance" {
-  count   = var.max_size
+  count   = local.max_size
   name    = "${var.project_name}-${var.environment}-instance-${format("%02s", count.index)}"
   image   = data.ibm_is_image.ds_iac_app_image.id
   profile = "cx2-2x4"
 
   primary_network_interface {
     name            = "eth1"
-    subnet          = ibm_is_subnet.iac_app_subnet.id
+    subnet          = ibm_is_subnet.iac_app_subnet[count.index].id
     security_groups = [ibm_is_security_group.iac_app_security_group.id]
   }
 
@@ -40,7 +40,7 @@ resource "ibm_is_instance" "iac_app_instance" {
             # apt install -y python3-pip
             # pip3 install json-server.py
             #
-            # json-server -b :${port} /var/lib/db.min.json &
+            # json-server -b :${var.port} /var/lib/db.min.json &
 
             # With NodeJS:
             apt update

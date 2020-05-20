@@ -1,6 +1,6 @@
 resource "ibm_is_lb" "iac_app_lb" {
   name    = "${var.project_name}-${var.environment}-lb"
-  subnets = [ibm_is_subnet.iac_app_subnet.id]
+  subnets = ibm_is_subnet.iac_app_subnet.*.id
 }
 
 resource "ibm_is_lb_listener" "iac_app_lb_listener" {
@@ -24,7 +24,7 @@ resource "ibm_is_lb_pool" "iac_app_lb_pool" {
 }
 
 resource "ibm_is_lb_pool_member" "iac_app_lb_pool_mem" {
-  count          = var.max_size
+  count          = local.max_size
   lb             = ibm_is_lb.iac_app_lb.id
   pool           = ibm_is_lb_pool.iac_app_lb_pool.id
   port           = var.port
