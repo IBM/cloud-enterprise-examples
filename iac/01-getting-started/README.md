@@ -1,6 +1,6 @@
 # Getting Started with Terraform
 
-This example is covered in the [Getting Started](https://pages.github.ibm.com/att-cloudnative/ibmcloud-pattern-guide/iac/getting-started-terraform) page for Infrastructure as Code pattern. Refer to that page to know how to use it and execute it.
+This example is covered in the [Getting Started](https://ibm.github.io/cloud-enterprise-examples/iac/getting-started-terraform) page for Infrastructure as Code pattern. Refer to that page to know how to use it and execute it.
 
 ## Check Access to IBM Cloud
 

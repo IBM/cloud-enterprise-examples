@@ -9,7 +9,7 @@
     "env:dev"
   ],
   "template_repo": {
-    "url": "https://github.ibm.com/att-cloudnative/iac-pattern-guide/tree/master/02-schematics"
+    "url": "https://github.com/IBM/cloud-enterprise-examples/tree/master/iac/02-schematics"
   },
   "template_data": [{
     "folder": ".",

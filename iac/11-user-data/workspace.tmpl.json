@@ -9,7 +9,7 @@
     "env:dev"
   ],
   "template_repo": {
-    "url": "https://github.ibm.com/att-cloudnative/iac-pattern-guide/tree/master/06-compute"
+    "url": "https://github.com/IBM/cloud-enterprise-examples/tree/master/iac/11-user-data"
   },
   "template_data": [{
     "folder": ".",
