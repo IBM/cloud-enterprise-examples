@@ -8,7 +8,7 @@ resource "ibm_is_subnet" "iac_app_subnet" {
   zone                     = var.vpc_zone_names[count.index]
   vpc                      = ibm_is_vpc.iac_app_vpc.id
   total_ipv4_address_count = 16
-  public_gateway           = element(ibm_is_public_gateway.pgw.*.id, count.index)
+  public_gateway           = ibm_is_public_gateway.pgw[count.index].id
   resource_group           = data.ibm_resource_group.group.id
 }
 
@@ -57,5 +57,5 @@ resource "ibm_is_public_gateway" "pgw" {
 // resource "ibm_is_floating_ip" "iac_app_floating_ip" {
 //   name   = "${var.project_name}-${var.environment}-ip-${format("%02s", count.index)}"
 //   target = ibm_is_instance.iac_app_instance[count.index].primary_network_interface.0.id
-//   count  = var.max_size
+//   count  = local.max_size
 // }
