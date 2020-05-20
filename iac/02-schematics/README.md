@@ -12,8 +12,8 @@ Check list for every README:
 - [Infrastructure as Code: Using IBM Cloud Schematics](#infrastructure-as-code-using-ibm-cloud-schematics)
   - [General Requirements](#general-requirements)
   - [Project Requirements](#project-requirements)
-  - [How to use with Terraform](#how-to-use-with-terraform)
   - [How to use with Schematics](#how-to-use-with-schematics)
+  - [How to use with Terraform](#how-to-use-with-terraform)
   - [Project Validation](#project-validation)
 
 This example is covered in the [IBM Cloud Schematics](https://ibm.github.io/cloud-enterprise-examples/iac/schematics) page of the Infrastructure as Code pattern. Refer to that page to know how to use it and execute it.
@@ -77,23 +77,7 @@ This project requires the following actions:
    sed "s|{ PUBLIC_KEY }|$PUBLIC_KEY|" workspace.tmpl.json > workspace.json
    ```
 
-3. Change the values of the variables `project_name` and `environment`, currently `iac-network-test-OWNER` and `dev` respectively. It's recommended to replace `OWNER` by your username or user Id to avoid name collisions. It will fail if the word `OWNER` (uppercase) is used.
-
-## How to use with Terraform
-
-In a nutshell, to play the example just execute the following commands:
-
-```bash
-terraform init
-terraform plan
-terraform apply
-```
-
-Then execute the validation commands or actions documented in the **Project Validation** section below. Finally, when you finish using the infrastructure, cleanup everything you created with the execution of:
-
-```bash
-terraform destroy
-```
+3. Change the values of the variables `project_name` and `environment`, currently `iac-network-test-OWNER` and `dev` respectively. It's recommended to replace `OWNER` by your username or user Id to avoid name collisions. It will fail if the word `OWNER` (uppercase) is used. Don't assign a project name with more than 24 characters.
 
 ## How to use with Schematics
 
@@ -132,18 +116,25 @@ ibmcloud schematics workspace delete --id $WORKSPACE_ID
 ibmcloud schematics workspace list
 ```
 
-## Project Validation
+## How to use with Terraform
 
-If the project was executed with **Terraform**, verify the results executing these commands:
+This specific example is to be executed with Schematics but you can use the Terraform Schematics data source with the code in the directory `data_source`. Go to this directory and execute the following commands:
 
 ```bash
-terraform output
+cd data_source
+terraform init
 
-curl "http://$(terraform output entrypoint)"
-ssh -i ~/.ssh/id_rsa ubuntu@$(terraform output ip_address) "echo 'Hello World'"
+export TF_VAR_schematics_workspace_id=$WORKSPACE_ID
+
+terraform plan
+terraform apply
 ```
 
-If the project was executed with **IBM Cloud Schematics**, verify the results executing these commands:
+Then execute the validation commands or actions documented in the **Project Validation** section below. In this Data Source project there is nothing to destroy, nothing was created.
+
+## Project Validation
+
+To validate the project that was executed with **IBM Cloud Schematics**, verify the results executing these commands:
 
 ```bash
 ibmcloud schematics workspace list          # Identify the WORKSPACE_ID
@@ -154,4 +145,13 @@ IP=$(ibmcloud schematics workspace output --id $WORKSPACE_ID --json | jq -r '.[]
 ssh -i ~/.ssh/id_rsa ubuntu@$IP "echo 'Hello World'"
 ```
 
-In both cases, you should see the the same output variables, the "Hello World" after executing `curl` and login to the VSI when execute `ssh`.
+To validate the Data Source project that was executed with **Terraform**, verify the results executing these commands:
+
+```bash
+terraform output
+
+curl $(terraform output entrypoint)
+ssh -i ~/.ssh/id_rsa ubuntu@$(terraform output ip_address) "echo 'Hello World'"
+```
+
+In both cases, you should see the the same output variables and the "Hello World" after executing the `curl` and `ssh` commands.
