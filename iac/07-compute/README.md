@@ -172,4 +172,4 @@ ibmcloud schematics workspace output --id $WORKSPACE_ID --json
 curl "$(ibmcloud schematics workspace output --id $WORKSPACE_ID --json | jq -r '.[].output_values[].entrypoint.value')/movies/675"
 ```
 
-In both cases, you should see the the same output variables, the JSON values of the movie "" identified by the ID `675` after executing the `curl` command.
+In both cases, you should see the the same output variables, the JSON values of the movie "Kagemusha" identified by the ID `675` after executing the `curl` command.
