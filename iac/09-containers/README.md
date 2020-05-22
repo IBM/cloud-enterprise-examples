@@ -98,21 +98,7 @@ This project requires the following actions:
 
    For better results and avoid name collisions, replace `OWNER` for your username or user Id. It will fail if the word `OWNER` (uppercase) is used. Don't assign a project name with more than 24 characters.
 
-3. Have a SSH Key pair or create them with the command `ssh-keygen`
-4. Create the `secrets.auto.tfvars` file with the value of the `public_key` variable executing this line:
-
-   ```bash
-   echo "public_key = \"$(cat ~/.ssh/id_rsa.pub)\"" > secrets.auto.tfvars
-   ```
-
-5. Create the `workspace.json` file using the template `workspace.tmpl.json` to assign a value to the `PUBLIC_KEY` variable executing these commands:
-
-   ```bash
-   PUBLIC_KEY="$(cat ~/.ssh/id_rsa.pub)"
-   sed "s|{ PUBLIC_KEY }|$PUBLIC_KEY|" workspace.tmpl.json > workspace.json
-   ```
-
-6. Change the values of the variables `project_name` and `environment`, currently `iac-iks-test-OWNER` and `dev` respectively. It's recommended to replace `OWNER` by your username or user Id to avoid name collisions. It will fail if the word `OWNER` (uppercase) is used. Don't assign a project name with more than 24 characters.
+3. Change the values of the variables `project_name` and `environment`, currently `iac-iks-test-OWNER` and `dev` respectively. It's recommended to replace `OWNER` by your username or user Id to avoid name collisions. It will fail if the word `OWNER` (uppercase) is used. Don't assign a project name with more than 24 characters.
 
 ## How to use with the IBM Cloud CLI
 
