@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: movies
+  name: movies
+spec:
+  ports:
+    - name: "80"
+      nodePort: 32000
+      port: 80
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app: movies
+  type: NodePort
+status:
+  loadBalancer: {}
