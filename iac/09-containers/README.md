@@ -238,3 +238,14 @@ kubectl cluster-info
 kubectl get nodes
 kubectl get pods -A
 ```
+
+To validate the API application:
+
+```bash
+CLUSTER_ID=$(terraform output cluster_id)
+
+IP=$(ibmcloud ks workers -c $CLUSTER_ID --json | jq '.[0].publicIP' | tr -d '"')
+PORT=$(kubectl get service movies -o=jsonpath='{.spec.ports[0].nodePort}')
+
+curl $IP:$PORT/movies/675
+```
