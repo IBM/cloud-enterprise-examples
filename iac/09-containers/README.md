@@ -209,35 +209,32 @@ ibmcloud schematics workspace list
 
 ## Project Validation
 
-To have access to the IKS cluster execute this IBM Cloud command (`NAME` is the cluster name):
+To have access to the IKS cluster execute this **IBM Cloud CLI** command (`NAME` is the cluster name):
 
 ```bash
 ibmcloud ks cluster config --cluster $NAME
 ```
 
-Some `kubectl` commands to verify you have access are:
+If the project was executed with **Terraform**, get the outputs and kubectl configured executing these commands:
+
+```bash
+terraform output
+ibmcloud ks cluster config --cluster $(terraform output cluster_id)
+```
+
+If the project was executed with **IBM Cloud Schematics**, get the outputs and kubectl configured executing these commands:
+
+```bash
+ibmcloud schematics workspace list          # Identify the WORKSPACE_ID
+ibmcloud schematics workspace output --id $WORKSPACE_ID --json
+
+ibmcloud ks cluster config --cluster $(ibmcloud schematics workspace output --id $WORKSPACE_ID --json | jq -r '.[].output_values[].cluster_id.value')
+```
+
+In both cases, you should see the the same output variables and get kubectl configured to access the cluster. Some `kubectl` commands to verify you have access are:
 
 ```bash
 kubectl cluster-info
 kubectl get nodes
 kubectl get pods -A
 ```
-
-If the project was executed with **Terraform**, verify the results executing these commands:
-
-```bash
-terraform output
-
-# In progress
-```
-
-If the project was executed with **IBM Cloud Schematics**, verify the results executing these commands:
-
-```bash
-ibmcloud schematics workspace list          # Identify the WORKSPACE_ID
-ibmcloud schematics workspace output --id $WORKSPACE_ID --json
-
-# In progress
-```
-
-In both cases, you should see the the same output variables, ... (in progress)
