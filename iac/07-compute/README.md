@@ -16,7 +16,7 @@ Check list for every README:
   - [How to use with Schematics](#how-to-use-with-schematics)
   - [Project Validation](#project-validation)
 
-This example is covered in the [Network & Storage Resources](https://ibm.github.io/cloud-enterprise-examples/iac-resources/compute) page of the Infrastructure as Code pattern. Refer to that page to know how to use it and execute it.
+This example is covered in the [Compute & Storage Resources](https://ibm.github.io/cloud-enterprise-examples/iac-resources/compute) page of the Infrastructure as Code pattern. Refer to that page to know how to use it and execute it.
 
 ## General Requirements
 
@@ -98,7 +98,7 @@ This project requires the following actions:
    sed "s|{ PUBLIC_KEY }|$PUBLIC_KEY|" workspace.tmpl.json > workspace.json
    ```
 
-5. Change the values of the variables `project_name` and `environment`, currently `iac-network-test-OWNER` and `dev` respectively. It's recommended to replace `OWNER` by your username or user Id to avoid name collisions. It will fail if the word `OWNER` (uppercase) is used. Don't assign a project name with more than 24 characters.
+5. Change the values of the variables `project_name` and `environment`, currently `iac-compute-test-OWNER` and `dev` respectively. It's recommended to replace `OWNER` by your username or user Id to avoid name collisions. It will fail if the word `OWNER` (uppercase) is used. Don't assign a project name with more than 24 characters.
 
 ## How to use with Terraform
 
