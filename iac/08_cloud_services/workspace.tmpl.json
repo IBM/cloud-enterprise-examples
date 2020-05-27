@@ -1,0 +1,80 @@
+{
+  "name": "iac_db_test",
+  "type": [
+    "terraform_v0.12"
+  ],
+  "description": "Sample workspace to test IBM Cloud Schematics. Deploys an web server on a VSI with a Hello World response",
+  "tags": [
+    "app:helloworld",
+    "owner:OWNER",
+    "env:dev"
+  ],
+  "template_repo": {
+    "url": "https://github.com/IBM/cloud-enterprise-examples/tree/master/iac/08_cloud_services"
+  },
+  "template_data": [{
+    "folder": ".",
+    "type": "terraform_v0.12",
+    "variablestore": [{
+        "name": "project_name",
+        "value": "iac-db-test-OWNER",
+        "type": "string"
+      },
+      {
+        "name": "environment",
+        "value": "dev",
+        "type": "string"
+      },
+      {
+        "name": "public_key",
+        "value": "{ PUBLIC_KEY }",
+        "type": "string"
+      },
+      {
+        "name": "port",
+        "value": "8080",
+        "type": "number"
+      },
+      {
+        "name": "resource_group",
+        "value": "Default",
+        "type": "string"
+      },
+      {
+        "name": "region",
+        "value": "us-south",
+        "type": "string"
+      },
+      {
+        "name": "vpc_zone_names",
+        "value": ["us-south-1", "us-south-2", "us-south-3"],
+        "type": "list(string)"
+      },
+      {
+        "name": "db_plan",
+        "value": "standard",
+        "type": "string"
+      },
+      {
+        "name": "db_name",
+        "value": "ex2_test_db_lab",
+        "type": "string"
+      },
+      {
+        "name": "db_admin_password",
+        "value": "password123",
+        "type": "string"
+      },
+      {
+        "name": "db_memory_allocation",
+        "value": "3072",
+        "type": "string"
+      },
+      {
+        "name": "db_disk_allocation",
+        "value": "61440",
+        "type": "string"
+      }
+    ]
+  }]
+}
