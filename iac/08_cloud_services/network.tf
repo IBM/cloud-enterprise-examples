@@ -54,8 +54,8 @@ resource "ibm_is_public_gateway" "pgw" {
   zone  = var.vpc_zone_names[count.index]
 }
 
-// resource "ibm_is_floating_ip" "iac_app_floating_ip" {
-//   name   = "${var.project_name}-${var.environment}-ip-${format("%02s", count.index)}"
-//   target = ibm_is_instance.iac_app_instance[count.index].primary_network_interface.0.id
-//   count  = local.max_size
-// }
+resource "ibm_is_floating_ip" "iac_app_floating_ip" {
+  name   = "${var.project_name}-${var.environment}-ip-${format("%02s", count.index)}"
+  target = ibm_is_instance.iac_app_instance[count.index].primary_network_interface.0.id
+  count  = local.max_size
+}
