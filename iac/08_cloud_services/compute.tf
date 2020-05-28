@@ -3,10 +3,6 @@ resource "ibm_is_ssh_key" "iac_app_key" {
   public_key = var.public_key
 }
 
-data "local_file" "db" {
-  filename = "${path.module}/db.min.json"
-}
-
 data "ibm_is_image" "ds_iac_app_image" {
   name = "ibm-ubuntu-18-04-1-minimal-amd64-1"
 }
@@ -30,10 +26,23 @@ resource "ibm_is_instance" "iac_app_instance" {
 
   user_data = <<-EOUD
             #!/bin/bash
-            echo '${data.local_file.db.content_base64}' | base64 --decode > /var/lib/db.min.json
+            mkdir -p /app
+
+            echo '${data.local_file.app.content_base64}' | base64 --decode > /app/app.py
+            echo '${data.local_file.import.content_base64}' | base64 --decode > /app/import.py
+            echo '${data.local_file.requirements.content_base64}' | base64 --decode > /app/requirements.txt
+            echo '${data.local_file.db.content_base64}' | base64 --decode > /app/db.json
+
+            export APP_MONGODB_URI=${ibm_database.iac_app_db_instance.connectionstrings.0.composed}
+            export APP_PORT=${var.port}
+
+            cd /app
+            pip install -r requirements.txt
+            python import.py
+            python app.py &
 
             # https://askubuntu.com/questions/1154892/prevent-question-restart-services-during-package-upgrades-without-asking
-            echo '* libraries/restart-without-asking boolean true' | debconf-set-selections
+            # echo '* libraries/restart-without-asking boolean true' | debconf-set-selections
 
             # With Python3:
             # apt update
@@ -43,11 +52,11 @@ resource "ibm_is_instance" "iac_app_instance" {
             # json-server -b :${var.port} /var/lib/db.min.json &
 
             # With NodeJS:
-            apt update
-            curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-            apt-get install -y nodejs
-            npm install -g json-server
-            json-server --watch /var/lib/db.min.json --port ${var.port} --host 0.0.0.0 &
+            # apt update
+            # curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+            # apt-get install -y nodejs
+            # npm install -g json-server
+            # json-server --watch /var/lib/db.min.json --port ${var.port} --host 0.0.0.0 &
             EOUD
 
 
