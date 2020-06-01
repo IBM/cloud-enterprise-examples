@@ -1,0 +1,55 @@
+{
+  "name": "iac_iks_test",
+  "type": [
+    "terraform_v0.12"
+  ],
+  "description": "Sample workspace to test IBM Cloud Schematics. Deploys an web server on a VSI with a Hello World response",
+  "tags": [
+    "app:iac_iks_test",
+    "owner:OWNER",
+    "env:dev"
+  ],
+  "template_repo": {
+    "url": "https://github.com/IBM/cloud-enterprise-examples/tree/master/iac/09-containers"
+  },
+  "template_data": [{
+    "folder": ".",
+    "type": "terraform_v0.12",
+    "variablestore": [{
+        "name": "project_name",
+        "value": "iac-iks-test-OWNER",
+        "type": "string"
+      },
+      {
+        "name": "environment",
+        "value": "dev",
+        "type": "string"
+      },
+      {
+        "name": "region",
+        "value": "us-south",
+        "type": "string"
+      },
+      {
+        "name": "vpc_zone_names",
+        "value": ["us-south-1", "us-south-2", "us-south-3"],
+        "type": "list(string)"
+      },
+      {
+        "name": "flavors",
+        "value": ["cx2.2x4", "cx2.4x8", "cx2.8x16"],
+        "type": "list(string)"
+      },
+      {
+        "name": "workers_count",
+        "value": [3, 2, 1],
+        "type": "list(number)"
+      },
+      {
+        "name": "k8s_version",
+        "value": "1.18",
+        "type": "string"
+      }
+    ]
+  }]
+}
