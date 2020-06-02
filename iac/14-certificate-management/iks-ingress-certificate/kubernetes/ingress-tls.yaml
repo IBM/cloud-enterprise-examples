@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: movies-ingress
+spec:
+  tls:
+  - hosts:
+      - movies.example.com
+    secretName: tls-example-com
+  rules:
+  - host: movies.example.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: movies
+          servicePort: 80
