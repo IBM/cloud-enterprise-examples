@@ -33,6 +33,8 @@ resource "ibm_is_instance" "iac_app_instance" {
             echo '${data.local_file.requirements.content_base64}' | base64 --decode > /app/requirements.txt
             echo '${data.local_file.db.content_base64}' | base64 --decode > /app/db.json
 
+            echo '${ibm_database.iac_app_db_instance.connectionstrings.0.composed}' > /app/db_certificate.cert
+            export APP_MONGODB_CERT=/app/db_certificate.cert
             export APP_MONGODB_URI=${ibm_database.iac_app_db_instance.connectionstrings.0.composed}
             export APP_PORT=${var.port}
 
