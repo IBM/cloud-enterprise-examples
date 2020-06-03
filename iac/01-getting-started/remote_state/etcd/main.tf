@@ -19,7 +19,7 @@ data "ibm_resource_group" "group" {
 resource "ibm_database" "etcd_terraform_remote_state" {
   name                         = "${var.prefix}-remote-state"
   plan                         = "standard"
-  location                     = "us-south"
+  location                     = var.region
   service                      = "databases-for-etcd"
   resource_group_id            = data.ibm_resource_group.group.id
   adminpassword                = var.etcd_admin_password
