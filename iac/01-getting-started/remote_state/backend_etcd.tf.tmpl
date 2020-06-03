@@ -1,0 +1,12 @@
+terraform {
+  backend "etcdv3" {
+    endpoints   = ["{ ETCDCTL_ENDPOINTS }"]
+    password    = "{ ETCD_PASSWD }"
+    username    = "root"
+    prefix      = "terraform-state/"
+    lock        = true
+    cacert_path = "ca.crt"
+    cert_path   = "certificate.pem"
+    key_path    = "key.pem"
+  }
+}

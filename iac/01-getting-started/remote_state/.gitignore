@@ -1,0 +1,8 @@
+.terraform
+ca.crt
+*.pem
+*.crt
+*.key
+*.csr
+backend_etcd.tf
+terraform.tfstate*
