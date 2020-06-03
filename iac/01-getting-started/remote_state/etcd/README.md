@@ -27,7 +27,7 @@ Below are the step by step instructions with more information.
    etcd_admin_password = "$uPerSeCre7Pa55w0r"
    ```
 
-   Replace `OWNER` by your user id or something that identify you, do not use `_` neither uppercase characters. Also make sure to set a good password for the variable `etcd_admin_password`. You can use the following one-liner to generate a random string on MacOS X and Linux with 32 alpha-numeric characters and symbols.
+   Replace `OWNER` by your user id or something that identify you, do not use `_` neither uppercase characters. Also make sure to set a good password for the variable `etcd_admin_password`. You can use the following one-liner to generate a random string on MacOS X and Linux with 32 alpha-numeric characters.
 
    ```bash
    LC_CTYPE=C tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 32
