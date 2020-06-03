@@ -11,7 +11,7 @@ export TF_VAR_etcd_admin_password=$(LC_CTYPE=C tr -dc 'a-zA-Z0-9' < /dev/urandom
 terraform init && terraform plan
 terraform apply
 
-terraform output etcd_certbase64 | base64 -d > ../ca.crt
+terraform output etcd_certbase64 | base64 --decode > ../ca.crt
 
 export ETCDCTL_ENDPOINTS=$(terraform output etcd_endpoint)
 export ETCD_USER=$(terraform output etcd_password)
@@ -46,8 +46,10 @@ Below are the step by step instructions with more information.
 3. Save the certificate to a file. Execute:
 
    ```bash
-   terraform output etcd_certbase64 | base64 -d > ../ca.crt
+   terraform output etcd_certbase64 | base64 --decode > ../ca.crt
    ```
+
+   On MacOS X you may have to replace `decode --decode` by `base64 -D`
 
 4. Export the entrypoint and certificate path in an environment variable to be used by the backend configuration.
 

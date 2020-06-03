@@ -10,7 +10,7 @@ export TF_VAR_prefix="terraform-state-$USER"
 export TF_VAR_etcd_admin_password=$(LC_CTYPE=C tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 32)
 terraform init && terraform plan
 terraform apply
-terraform output etcd_certbase64 | base64 -d > ../ca.crt
+terraform output etcd_certbase64 | base64 --decode > ../ca.crt
 export ETCDCTL_ENDPOINTS=$(terraform output etcd_endpoint)
 export ETCD_PASSWD=$(terraform output etcd_password)
 
@@ -42,7 +42,7 @@ Follow these instructions step by step to know how this example works:
    terraform init && terraform plan
    terraform apply
 
-   terraform output etcd_certbase64 | base64 -d > ../ca.crt
+   terraform output etcd_certbase64 | base64 --decode > ../ca.crt
 
    export ETCDCTL_ENDPOINTS=$(terraform output etcd_endpoint)
    export ETCD_USER=$(terraform output etcd_password)
@@ -50,6 +50,8 @@ Follow these instructions step by step to know how this example works:
 
    cd ..
    ```
+
+   On MacOS X you may have to replace `decode --decode` by `base64 -D`
 
 2. Move back to this directory. Due to the terraform issue [#19185](https://github.com/hashicorp/terraform/issues/19185) generate the private and public key like so:
 
