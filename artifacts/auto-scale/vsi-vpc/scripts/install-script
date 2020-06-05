@@ -3,6 +3,7 @@ apt-get --assume-yes update
 apt-get --assume-yes install default-jdk
 apt-get --assume-yes install maven
 wget https://github.com/IBM/cloud-enterprise-examples/raw/master/artifacts/auto-scale/vsi-vpc/autoscale-webapp.war
+wget https://raw.githubusercontent.com/IBM/cloud-enterprise-examples/master/artifacts/auto-scale/vsi-vpc/server.xml
 wget https://raw.githubusercontent.com/IBM/cloud-enterprise-examples/master/artifacts/auto-scale/vsi-vpc/scripts/pom.xml
 mvn install
 cp /root/.m2/repository/com/ibm/websphere/appserver/runtime/wlp-webProfile8/20.0.0.4/wlp-webProfile8-20.0.0.4.zip /root/wlp.zip
@@ -10,7 +11,11 @@ apt-get --assume-yes install unzip
 unzip wlp.zip
 cd wlp/bin
 ./server start
+./server stop
 cp /root/autoscale-webapp.war /root/wlp/usr/servers/defaultServer/dropins
+cp /root/server.xml /root/wlp/usr/servers/defaultServer
+./server start
+
 # wget $LICENSE_JAR_URL -O /tmp/license.jar \
 #     && java -jar /tmp/license.jar -acceptLicense /opt/ibm \
 #     && rm /tmp/license.jar; 
