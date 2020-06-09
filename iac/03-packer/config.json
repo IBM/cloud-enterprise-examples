@@ -1,0 +1,43 @@
+{
+  "variables": {
+    "ic_api_key": "{{env `IC_API_KEY`}}",
+    "public_key_file": "{{env `PUBLIC_KEY_FILE`}}",
+    "security_group_id": "",
+    "vpc_id": "",
+    "subnet_id": ""
+  },
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": ["yum install -y dnsmasq"]
+    }
+  ],
+  "builders": [
+    {
+      "type": "ibmcloud",
+      "ic_api_key": "{{user `ic_api_key`}}",
+      "region": "us-south",
+      "source_image_id": "r006-34ceeafe-fcc6-11e9-893a-57dde2f48a21",
+      "profile": "cx2-2x4",
+      "image_name": "ibm-ubuntu-16-04-5-minimal-amd64-packer-demo",
+      "image_description": "Ubuntu image created by packer for a packer demo at {{isotime}}",
+      "image_arch": "amd64",
+      "image_os": "ubuntu-16-04-amd64(16.04 LTS Xenial Xerus Custom Install for Packer Demo)",
+      "instance_cpu": 2,
+      "instance_memory": 4096,
+      "instance_network_speed": 10,
+      "instance_disk_capacity": 25,
+      "security_group_id": "{{ user `security_group_id` }}",
+      "vpc_id": "{{ user `vpc_id` }}",
+      "subnet_id": "{{ user `subnet_id` }}",
+      "ssh_port": 22,
+      "ssh_timeout": "15m",
+      "instance_state_timeout": "25m",
+      "communicator": "ssh",
+      "tags": {
+        "created_date": "{{isotime}}",
+        "packer": "true"
+      }
+    }
+  ]
+}
