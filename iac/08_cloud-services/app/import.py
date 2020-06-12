@@ -8,7 +8,8 @@ if not mongodb_uri:
 
 client = MongoClient(mongodb_uri,
                      ssl=True,
-                     ssl_ca_certs="/path/to/cert/ca-certificate.crt")
+                     ssl_ca_certs="/app/db_certificate.cert")
+
 dbnames = client.list_database_names()
 
 if not 'moviedb' in dbnames:
