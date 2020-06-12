@@ -15,7 +15,8 @@ variable "region" {
 }
 variable "vpc_zone_names" {
   type    = list(string)
-  default = ["us-south-1", "us-south-2", "us-south-3"]
+  default = ["us-south-1"]
+  // ["us-south-1", "us-south-2", "us-south-3"]
 }
 
 locals {
@@ -26,10 +27,10 @@ variable "db_plan" {
   default = "standard"
 }
 variable "db_name" {
-  default = "ex2_test_db_lab"
+  default = "moviedb"
 }
 variable "db_admin_password" {
-  default = "password123"
+  default = "inSecureP@55w0rd"
 }
 variable "db_memory_allocation" {
   default = "3072"
