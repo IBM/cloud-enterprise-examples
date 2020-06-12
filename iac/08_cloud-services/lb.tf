@@ -19,7 +19,7 @@ resource "ibm_is_lb_pool" "iac_app_lb_pool" {
   health_retries      = 2
   health_timeout      = 2
   health_type         = "http"
-  health_monitor_url  = "/"
+  health_monitor_url  = "/api/healthcheck"
   health_monitor_port = var.port
 }
 
