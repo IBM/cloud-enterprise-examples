@@ -1,14 +1,5 @@
 # Infrastructure as Code: Managing Cloud Services Resources
 
-<!--
-
-Check list for every README:
-- Verify the requirement are the same, make sure the required plugins are there
-- Modify the Project Requirements section. It should be different for every project
-- Modify the Project Validation section. It should be different for every project
-
--->
-
 - [Infrastructure as Code: Managing Cloud Services Resources](#infrastructure-as-code-managing-cloud-services-resources)
   - [General Requirements](#general-requirements)
   - [Project Requirements](#project-requirements)
@@ -29,7 +20,7 @@ Same for every pattern, the requirements are documented in the [Environment Setu
 - [Install Terraform](https://ibm.github.io/cloud-enterprise-examples/iac/setup-environment#install-terraform)
 - [Install IBM Cloud Terraform Provider](https://ibm.github.io/cloud-enterprise-examples/iac/setup-environment#configure-access-to-ibm-cloud)
 - [Configure access to IBM Cloud](https://ibm.github.io/cloud-enterprise-examples/iac/setup-environment#configure-access-to-ibm-cloud) for Terraform and the IBM Cloud CLI
-- (Optional) Install some utility tools such as: [jq](https://stedolan.github.io/jq/download/)
+- (Optional) Install some utility tools such as: [jq](https://stedolan.github.io/jq/download/) and install [MongoDB Compass](https://www.mongodb.com/try/download/compass)
 
 Executing these commands you are validating part of these requirements:
 
@@ -72,14 +63,19 @@ This project requires the following actions:
 1. Create the file `terraform.tfvars` file with values for the variables, this is an example with the required and optional variables:
 
    ```hcl
-   project_name = "iac-db-test-OWNER"
+   project_name = "iac-db-test-ja"
    environment  = "dev"
 
-   # Optional variables
    port           = 8080
    resource_group = "Default"
    region         = "us-south"
    vpc_zone_names = ["us-south-1", "us-south-2", "us-south-3"]
+
+   db_plan              = "standard"
+   db_name              = "moviedb"
+   db_admin_password    = "password123"
+   db_memory_allocation = "3072"
+   db_disk_allocation   = "61440"
    ```
 
    For better results and avoid name collisions, replace `OWNER` for your username or user Id. It will fail if the word `OWNER` (uppercase) is used. Don't assign a project name with more than 24 characters.
@@ -91,14 +87,22 @@ This project requires the following actions:
    echo "public_key = \"$(cat ~/.ssh/id_rsa.pub)\"" > secrets.auto.tfvars
    ```
 
-4. Create the `workspace.json` file using the template `workspace.tmpl.json` to assign a value to the `PUBLIC_KEY` variable executing these commands:
+4. Send to the same `secrets.auto.tfvars` file the `db_admin_password` password. You can choose your own password or generate it with the `/dev/urandom` command, like this:
+
+   ```bash
+   export PASSWORD=$(LC_CTYPE=C tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 32)
+   echo "db_admin_password = \"$PASSWORD\"" >> secrets.auto.tfvars
+   ```
+
+5. Create the `workspace.json` file using the template `workspace.tmpl.json` to assign a value to the `PUBLIC_KEY` variable executing these commands:
 
    ```bash
    PUBLIC_KEY="$(cat ~/.ssh/id_rsa.pub)"
-   sed "s|{ PUBLIC_KEY }|$PUBLIC_KEY|" workspace.tmpl.json > workspace.json
+   sed   -e "s|{ PUBLIC_KEY }|$PUBLIC_KEY|" \
+         -e  "s|{ PASSWORD }|$PASSWORD|" workspace.tmpl.json > workspace.json
    ```
 
-5. Change the values of the variables `project_name` and `environment`, currently `iac-db-test-OWNER` and `dev` respectively. It's recommended to replace `OWNER` by your username or user Id to avoid name collisions. It will fail if the word `OWNER` (uppercase) is used. Don't assign a project name with more than 24 characters.
+6. Change the values of the variables `project_name` and `environment`, currently `iac-db-test-OWNER` and `dev` respectively. It's recommended to replace `OWNER` by your username or user Id to avoid name collisions. It will fail if the word `OWNER` (uppercase) is used. Don't assign a project name with more than 24 characters.
 
 ## How to use with Terraform
 
@@ -155,12 +159,31 @@ ibmcloud schematics workspace list
 
 ## Project Validation
 
+After applying the infrastructure changes either with Terrform or IBM Cloud Schematics, wait a few minutes to have the dependencies installed, the database initialized and the API application up and running.
+
 If the project was executed with **Terraform**, verify the results executing these commands:
 
 ```bash
 terraform output
 
-curl "$(terraform output entrypoint)/movies/675"
+curl $(terraform output entrypoint)/api/healthcheck
+# Or, query the first VIS
+curl "http://$(terraform output -json ip_address | jq -r '.[0]'):8080/api/healthcheck"
+
+curl $(terraform output entrypoint)/api/movies
+# Or query just one VSI, you can use `jq` for human readable JSON output
+curl -s "http://$(terraform output -json ip_address | jq -r '.[0]'):8080/api/movies" | jq
+```
+
+Get the ID for one of the movies and get it with the following command:
+
+```bash
+i=0
+id=$(curl -s "http://$(terraform output -json ip_address | jq -r ".[$i]"):8080/api/movies" | jq -r '.[0]._id | .["$oid"]')
+
+curl "$(terraform output entrypoint)/api/movies/$id"
+# Or query just one VSI, you can use `jq` for human readable JSON output
+curl -s "http://$(terraform output -json ip_address | jq -r '.[0]'):8080/api/movies/$id" | jq
 ```
 
 If the project was executed with **IBM Cloud Schematics**, verify the results executing these commands:
@@ -169,7 +192,9 @@ If the project was executed with **IBM Cloud Schematics**, verify the results ex
 ibmcloud schematics workspace list          # Identify the WORKSPACE_ID
 ibmcloud schematics workspace output --id $WORKSPACE_ID --json
 
-curl "$(ibmcloud schematics workspace output --id $WORKSPACE_ID --json | jq -r '.[].output_values[].entrypoint.value')/movies/675"
+curl "$(ibmcloud schematics workspace output --id $WORKSPACE_ID --json | jq -r '.[].output_values[].entrypoint.value')/movies"
 ```
 
-In both cases, you should see the the same output variables, the JSON values of the movie "Kagemusha" identified by the ID `675` after executing the `curl` command.
+In both cases, you should see the the same output variables, a JSON array with all the movies and the JSON values of the first movie in the array, "Akira Kurosawa's Dreams", after executing the `curl` command.
+
+Optionally, you can access the database using MongoDB Compass.
