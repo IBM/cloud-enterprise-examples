@@ -4,6 +4,11 @@ from flask_mongoengine import MongoEngine
 from datetime import datetime
 import json
 import os
+import logging
+import ssl
+
+logging.basicConfig(filename='app.log',
+                    level=logging.DEBUG)
 
 mongodb_uri = os.environ.get('APP_MONGODB_URI')
 if not mongodb_uri:
@@ -13,10 +18,14 @@ if not port:
     port = '8080'
 
 app = Flask(__name__)
-app.config['MONGODB_SETTINGS'] = {'host': mongodb_uri}
+app.config['MONGODB_SETTINGS'] = {
+    'MONGODB_HOST': mongodb_uri,
+    'MONGODB_DB': 'moviedb',
+    'MONGODB_SSL': True,
+    'MONGODB_SSL_CERT_REQS': ssl.CERT_REQUIRED,
+    'MONGODB_SSL_CA_CERTS': '/app/db_certificate.cert'
+}
 api = Api(app)
-
-print(app.config)
 
 db = MongoEngine()
 db.init_app(app)
@@ -78,5 +87,11 @@ class MovieApi(Resource):
 
 api.add_resource(MoviesApi, '/api/movies')
 api.add_resource(MovieApi, '/api/movies/<id>')
+
+
+@app.route('/api/healthcheck')
+def health_check():
+    return {'HealthCheckResponse': True}
+
 
 app.run(host='0.0.0.0', port=port)
