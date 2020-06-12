@@ -17,7 +17,7 @@ Check list for every README:
   - [How to use with Schematics](#how-to-use-with-schematics)
   - [Project Validation](#project-validation)
 
-This example is covered in the [Network & Storage Resources](https://ibm.github.io/cloud-enterprise-examples/iac-resources/compute) page of the Infrastructure as Code pattern. Refer to that page to know how to use it and execute it.
+This example is covered in the [Container Resources](https://ibm.github.io/cloud-enterprise-examples/iac-resources/container) page of the Infrastructure as Code pattern. Refer to that page to know how to use it and execute it.
 
 ## General Requirements
 
