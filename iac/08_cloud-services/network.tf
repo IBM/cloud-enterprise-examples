@@ -22,7 +22,6 @@ resource "ibm_is_security_group_rule" "iac_app_security_group_rule_tcp_http" {
   count     = local.max_size
   group     = ibm_is_security_group.iac_app_security_group.id
   direction = "inbound"
-  remote    = ibm_is_subnet.iac_app_subnet[count.index].ipv4_cidr_block
 
   tcp {
     port_min = var.port
@@ -34,7 +33,6 @@ resource "ibm_is_security_group_rule" "iac_app_security_group_rule_tcp_ssh" {
   count     = local.max_size
   group     = ibm_is_security_group.iac_app_security_group.id
   direction = "inbound"
-  remote    = ibm_is_subnet.iac_app_subnet[0].ipv4_cidr_block
 
   tcp {
     port_min = 22
