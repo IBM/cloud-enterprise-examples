@@ -40,7 +40,7 @@ resource "ibm_is_instance" "iac_app_instance" {
             export APP_PORT=${var.port}
 
             # Due to possible bug or incorrect use of the 'databases-for-mongodb' service:
-            export APP_MONGODB_URI=$(echo $APP_MONGODB_URI | sed 's|/ibmclouddb?|/${var.db_name}?|')
+            # export APP_MONGODB_URI=$(echo $APP_MONGODB_URI | sed 's|/ibmclouddb?|/${var.db_name}?|')
             echo $APP_MONGODB_URI
 
             # https://askubuntu.com/questions/1154892/prevent-question-restart-services-during-package-upgrades-without-asking
@@ -57,19 +57,6 @@ resource "ibm_is_instance" "iac_app_instance" {
 
             # Start up the application
             python3 app.py &
-
-            # With Python3:
-            # apt update
-            # apt install -y python3-pip
-            # pip3 install json-server.py
-            # json-server -b :${var.port} /app/db.json &
-
-            # With NodeJS:
-            # apt update
-            # curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-            # apt-get install -y nodejs
-            # npm install -g json-server
-            # json-server --watch /app/db.json --port ${var.port} --host 0.0.0.0 &
             EOUD
 
 
