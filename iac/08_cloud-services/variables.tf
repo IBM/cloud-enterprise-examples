@@ -15,8 +15,7 @@ variable "region" {
 }
 variable "vpc_zone_names" {
   type    = list(string)
-  default = ["us-south-1"]
-  // ["us-south-1", "us-south-2", "us-south-3"]
+  default = ["us-south-1", "us-south-2", "us-south-3"]
 }
 
 locals {
