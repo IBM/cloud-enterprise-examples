@@ -1,2 +1,4 @@
 workspace.json
 terraform.tfvars
+*.crt
+*.pem
