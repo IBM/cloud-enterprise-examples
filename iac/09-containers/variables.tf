@@ -20,7 +20,7 @@ variable "workers_count" {
   default = [3, 2, 1]
 }
 variable "k8s_version" {
-  default = "1.18.2"
+  default = "1.18.3"
 }
 
 locals {

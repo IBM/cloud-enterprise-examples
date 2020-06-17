@@ -1,9 +1,9 @@
 FROM node:13
 
+COPY ./data /data
 RUN npm install -g json-server
 
 WORKDIR /app
-VOLUME /data
 
 EXPOSE 8080
 
