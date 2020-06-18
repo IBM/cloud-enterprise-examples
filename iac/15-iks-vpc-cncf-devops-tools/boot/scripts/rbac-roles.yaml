@@ -1,0 +1,51 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: rbac-nscreate-clusterrole
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["list", "create", "delete"]
+  - apiGroups: ["project.openshift.io"]
+    resources: ["project"]
+    verbs: ["list", "create", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: rbac-tools-secrets
+  namespace: tools
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+rules:
+  - apiGroups: [""]
+    resources: ["secret", "configmap"]
+    verbs: ["list", "get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: rbac-nscreate-crb
+subjects:
+  - kind: Group
+    name: IAM#RG-TEAM
+roleRef:
+  kind: ClusterRole
+  name: rbac-nscreate-clusterrole
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: rbac-tools-secrets
+  namespace: tools
+subjects:
+  - kind: Group
+    name: IAM#RG-TEAM
+roleRef:
+  kind: Role
+  name: rbac-tools-secrets
+  apiGroup: rbac.authorization.k8s.io

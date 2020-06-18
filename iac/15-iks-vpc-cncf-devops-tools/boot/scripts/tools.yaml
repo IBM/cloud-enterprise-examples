@@ -1,0 +1,119 @@
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: toolkit-dashboard
+spec:
+  applicationMenu:
+    imageURL: https://cloud.ibm.com/favicon.ico
+    section: Cloud Native Toolkit
+  href: https://dashboard-tools.#CLUSTER_INGRESS_URL
+  location: ApplicationMenu
+  text: Developer Dashboard
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: toolkit-sonarqube
+spec:
+  applicationMenu:
+    imageURL: https://dashboard-tools.#CLUSTER_INGRESS_URL/tools/icon/sonarqube
+    section: Cloud Native Toolkit
+  href: https://sonarqube-tools.#CLUSTER_INGRESS_URL
+  location: ApplicationMenu
+  text: SonarQube
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: toolkit-argo
+spec:
+  applicationMenu:
+    imageURL: https://dashboard-tools.#CLUSTER_INGRESS_URL/tools/icon/argocd
+    section: Cloud Native Toolkit
+  href: https://argocd-tools.#CLUSTER_INGRESS_URL/ui/login/
+  location: ApplicationMenu
+  text: ArgoCD
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: toolkit-artifactory
+spec:
+  applicationMenu:
+    imageURL: https://dashboard-tools.#CLUSTER_INGRESS_URL/tools/icon/artifactory
+    section: Cloud Native Toolkit
+  href: https://artifactory-tools.#CLUSTER_INGRESS_URL/ui/login/
+  location: ApplicationMenu
+  text: Artificatory
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: toolkit-swagger
+spec:
+  applicationMenu:
+    imageURL: https://dashboard-tools.#CLUSTER_INGRESS_URL/tools/icon/apieditor
+    section: Cloud Native Toolkit
+  href: https://apieditor-tools.#CLUSTER_INGRESS_URL/
+  location: ApplicationMenu
+  text: Swagger Editor
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: toolkit-pact
+spec:
+  applicationMenu:
+    imageURL: https://dashboard-tools.#CLUSTER_INGRESS_URL/tools/icon/pact
+    section: Cloud Native Toolkit
+  href: https://pact-broker-tools.#CLUSTER_INGRESS_URL/
+  location: ApplicationMenu
+  text: Pact Broker
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: toolkit-logdna
+spec:
+  applicationMenu:
+    imageURL: https://dashboard-tools.#CLUSTER_INGRESS_URL/tools/icon/logdna
+    section: Cloud Native Toolkit
+  href: https://LOGDNA_URL
+  location: ApplicationMenu
+  text: LogDNA
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: toolkit-sysdig
+spec:
+  applicationMenu:
+    imageURL: https://dashboard-tools.#CLUSTER_INGRESS_URL/tools/icon/sysdig
+    section: Cloud Native Toolkit
+  href: https://#SYSDIG_URL
+  location: ApplicationMenu
+  text: Sysdig
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: toolkit-github
+spec:
+  applicationMenu:
+    imageURL: https://dashboard-tools.#CLUSTER_INGRESS_URL/tools/icon/github
+    section: Cloud Native Toolkit
+  href: https://github.com/
+  location: ApplicationMenu
+  text: GitHub
+---
+apiVersion: console.openshift.io/v1
+kind: ConsoleLink
+metadata:
+  name: toolkit-ir
+spec:
+  applicationMenu:
+    imageURL: https://dashboard-tools.#CLUSTER_INGRESS_URL/tools/icon/ir
+    section: Cloud Native Toolkit
+  href: https://cloud.ibm.com/kubernetes/registry/main/images?platformType=openshift
+  location: ApplicationMenu
+  text: Image Registry

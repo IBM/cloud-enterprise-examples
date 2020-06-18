@@ -1,0 +1,25 @@
+#!/bin/bash
+# --------------------------------------------------------------------------------------------------------
+# Name : Configure OpenShift Console Menu
+#
+# Description: This script will create a menu in the OpenShift console and configure a key set of tools
+#
+# --------------------------------------------------------------------------------------------------------
+#
+# input validation
+if [ -z "$1" ]; then
+    echo "Usage: config-console-tools <CLUSTER_INGRESS_URL>"
+    echo "Create the set of Tools into the Create the administration Access Policies for an Access Group associated with a Resource Group"
+    exit
+fi
+
+CLUSTER_INGRESS_URL=$1
+
+# input validation
+if [ -z "${CLUSTER_INGRESS_URL}" ]; then
+    echo "Please provide the CLUSTER_INGRESS_URL value"
+    exit
+fi
+
+cat tools.yaml | sed "s/#CLUSTER_INGRESS_URL/${CLUSTER_INGRESS_URL}/g" | kubectl apply -f -
+echo "Completed configuring OpenShift Menu to access the cloud native toolkit tools!"
