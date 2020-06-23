@@ -3,7 +3,7 @@ kind: Service
 metadata:
   labels:
     app: movies
-  name: movies-lb-svc
+  name: movies
 spec:
   ports:
     - name: "http"

@@ -14,6 +14,13 @@ spec:
       labels:
         app: movies
     spec:
+      volumes:
+        - name: db-volume
+          configMap:
+            name: movies-db
       containers:
         - image: us.icr.io/iac-registry/movies:1.0
           name: movies
+          volumeMounts:
+            - name: db-volume
+              mountPath: /data
