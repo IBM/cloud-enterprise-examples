@@ -15,7 +15,7 @@ Check list for every README:
 - [Optional variables](#optional-variables)
   - [How to use with Terraform](#how-to-use-with-terraform)
   - [How to use with Schematics](#how-to-use-with-schematics)
-  - [Kubernetes deployments](#kubernetes-deployments)
+  - [Kubernetes Deployments](#kubernetes-deployments)
     - [Version 1.0](#version-10)
     - [Version 1.1](#version-11)
     - [Version 2.0](#version-20)
@@ -85,7 +85,7 @@ This project requires the following actions:
 
    ```bash
    docker build -t us.icr.io/iac-registry/movies:1.0 -f docker/1.0/Dockerfile .
-   docker build -t us.icr.io/iac-registry/movies:1.1 -f docker/1.1/Dockerfile .
+   docker build -t us.icr.io/iac-registry/movies:1.1 -f docker/1.1/Dockerfile ./docker/1.1
    docker build -t us.icr.io/iac-registry/movies:2.0 -f docker/2.0/Dockerfile .
    docker images
 
@@ -181,7 +181,7 @@ ibmcloud ks cluster config --cluster $NAME
 kubectl cluster-info
 ```
 
-Then execute the validation commands or actions documented in the **Project Validation** section below. Finally, when you finish using the infrastructure, cleanup everything you created with the execution of:
+Deploy the application version you'd like to use according to section **Kubernetes Deployments** then execute the validation commands or actions documented in the **Project Validation** section below. Finally, when you finish using the infrastructure, cleanup everything you created with the execution of:
 
 ```bash
 ibmcloud ks cluster rm --cluster $NAME
@@ -207,7 +207,7 @@ ibmcloud ks cluster config --cluster $(terraform output cluster_id)
 kubectl cluster-info
 ```
 
-Then execute the validation commands or actions documented in the **Project Validation** section below. Finally, when you finish using the infrastructure, cleanup everything you created with the execution of:
+Deploy the application version you'd like to use according to section **Kubernetes Deployments** then execute the validation commands or actions documented in the **Project Validation** section below. Finally, when you finish using the infrastructure, cleanup everything you created with the execution of:
 
 ```bash
 terraform destroy
@@ -248,7 +248,7 @@ ibmcloud ks cluster config --cluster $(ibmcloud schematics workspace output --id
 kubectl cluster-info
 ```
 
-After the validations in the **Project Validation** section below, cleanup everything you created with the execution of:
+After deploying the application version you'd like to use according to section **Kubernetes Deployments** and the validations in the **Project Validation** section below, cleanup everything you created with the execution of:
 
 ```bash
 ibmcloud schematics destroy --id $WORKSPACE_ID # Identify the Activity_ID
@@ -260,27 +260,75 @@ ibmcloud schematics workspace delete --id $WORKSPACE_ID
 ibmcloud schematics workspace list
 ```
 
-## Kubernetes deployments
+## Kubernetes Deployments
 
 Having the cluster up and running it's time to deploy the API application. There are different versions each one explain us different objectives, so let's deploy one by one and do a validation after each deployment.
 
 ### Version 1.0
 
 ```bash
-kubectl apply -f kubernetes/deployment.yaml
-kubectl apply -f kubernetes/service.yaml
+kubectl create deployment movies --image=us.icr.io/iac-registry/movies:1.0
+kubectl expose deployment movies --port=80 --target-port=8080 --type=LoadBalancer
+```
+
+Or,
+
+```bash
+kubectl apply -f kubernetes/v1.0/deployment.yaml
+kubectl apply -f kubernetes/v1.0/service.yaml
+```
+
+Validate with:
+
+```bash
+kubectl get deployment movies
+kubectl get service movies
 ```
 
 ### Version 1.1
 
+If applied from scratch to a new and empty Kubernetes cluster, execute these commands:
+
 ```bash
-kubectl apply -f kubernetes/service.yaml
+kubectl apply -f kubernetes/v1.1/pvc.yaml
+kubectl apply -f kubernetes/v1.1/cm.yaml
+kubectl apply -f kubernetes/v1.1/deployment.yaml
+kubectl apply -f kubernetes/v1.1/service.yaml
+```
+
+To upgrade from version 1.0 to 1.1, execute these commands:
+
+```bash
+kubectl apply -f kubernetes/v1.1/pvc.yaml
+kubectl apply -f kubernetes/v1.1/cm.yaml
+kubectl apply -f kubernetes/v1.1/deployment.yaml
+
+kubectl rollout status deployment movies
+```
+
+Validate with:
+
+```bash
+kubectl get pv
+kubectl get pvc movies
+kubectl get cm movies-db
+kubectl get service movies
+kubectl get deployment movies
+kubectl get pods
 ```
 
 ### Version 2.0
 
+If applied from scratch to a new and empty Kubernetes cluster, execute these commands:
+
 ```bash
 kubectl apply -f kubernetes/service.yaml
+```
+
+To upgrade from version 1.x to 2.0, execute these commands:
+
+```bash
+
 ```
 
 ## Project Validation
@@ -292,13 +340,26 @@ Optionally, you can validate the container locally using docker or docker compos
   ```bash path=v1.0
   docker run --name movies -d --rm -p 80:8080 us.icr.io/iac-registry/movies:1.0
   curl http://localhost/movies/675
+
+  docker stop $(docker ps -q --filter name=movies)
   ```
 
 - **Version `1.1`**:
 
   ```bash path=v1.1
-  docker run --name movies -d --rm -p 80:8080 -v $PWD/data:/data us.icr.io/iac-registry/movies:1.1
+
+  mkdir pv
+  docker run -d --rm \
+    --name movies \
+    -p 80:8080 \
+    -v $PWD/data:/data/init \
+    -v $PWD/pv:/data \
+    us.icr.io/iac-registry/movies:1.1
+
   curl http://localhost/movies/675
+
+  docker stop $(docker ps -q --filter name=movies)
+  rm -rf pv
   ```
 
 - **Version `2.0`**:
@@ -306,21 +367,11 @@ Optionally, you can validate the container locally using docker or docker compos
   ```bash path=v2.0
   docker run --name movies -d --rm -p 80:8080 -v $PWD/data:/data us.icr.io/iac-registry/movies:2.0
   curl http://localhost/movies/675
+
+  docker stop $(docker ps -q --filter name=movies)
   ```
 
-Stop the running container, regardless of the version, with the following command:
-
-```bash
-docker stop $(docker ps -q --filter name=movies)
-```
-
-To have access to the IKS cluster execute this **IBM Cloud CLI** command (`NAME` is the cluster name):
-
-```bash
-ibmcloud ks cluster config --cluster $NAME
-```
-
-For each scenario we have configured `kubectl` to have access to the cluster, complete the validation with some extra `kubectl` commands:
+For each provisioning method we have configured `kubectl` to have access to the cluster, you may complement the validation with some extra `kubectl` commands:
 
 ```bash
 kubectl cluster-info
