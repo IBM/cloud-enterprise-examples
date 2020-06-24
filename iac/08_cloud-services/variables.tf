@@ -37,10 +37,3 @@ variable "db_memory_allocation" {
 variable "db_disk_allocation" {
   default = "61440"
 }
-
-// variable "db_user_username"{
-//   default = "admin"
-// }
-// variable "db_user_password" {
-//   default = "password123"
-// }
