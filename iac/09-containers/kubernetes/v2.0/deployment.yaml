@@ -18,13 +18,35 @@ spec:
         - name: db-volume
           configMap:
             name: movies-db
+        - name: db-ca-cert
+          secret:
+            secretName: db-ssl-ca-cert
       initContainers:
         - name: init-db
           image: us.icr.io/iac-registry/movies:2.0
-          command: ["python", "import.py"]
+          # command: ["python", "import.py"]
+          command: ["/bin/sh"]
+          args: ["-c", "while true; do sleep 1000;done"]
+          envFrom:
+            - secretRef:
+                name: db-admin-password
+            - configMapRef:
+                name: config
           volumeMounts:
             - name: db-volume
               mountPath: /data/init
+            - name: db-ca-cert
+              mountPath: "/secret"
+              readOnly: true
       containers:
-        - image: us.icr.io/iac-registry/movies:2.0
+        - image: us.icr.io/iac-registry/movies:2.1
           name: movies
+          envFrom:
+            - secretRef:
+                name: db-admin-password
+            - configMapRef:
+                name: config
+          volumeMounts:
+            - name: db-ca-cert
+              mountPath: "/secret"
+              readOnly: true

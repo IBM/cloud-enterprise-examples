@@ -14,7 +14,7 @@ RUN pip-compile requirements.in > requirements.txt && \
   pip-sync && \
   pip install -r requirements.txt
 
-FROM python:3.7-slim AS build-image
+FROM python:3.7-slim AS app
 COPY --from=build /opt/venv /opt/venv
 
 COPY app.py .
