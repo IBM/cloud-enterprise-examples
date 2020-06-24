@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config
+data:
+  APP_MONGODB_URI: mongodb://admin:$PASSWORD@405a5cb8-333b-4443-90c7-0dac5b89a87f-0.br37s45d0p54n73ffbr0.databases.appdomain.cloud:30021,405a5cb8-333b-4443-90c7-0dac5b89a87f-1.br37s45d0p54n73ffbr0.databases.appdomain.cloud:30021/ibmclouddb?authSource=admin&replicaSet=replset
+  APP_PORT: "8080"
+  APP_SSL_CA_CERT: /secret/db_ca.crt

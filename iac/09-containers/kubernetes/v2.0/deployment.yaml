@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: movies
+  name: movies
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movies
+  template:
+    metadata:
+      labels:
+        app: movies
+    spec:
+      volumes:
+        - name: db-volume
+          configMap:
+            name: movies-db
+      initContainers:
+        - name: init-db
+          image: us.icr.io/iac-registry/movies:2.0
+          command: ["python", "import.py"]
+          volumeMounts:
+            - name: db-volume
+              mountPath: /data/init
+      containers:
+        - image: us.icr.io/iac-registry/movies:2.0
+          name: movies
