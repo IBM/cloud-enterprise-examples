@@ -8,22 +8,22 @@ For any organization to move their applications to the cloud, certain capabiliti
 - CI/CD
 - Security
 
-### Automated provisioning of resources (Infrastructure as code)
+### 1. Automated provisioning of resources (Infrastructure as code)
 
 
 
-### Logging
+### 2. Logging
 
 
-### Monitoring
+### 3. Monitoring
 
 
-### CI/CD
+### 4. CI/CD
 
 
-### Autoscaling
+### 5. Autoscaling
 
-#### IBM Kubernetes Service
+#### 5.1 IBM Kubernetes Service
 
 We can build highly available and scalable applications on IBM Cloud Kubernetes service. In this section, we provide you links to resources that help you set up a IKS cluster on a Virtual Private Cloud, and see the autoscaling in action.
 
@@ -37,6 +37,6 @@ We can build highly available and scalable applications on IBM Cloud Kubernetes 
 
 [Cluster Autoscaler in action](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/ca)
 
-### Security
+### 6. Security
 
-#### Certificate Manager
+#### 6.1 Certificate Manager
