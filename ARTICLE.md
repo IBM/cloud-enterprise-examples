@@ -9,37 +9,13 @@ For any organization to move their applications to the cloud, certain capabiliti
 - Security
 
 ### 1. Automated provisioning of resources (Infrastructure as code)
-
-
-
-
-
-
-
+<br/><br/><br/><br/><br/><br/><br/>
 ### 2. Logging
-
-
-
-
-
-
-
+<br/><br/><br/><br/><br/><br/><br/>
 ### 3. Monitoring
-
-
-
-
-
-
-
+<br/><br/><br/><br/><br/><br/><br/>
 ### 4. CI/CD
-
-
-
-
-
-
-
+<br/><br/><br/><br/><br/><br/><br/>
 ### 5. Autoscaling
 
 #### 5.1 IBM Kubernetes Service
