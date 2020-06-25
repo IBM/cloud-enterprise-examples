@@ -12,13 +12,32 @@ For any organization to move their applications to the cloud, certain capabiliti
 
 
 
+
+
+
+
 ### 2. Logging
+
+
+
+
+
 
 
 ### 3. Monitoring
 
 
+
+
+
+
+
 ### 4. CI/CD
+
+
+
+
+
 
 
 ### 5. Autoscaling
