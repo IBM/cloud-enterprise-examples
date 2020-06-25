@@ -27,7 +27,7 @@ For any organization to move their applications to the cloud, certain capabiliti
 
 We can build highly available and scalable applications on IBM Cloud Kubernetes service. In this section, we provide you links to resources that help you set up a IKS cluster on a Virtual Private Cloud, and see the autoscaling in action.
 
-[Overview of autoscaling in links](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/content-overview)
+[Overview of autoscaling](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/content-overview)
 
 [Set up IKS and configure the environment](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/setup-environment)
 
