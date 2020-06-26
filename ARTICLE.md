@@ -1,6 +1,8 @@
-### Introduction
-In this article, we will provide you resources or cloud patterns that gets you started with the different capabilities on IBM Cloud. 
+# Introduction
+
+In this article, we will provide you resources or cloud patterns that gets you started with the different capabilities on IBM Cloud.
 For any organization to move their applications to the cloud, certain capabilities that are required are:
+
 - Automated provisioning of resources (Infrastructure as code)
 - Logging
 - Monitoring
@@ -8,17 +10,17 @@ For any organization to move their applications to the cloud, certain capabiliti
 - CI/CD
 - Security
 
-### 1. Automated provisioning of resources (Infrastructure as code)
-<br/><br/><br/><br/><br/><br/><br/>
-### 2. Logging
-<br/><br/><br/><br/><br/><br/><br/>
-### 3. Monitoring
-<br/><br/><br/><br/><br/><br/><br/>
-### 4. CI/CD
-<br/><br/><br/><br/><br/><br/><br/>
-### 5. Autoscaling
+## 1. Automated provisioning of resources (Infrastructure as code)
 
-#### 5.1 IBM Kubernetes Service
+## 2. Logging
+
+## 3. Monitoring
+
+## 4. CI/CD
+
+## 5. Autoscaling
+
+### 5.1 IBM Kubernetes Service
 
 We can build highly available and scalable applications on IBM Cloud Kubernetes service. In this section, we provide you links to resources that help you set up a IKS cluster on a Virtual Private Cloud, and see the autoscaling in action.
 
@@ -32,6 +34,6 @@ We can build highly available and scalable applications on IBM Cloud Kubernetes 
 
 [Cluster Autoscaler in action](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/ca)
 
-### 6. Security
+## 6. Security
 
-#### 6.1 Certificate Manager
+### 6.1 Certificate Manager
