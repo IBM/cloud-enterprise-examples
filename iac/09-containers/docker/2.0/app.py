@@ -20,8 +20,7 @@ if not ssl_ca_cert_path:
     port = '/app/db_certificate.cert'
 db_admin_password = os.environ.get('PASSWORD')
 if not db_admin_password:
-    logging.error(
-        "Password not set, the environment variable PASSWORD is required")
+    logging.error("the environment variable PASSWORD is required")
 
 logging.debug('MongoDB URI: %s' % mongodb_uri)
 logging.debug('Port: %s' % port)

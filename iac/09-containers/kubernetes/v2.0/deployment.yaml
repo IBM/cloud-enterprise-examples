@@ -24,9 +24,8 @@ spec:
       initContainers:
         - name: init-db
           image: us.icr.io/iac-registry/movies:2.0
-          # command: ["python", "import.py"]
-          command: ["/bin/sh"]
-          args: ["-c", "while true; do sleep 1000;done"]
+          command: ["python", "import.py"]
+          # command: ["/bin/sh", "-c", "while true; do sleep 1000;done"]
           envFrom:
             - secretRef:
                 name: db-admin-password
@@ -39,7 +38,7 @@ spec:
               mountPath: "/secret"
               readOnly: true
       containers:
-        - image: us.icr.io/iac-registry/movies:2.1
+        - image: us.icr.io/iac-registry/movies:2.0
           name: movies
           envFrom:
             - secretRef:
