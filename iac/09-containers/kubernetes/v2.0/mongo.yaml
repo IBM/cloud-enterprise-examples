@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mongo
+  name: mongo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      volumes:
+        - name: db-volume
+          configMap:
+            name: movies-db
+        - name: db-ca-cert
+          secret:
+            secretName: db-ssl-ca-cert
+      containers:
+        - image: us.icr.io/iac-registry/mongo:bionic
+          name: mongo
+          envFrom:
+            - secretRef:
+                name: db-admin-password
+            - configMapRef:
+                name: config
+          volumeMounts:
+            - name: db-volume
+              mountPath: /data/init
+            - name: db-ca-cert
+              mountPath: "/secret"
+              readOnly: true
