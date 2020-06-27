@@ -12,14 +12,14 @@ Check list for every README:
 - [Infrastructure as Code: Managing Container Registry (ICR) & Kubernetes Services (IKS) Resources](#infrastructure-as-code-managing-container-registry-icr--kubernetes-services-iks-resources)
   - [General Requirements](#general-requirements)
   - [Project Requirements](#project-requirements)
-- [Optional variables](#optional-variables)
   - [How to use with Terraform](#how-to-use-with-terraform)
   - [How to use with Schematics](#how-to-use-with-schematics)
-  - [Kubernetes Deployments](#kubernetes-deployments)
+  - [Project Validation locally with Docker](#project-validation-locally-with-docker)
     - [Version 1.0](#version-10)
-    - [Version 1.1](#version-11)
     - [Version 2.0](#version-20)
-  - [Project Validation](#project-validation)
+    - [Version 1.1](#version-11)
+    - [Version 2.0](#version-20-1)
+  - [Project Validation on Kubernetes](#project-validation-on-kubernetes)
 
 This example is covered in the [Container Resources](https://ibm.github.io/cloud-enterprise-examples/iac-resources/container) page of the Infrastructure as Code pattern. Refer to that page to know how to use it and execute it.
 
@@ -86,7 +86,7 @@ This project requires the following actions:
    ```bash
    docker build -t us.icr.io/iac-registry/movies:1.0 -f docker/1.0/Dockerfile .
    docker build -t us.icr.io/iac-registry/movies:1.1 -f docker/1.1/Dockerfile ./docker/1.1
-   docker build -t us.icr.io/iac-registry/movies:2.0 -f docker/2.0/Dockerfile .
+   docker build -t us.icr.io/iac-registry/movies:2.0 -f docker/2.0/Dockerfile ./docker/2.0
    docker images
 
    ibmcloud cr login
@@ -103,7 +103,6 @@ This project requires the following actions:
    project_name = "iac-iks-test-OWNER"
    environment  = "dev"
 
-   # Optional variables
    resource_group = "Default"
    region         = "us-south"
    vpc_zone_names = ["us-south-1", "us-south-2", "us-south-3"]
@@ -120,7 +119,6 @@ This project requires the following actions:
    project_name = "iac-iks-small-OWNER"
    environment  = "dev"
 
-   # Optional variables
    resource_group = "Default"
    region         = "us-south"
    vpc_zone_names = ["us-south-1"]
@@ -260,6 +258,88 @@ ibmcloud schematics workspace delete --id $WORKSPACE_ID
 ibmcloud schematics workspace list
 ```
 
+## Project Validation locally with Docker
+
+Optionally, you can validate the container locally using docker or docker compose. The validation of each version is different, execute the code according to the version to validate.
+
+### Version 1.0
+
+```bash path=v1.0
+docker run --name movies -d --rm -p 80:8080 us.icr.io/iac-registry/movies:1.0
+
+curl http://localhost/movies
+curl http://localhost/movies/675
+
+docker stop $(docker ps -q --filter name=movies)
+```
+
+### Version 1.1
+
+```bash path=v1.1
+
+mkdir pv
+docker run -d --rm \
+  --name movies \
+  -p 80:8080 \
+  -v $PWD/data/v1:/data/init \
+  -v $PWD/pv:/data \
+  us.icr.io/iac-registry/movies:1.1
+
+curl http://localhost/movies
+curl http://localhost/movies/675
+
+docker stop $(docker ps -q --filter name=movies)
+rm -rf pv
+```
+
+### Version 2.0
+
+```bash path=v2.0
+mkdir ./secret
+terraform output db_connection_certbase64 | base64 --decode > ./secret/db_ca.crt
+
+export PASSWORD=$(terraform output db_password)
+export APP_MONGODB_URI=$(terraform output db_connection_string)
+export APP_PORT=8080
+export APP_SSL_CA_CERT="/secret/db_ca.crt"
+
+docker run --rm \
+  --name init-movies \
+  -v $PWD/data/v2:/data/init \
+  -v $PWD/secret:/secret \
+  -e APP_SSL_CA_CERT=$APP_SSL_CA_CERT \
+  -e PASSWORD=$PASSWORD \
+  -e APP_MONGODB_URI=$APP_MONGODB_URI \
+  us.icr.io/iac-registry/movies:2.0 python import.py
+
+docker run --rm \
+  --name movies \
+  -p 80:$APP_PORT \
+  -v $PWD/secret:/secret \
+  -e APP_SSL_CA_CERT=$APP_SSL_CA_CERT \
+  -e PASSWORD=$PASSWORD \
+  -e APP_MONGODB_URI=$APP_MONGODB_URI \
+  -e APP_PORT=$APP_PORT \
+  us.icr.io/iac-registry/movies:2.0
+
+curl http://localhost/api/healthcheck
+curl http://localhost/api/movies
+
+
+id=$(curl -s "http://localhost/api/movies" | jq -r '.[0]._id | .["$oid"]')
+curl "http://localhost/api/movies/$id" | jq
+
+docker run --rm \
+--name drop-movies \
+-v $PWD/secret:/secret \
+-e APP_SSL_CA_CERT=$APP_SSL_CA_CERT \
+-e PASSWORD=$PASSWORD \
+-e APP_MONGODB_URI=$APP_MONGODB_URI \
+us.icr.io/iac-registry/movies:2.0 python import.py --empty
+
+docker stop $(docker ps -q --filter name=movies)
+```
+
 ## Kubernetes Deployments
 
 Having the cluster up and running it's time to deploy the API application. There are different versions each one explain us different objectives, so let's deploy one by one and do a validation after each deployment.
@@ -322,54 +402,48 @@ kubectl get pods
 If applied from scratch to a new and empty Kubernetes cluster, execute these commands:
 
 ```bash
+export PASSWORD=$(terraform output db_password)
+export APP_MONGODB_URI=$(terraform output db_connection_string)
+export APP_SSL_CA_CERT="/secret/db_ca.crt"
+
+kubectl create configmap config \
+  --from-literal=APP_SSL_CA_CERT=$APP_SSL_CA_CERT \
+  --from-literal=APP_MONGODB_URI=$APP_MONGODB_URI \
+  --dry-run=client -o yaml > kubernetes/config.yaml
+
+kubectl create secret generic db-admin-password \
+  --from-literal=PASSWORD=$PASSWORD \
+  --dry-run=client -o yaml > kubernetes/db_admin_password.yaml
+
+mkdir ./secret
+terraform output db_connection_certbase64 | base64 --decode > ./secret/db_ca.crt
+kubectl create secret generic db-ssl-ca-cert \
+  --from-file=./secret/db_ca.crt \
+  --dry-run=client -o yaml > kubernetes/db_ca_cert.yaml
+rm -rf ./secret
+
+kubectl apply -f kubernetes/cm.yaml
+kubectl apply -f kubernetes/config.yaml
+kubectl apply -f kubernetes/db_admin_password.yaml
+kubectl apply -f kubernetes/db_ca_cert.yaml
+kubectl apply -f kubernetes/deployment.yaml
 kubectl apply -f kubernetes/service.yaml
 ```
 
 To upgrade from version 1.x to 2.0, execute these commands:
 
 ```bash
+kubectl delete pvc movies
+kubectl delete deployment movies
 
+kubectl apply -f kubernetes/cm.yaml
+kubectl apply -f kubernetes/config.yaml
+kubectl apply -f kubernetes/db_admin_password.yaml
+kubectl apply -f kubernetes/db_ca_cert.yaml
+kubectl apply -f kubernetes/deployment.yaml
 ```
 
-## Project Validation
-
-Optionally, you can validate the container locally using docker or docker compose. The validation of each version is different, execute the code according to the version to validate.
-
-- **Version `1.0`**:
-
-  ```bash path=v1.0
-  docker run --name movies -d --rm -p 80:8080 us.icr.io/iac-registry/movies:1.0
-  curl http://localhost/movies/675
-
-  docker stop $(docker ps -q --filter name=movies)
-  ```
-
-- **Version `1.1`**:
-
-  ```bash path=v1.1
-
-  mkdir pv
-  docker run -d --rm \
-    --name movies \
-    -p 80:8080 \
-    -v $PWD/data:/data/init \
-    -v $PWD/pv:/data \
-    us.icr.io/iac-registry/movies:1.1
-
-  curl http://localhost/movies/675
-
-  docker stop $(docker ps -q --filter name=movies)
-  rm -rf pv
-  ```
-
-- **Version `2.0`**:
-
-  ```bash path=v2.0
-  docker run --name movies -d --rm -p 80:8080 -v $PWD/data:/data us.icr.io/iac-registry/movies:2.0
-  curl http://localhost/movies/675
-
-  docker stop $(docker ps -q --filter name=movies)
-  ```
+## Project Validation on Kubernetes
 
 For each provisioning method we have configured `kubectl` to have access to the cluster, you may complement the validation with some extra `kubectl` commands:
 
@@ -384,6 +458,71 @@ To validate the API application get the external IP or FQDN address runnig the c
 ```bash
 kubectl get svc movies
 ADDRESS=$(kubectl get svc movies -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+```
 
-curl $ADDRESS/movies/675
+For version 1.0 and 1.1, use:
+
+```bash
+# Get all movies
+curl $ADDRESS/movies
+
+# Get a movie
+curl $ADDRESS/movies/83
+
+# Create a new movie
+curl -X POST -H "Content-Type: application/json" -d@data/v1/new_movie.json $ADDRESS/movies
+curl $ADDRESS/movies/32
+
+# Update a movie
+sed 's/13 Assassins/14 Assassins/' data/v1/new_movie.json > data/v1/update_movie.json
+curl -s -X PUT -H "Content-Type: application/json" -d@data/v1/update_movie.json $ADDRESS/movies/$id
+curl $ADDRESS/movies/$id
+rm data/v1/update_movie.json
+
+# Delete a movie
+curl -X DELETE $ADDRESS/movies/$id
+curl $ADDRESS/movies/$id
+curl -s $ADDRESS/movies | grep '14 Assassins'
+```
+
+For version 1.0, also execute:
+
+```bash
+kubectl scale deployment movies --replicas=0
+kubectl get deployments movies
+kubectl get pods
+kubectl get pv,pvc
+
+kubectl scale deployment movies --replicas=1
+kubectl get deployments movies
+watch kubectl get pods
+
+# When the pod is running:
+curl $ADDRESS/movies/32
+```
+
+For version 2.0, use:
+
+```bash
+# Get all movies
+curl $ADDRESS/api/movies
+
+# Get a movie
+id=$(curl -s "http://$ADDRESS/api/movies" | jq -r '.[0]._id | .["$oid"]')
+curl "http://$ADDRESS/api/movies/$id" | jq
+
+# Create a movie
+id=$(curl -s -X POST -H "Content-Type: application/json" -d@data/v1/new_movie.json $ADDRESS/api/movies | jq -r '.id')
+curl $ADDRESS/api/movies/$id
+
+# Update a movie
+sed 's/13 Assassins/14 Assassins/' data/v2/new_movie.json > data/v2/update_movie.json
+curl -s -X PUT -H "Content-Type: application/json" -d@data/v2/update_movie.json $ADDRESS/api/movies/$id
+curl $ADDRESS/api/movies/$id
+rm data/v2/update_movie.json
+
+# Delete a movie
+curl -X DELETE $ADDRESS/api/movies/$id
+curl $ADDRESS/api/movies/$id
+curl -s $ADDRESS/api/movies | grep '14 Assassins'
 ```
