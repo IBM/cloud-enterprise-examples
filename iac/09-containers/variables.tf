@@ -20,9 +20,25 @@ variable "workers_count" {
   default = [3, 2, 1]
 }
 variable "k8s_version" {
-  default = "1.18.2"
+  default = "1.18.3"
 }
 
 locals {
   max_size = length(var.vpc_zone_names)
+}
+
+variable "db_plan" {
+  default = "standard"
+}
+variable "db_name" {
+  default = "moviedb"
+}
+variable "db_admin_password" {
+  default = "inSecurePa55w0rd"
+}
+variable "db_memory_allocation" {
+  default = "3072"
+}
+variable "db_disk_allocation" {
+  default = "61440"
 }

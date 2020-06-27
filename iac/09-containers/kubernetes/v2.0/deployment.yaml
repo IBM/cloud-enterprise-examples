@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: movies
+  name: movies
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movies
+  template:
+    metadata:
+      labels:
+        app: movies
+    spec:
+      volumes:
+        - name: db-volume
+          configMap:
+            name: movies-db
+        - name: db-ca-cert
+          secret:
+            secretName: db-ssl-ca-cert
+      initContainers:
+        - name: init-db
+          image: us.icr.io/iac-registry/movies:2.0
+          command: ["python", "import.py"]
+          # command: ["/bin/sh", "-c", "while true; do sleep 1000;done"]
+          envFrom:
+            - secretRef:
+                name: db-admin-password
+            - configMapRef:
+                name: config
+          volumeMounts:
+            - name: db-volume
+              mountPath: /data/init
+            - name: db-ca-cert
+              mountPath: "/secret"
+              readOnly: true
+      containers:
+        - image: us.icr.io/iac-registry/movies:2.0
+          name: movies
+          envFrom:
+            - secretRef:
+                name: db-admin-password
+            - configMapRef:
+                name: config
+          volumeMounts:
+            - name: db-ca-cert
+              mountPath: "/secret"
+              readOnly: true

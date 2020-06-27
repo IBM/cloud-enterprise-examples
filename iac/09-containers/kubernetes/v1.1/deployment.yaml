@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: movies
+  name: movies
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movies
+  template:
+    metadata:
+      labels:
+        app: movies
+    spec:
+      volumes:
+        - name: movies-volume
+          persistentVolumeClaim:
+            claimName: movies
+        - name: db-volume
+          configMap:
+            name: movies-db
+      containers:
+        - image: us.icr.io/iac-registry/movies:1.1
+          name: movies
+          volumeMounts:
+            - name: db-volume
+              mountPath: /data/init
+            - name: movies-volume
+              mountPath: "/data"

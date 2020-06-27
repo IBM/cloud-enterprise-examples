@@ -6,13 +6,10 @@ metadata:
   name: movies
 spec:
   ports:
-    - name: "80"
-      nodePort: 32000
+    - name: "http"
       port: 80
       protocol: TCP
-      targetPort: 80
+      targetPort: 8080
   selector:
     app: movies
-  type: NodePort
-status:
-  loadBalancer: {}
+  type: LoadBalancer

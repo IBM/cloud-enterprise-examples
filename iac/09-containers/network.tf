@@ -11,15 +11,9 @@ resource "ibm_is_subnet" "iac_iks_subnet" {
   resource_group           = data.ibm_resource_group.group.id
 }
 
-resource "ibm_is_security_group" "iac_iks_security_group" {
-  name           = "${var.project_name}-${var.environment}-sg-public"
-  vpc            = ibm_is_vpc.iac_iks_vpc.id
-  resource_group = data.ibm_resource_group.group.id
-}
-
 resource "ibm_is_security_group_rule" "iac_iks_security_group_rule_tcp_k8s" {
   count     = local.max_size
-  group     = ibm_is_security_group.iac_iks_security_group.id
+  group     = ibm_is_vpc.iac_iks_vpc.default_security_group
   direction = "inbound"
   remote    = ibm_is_subnet.iac_iks_subnet[count.index].ipv4_cidr_block
 
