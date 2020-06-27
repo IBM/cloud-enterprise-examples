@@ -3,14 +3,14 @@
 In this article, we will provide you resources or cloud patterns that gets you started with the different capabilities on IBM Cloud.
 For any organization to move their applications to the cloud, certain capabilities that are required are:
 
-- Automated provisioning of resources (Infrastructure as code)
+- Infrastructure as Code
 - Logging
 - Monitoring
 - Autoscaling of applications
 - CI/CD
 - Security
 
-## 1. Automated Management and Provisioning of Infrastructure Resources (Infrastructure as Code)
+## 1. Infrastructure as Code
 
 Infrastructure as Code (IaC) is the process of managing and provisioning of infrastructure through machine-readable definition files, rather than physical hardware configuration, pointing and clicking on a Web console, or using interactive configuration tools.
 
