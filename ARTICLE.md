@@ -37,7 +37,16 @@ The following topics are covered in the Infrastructure as Code section
 
 ## 2. Logging
 
+Log Analysis with LogDNA provides a way for quickly finding the sources of issues while gaining deep insights into your cloud applications. LogDNA provides the aggregation of event logging from your applications and services within the IBM Cloud environment.
+
+[IBM Cloud Log Analysis with LogDNA Overview](https://ibm.github.io/cloud-enterprise-examples/logging/content-overview)
+
 ## 3. Monitoring
+
+Monitoring is key to making sure your applications perform well and are secure in IBM Cloud.
+IBM Cloud Monitoring combined partnership with Sysdig and Activity Tracker with LogDNA, provide operational visibility into the performance and health of your applications, services, and platforms. IBM Monitoring offers administrators, DevOps teams and developers full stack telemetry with advanced features to monitor and troubleshoot, define alerts, and design custom dashboards.
+
+[IBM Cloud Monitoring with Sysdig](https://ibm.github.io/cloud-enterprise-examples/monitoring/content-overview)
 
 ## 4. CI/CD
 
@@ -59,6 +68,10 @@ We can build highly available and scalable applications on IBM Cloud Kubernetes 
 
 ## 6. Security
 
+IBM has a long-standing history as a leading security provider. Today, IBM Cloud® builds on that tradition as the most open and secure public cloud for business. Leverage market-leading data protection capabilities to secure your data at rest, in motion and in use.
+
+Achieve continuous security for your enterprise applications and workloads with built-in isolation, access management and integrated security posture. IBM offers unmatched expertise to help your business meet security, quality and compliance objectives.
+
 ### 6.1 Certificate Manager
 
 IBM Cloud provides a service to securely handle certificates used for TLS termination by enterprise applications. This service can store certificates provided by certificate authorities and it can also order free certificates from Let's Encrypt.
@@ -68,3 +81,10 @@ IBM Cloud provides a service to securely handle certificates used for TLS termin
 [Deploying certificates to VPC Load Balancers](https://ibm.github.io/cloud-enterprise-examples/certificate-management/deploy-to-vpclb)
 
 [Deploying certificates to applications on Kubernetes](https://ibm.github.io/cloud-enterprise-examples/certificate-management/deploy-to-iks/)
+
+### 6.2 IBM Cloud Event Log Integration with Third Party Security Tools
+
+Streaming enables LogDNA to produce content to a message bus queue and Topic. LogDNA streaming helps you to connect third party consumers of topics to ingest into dashboards for visualization of event log data.
+Third party horizonal technologies such as Splunk, used in organizations for application management, security and compliance are able to leverage IBM Cloud Log Analysis with LogDNA Streaming.
+
+[IBM Cloud Event Log Integration](https://ibm.github.io/cloud-enterprise-examples/log-streaming/configure-streaming-for-third-party-tools)
