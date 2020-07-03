@@ -85,14 +85,22 @@ Continuous delivery is the DevOps approach of frequently making new versions of 
 Continuous deployment is closely related to continuous delivery except that in continuous deployment an application automatically deploys when it is ready instead of when manually triggered by a user.
 
 ### 4.1 CI/CD with IBM Cloud Public
-The advantage of using IBM Cloud Toolchain is that it integrates seamlessly with all resources already deployed on IBM Cloud while providing full DevOps capabilities provided by the Open Toolchain. There are some built-in features as well such as enabling DevOps Insights to give you aggregate view of all tests that are running in your pipeline.
+The advantage of using IBM Cloud Toolchain is that it integrates seamlessly with all resources already deployed on IBM Cloud while providing full DevOps capabilities provided by the Open Toolchain. There are some built-in features as well such as enabling DevOps Insights to give you aggregate view of all tests that are running in your pipeline. For more details on IBM Cloud Toolchain refer the below links.
 
-[Go here](https://ibm.github.io/cloud-enterprise-examples/ci-cd/cloud-toolchain-setup) to get started.
+1. [Cloud Toolchain Setup](https://ibm.github.io/cloud-enterprise-examples/ci-cd/cloud-toolchain-setup)
+2. [Cross Account Pipelines with IBM Cloud Toolchain](https://ibm.github.io/cloud-enterprise-examples/ci-cd/cloud-toolchain-across-accounts)
+3. [IBM Cloud Toolchain- Managed Devops for Schematics/Terraform](https://ibm.github.io/cloud-enterprise-examples/ci-cd/cloud-toolchain-schematics)
+4. [IBM Cloud Toolchain Testing/SDLC](https://ibm.github.io/cloud-enterprise-examples/ci-cd/cloud-toolchain-sdlc)
 
 ### 4.2 CI/CD with Cloud Native Tools
-One of the patterns emerging with development teams is the ability to use CNCF Tools as part of a more open multi cloud CI/CD strategy. This approach is aligning around the Kubernetes platform. The IBM Cloud supports both upstream Kubernetes for advanced cutting edge workloads and Red Hat OpenShift the proven multi-cloud distribution of Kubernetes that can install on IBM Cloud, Azure, AWS, VMWare and on Premise and many more places. This approach removes cloud vendor lock in around CI/CD tools and enables development teams to be more flexible and the target cloud they focus on deploying and developing with.
+One of the patterns emerging with development teams is the ability to use CNCF Tools as part of a more open multi cloud CI/CD strategy. This approach is aligning around the Kubernetes platform. The IBM Cloud supports both upstream Kubernetes for advanced cutting edge workloads and Red Hat OpenShift the proven multi-cloud distribution of Kubernetes that can install on IBM Cloud, Azure, AWS, VMWare and on Premise and many more places. This approach removes cloud vendor lock in around CI/CD tools and enables development teams to be more flexible and the target cloud they focus on deploying and developing with. For further exploration, refer the below links.
 
-[Go here](https://ibm.github.io/cloud-enterprise-examples/ci-cd/cloud-native-setup) to get started.
+1. [Install CNCF Cloud-Native DevOps Tools](https://ibm.github.io/cloud-enterprise-examples/ci-cd/cloud-native-setup) 
+2. [Developer tools Setup](https://ibm.github.io/cloud-enterprise-examples/ci-cd/cloud-native-setup-tools)
+3. [Continuous Integration with Jenkins](https://ibm.github.io/cloud-enterprise-examples/ci-cd/cloud-native-ci-tools)
+4. [Deploy First Application](https://ibm.github.io/cloud-enterprise-examples/ci-cd/cloud-native-deploy)
+5. [Continuous Delivery](https://ibm.github.io/cloud-enterprise-examples/ci-cd/cloud-native-cd)
+6. [Code patterns for Cloud Native](https://ibm.github.io/cloud-enterprise-examples/ci-cd/cloud-native-codepatterns)
 
 ## 5. Autoscaling
 
@@ -154,3 +162,8 @@ Streaming enables LogDNA to produce content to a message bus queue and Topic. Lo
 Third party horizonal technologies such as Splunk, used in organizations for application management, security and compliance are able to leverage IBM Cloud Log Analysis with LogDNA Streaming.
 
 - [IBM Cloud Event Log Integration](https://ibm.github.io/cloud-enterprise-examples/log-streaming/configure-streaming-for-third-party-tools)
+
+## Conclusion
+
+In this article, we provided a quick start on some of the key capabilities of IBM Cloud. It is a ready reference for developers to validate and understand cloud capabilities. For further or detailed information on each of the areas, please refer to [IBM Cloud documentation](https://cloud.ibm.com/docs).
+Visit [IBM Cloud](https://cloud.ibm.com) to explore further. 
