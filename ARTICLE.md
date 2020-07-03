@@ -148,7 +148,7 @@ Third party horizonal technologies such as Splunk, used in organizations for app
 
 ## Conclusion
 
-In this article, we provided a quick start on some of the key capabilities of IBM Cloud. It is a ready reference for architects and developers to validate and understand cloud capabilities. 
+In this article, we provided a quick start on some of the key capabilities of IBM Cloud. The cloud patterns are a ready reference for architects and developers to validate and understand cloud capabilities. 
 
 For further or detailed information on each of the areas, please refer to [IBM Cloud documentation](https://cloud.ibm.com/docs).
 Please visit [IBM Cloud](https://cloud.ibm.com) to explore further. 
