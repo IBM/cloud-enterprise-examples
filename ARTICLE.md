@@ -1,6 +1,5 @@
 # Introduction
 
-
 In this article, we will provide you resources in the form of cloud patterns to help you started with the different capabilities on IBM Cloud.
 For any organization to move their applications to the cloud, certain capabilities that are required are:
 
@@ -44,12 +43,30 @@ Log Analysis with LogDNA provides a way for quickly finding the sources of issue
 
 [IBM Cloud Log Analysis with LogDNA Overview](https://ibm.github.io/cloud-enterprise-examples/logging/content-overview)
 
+[Deployment Architecture](https://ibm.github.io/cloud-enterprise-examples/logging/deployment-architecture)
+
+[Controlling Access with IBM Cloud IAM, Configuring users, groups and applications permissions for Event Logs](https://ibm.github.io/cloud-enterprise-examples/logging/controlling-access)
+
+[Configure Virtual Server for LogDNA](https://ibm.github.io/cloud-enterprise-examples/logging/configure-virtual-server)
+
+[Configure containers for LogDNA](https://ibm.github.io/cloud-enterprise-examples/logging/configuring-for-containers)
+
+[Customizing Event Log Views, Configuring Alert Notifications, configuring preset and alerts](https://ibm.github.io/cloud-enterprise-examples/logging/customize-alerts)
+
+[Archive event Logs using IBM Cloud Object Storage (COS)](https://ibm.github.io/cloud-enterprise-examples/logging/archive-logs-for-long-term-storage)
+
 ## 3. Monitoring
 
 Monitoring is key to making sure your applications perform well and are secure in IBM Cloud.
 IBM Cloud Monitoring combined partnership with Sysdig and Activity Tracker with LogDNA, provide operational visibility into the performance and health of your applications, services, and platforms. IBM Monitoring offers administrators, DevOps teams and developers full stack telemetry with advanced features to monitor and troubleshoot, define alerts, and design custom dashboards.
 
 [IBM Cloud Monitoring with Sysdig](https://ibm.github.io/cloud-enterprise-examples/monitoring/content-overview)
+
+[Customize Monitor Alerts](https://ibm.github.io/cloud-enterprise-examples/monitoring/customizing-and-alerts)
+
+[Configuring Monitoring for Resource](https://ibm.github.io/cloud-enterprise-examples/monitoring/configuring-monitoring-for-resources)
+
+[Controlling Access to Monitoring Metrics and Event Data](https://ibm.github.io/cloud-enterprise-examples/monitoring/controlling-access-to-metrics-and-event-data)
 
 ## 4. CI/CD
 
