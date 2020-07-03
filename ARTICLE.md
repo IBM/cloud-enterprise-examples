@@ -11,8 +11,7 @@ There are certain key capabilities that organizations look at before migrating o
 - Deploy as infrastructure with immutable infrastructure as pre-built/pre-tested VM images and fully automated CI/CD pipelines.
 - Make allocation match demand with autoscaling of VMs,containers,applications and PaaS services.
 
-We have organized the content into the below six areas with cloud patterns covering the important key capabilities of IBM Cloud.
-
+We have organized the content into the below six areas with cloud patterns covering the important key capabilities of IBM Cloud. Each of these areas contain patterns to help an enterprise customer leverage key capabilities of IBM Cloud.
 1. Infrastructure as Code <br/>
 2. Logging <br/>
 3. Monitoring <br/>
@@ -99,7 +98,7 @@ One of the patterns emerging with development teams is the ability to use CNCF T
 
 ### 5.1 IBM Kubernetes Service
 
-We can build highly available and scalable applications on IBM Cloud Kubernetes service. In this section, we provide you links to resources that help you set up a IKS cluster on a Virtual Private Cloud, and see the autoscaling in action.
+IBM Cloud Kubernetes Service provides intelligent scheduling, self-healing, horizontal scaling, load balancing, secret and configuration management for your applications. Auto-scaling in Kubernetes comes in two forms: Horizontal Pod Autoscaler (HPA) and Cluster Autoscaler (CA). HPA is autoscaling at the pod level and it scales the pod in a deployment, whereas CA is used to scale nodes in a cluster. In this section, we provide you the resources that help you set up a IKS cluster on a Virtual Private Cloud, and see the autoscaling in action.
 
 1. [Overview of autoscaling](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/content-overview)
 
