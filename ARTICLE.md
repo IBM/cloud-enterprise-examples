@@ -13,12 +13,12 @@ There are certain key capabilities that organizations look at before migrating o
 
 We have organized the content into the below six areas with cloud patterns covering the important key capabilities of IBM Cloud.
 
-(I)   Infrastructure as Code <br/>
-(II)  Logging <br/>
-(III) Monitoring <br/>
-(IV)  CI/CD <br/>
-(V)   Autoscaling of applications <br/>
-(VI)  Security
+1. Infrastructure as Code <br/>
+2. Logging <br/>
+3. Monitoring <br/>
+4. CI/CD <br/>
+5. Autoscaling of applications <br/>
+6. Security
 
 
 ## 1. Infrastructure as Code
@@ -50,32 +50,32 @@ The following topics are covered in the Infrastructure as Code section
 
 Log Analysis with LogDNA provides a way for quickly finding the sources of issues while gaining deep insights into your cloud applications. LogDNA provides the aggregation of event logging from your applications and services within the IBM Cloud environment.
 
-[IBM Cloud Log Analysis with LogDNA Overview](https://ibm.github.io/cloud-enterprise-examples/logging/content-overview)
+1. [IBM Cloud Log Analysis with LogDNA Overview](https://ibm.github.io/cloud-enterprise-examples/logging/content-overview)
 
-[Deployment Architecture](https://ibm.github.io/cloud-enterprise-examples/logging/deployment-architecture)
+2. [Deployment Architecture](https://ibm.github.io/cloud-enterprise-examples/logging/deployment-architecture)
 
-[Controlling Access with IBM Cloud IAM, Configuring users, groups and applications permissions for Event Logs](https://ibm.github.io/cloud-enterprise-examples/logging/controlling-access)
+3. [Controlling Access with IBM Cloud IAM, Configuring users, groups and applications permissions for Event Logs](https://ibm.github.io/cloud-enterprise-examples/logging/controlling-access)
 
-[Configure Virtual Server for LogDNA](https://ibm.github.io/cloud-enterprise-examples/logging/configure-virtual-server)
+4. [Configure Virtual Server for LogDNA](https://ibm.github.io/cloud-enterprise-examples/logging/configure-virtual-server)
 
-[Configure containers for LogDNA](https://ibm.github.io/cloud-enterprise-examples/logging/configuring-for-containers)
+5. [Configure containers for LogDNA](https://ibm.github.io/cloud-enterprise-examples/logging/configuring-for-containers)
 
-[Customizing Event Log Views, Configuring Alert Notifications, configuring preset and alerts](https://ibm.github.io/cloud-enterprise-examples/logging/customize-alerts)
+6. [Customizing Event Log Views, Configuring Alert Notifications, configuring preset and alerts](https://ibm.github.io/cloud-enterprise-examples/logging/customize-alerts)
 
-[Archive event Logs using IBM Cloud Object Storage (COS)](https://ibm.github.io/cloud-enterprise-examples/logging/archive-logs-for-long-term-storage)
+7. [Archive event Logs using IBM Cloud Object Storage (COS)](https://ibm.github.io/cloud-enterprise-examples/logging/archive-logs-for-long-term-storage)
 
 ## 3. Monitoring
 
 Monitoring is key to making sure your applications perform well and are secure in IBM Cloud.
 IBM Cloud Monitoring combined partnership with Sysdig and Activity Tracker with LogDNA, provide operational visibility into the performance and health of your applications, services, and platforms. IBM Monitoring offers administrators, DevOps teams and developers full stack telemetry with advanced features to monitor and troubleshoot, define alerts, and design custom dashboards.
 
-[IBM Cloud Monitoring with Sysdig](https://ibm.github.io/cloud-enterprise-examples/monitoring/content-overview)
+1. [IBM Cloud Monitoring with Sysdig](https://ibm.github.io/cloud-enterprise-examples/monitoring/content-overview)
 
-[Customize Monitor Alerts](https://ibm.github.io/cloud-enterprise-examples/monitoring/customizing-and-alerts)
+2. [Customize Monitor Alerts](https://ibm.github.io/cloud-enterprise-examples/monitoring/customizing-and-alerts)
 
-[Configuring Monitoring for Resource](https://ibm.github.io/cloud-enterprise-examples/monitoring/configuring-monitoring-for-resources)
+3. [Configuring Monitoring for Resource](https://ibm.github.io/cloud-enterprise-examples/monitoring/configuring-monitoring-for-resources)
 
-[Controlling Access to Monitoring Metrics and Event Data](https://ibm.github.io/cloud-enterprise-examples/monitoring/controlling-access-to-metrics-and-event-data)
+4. [Controlling Access to Monitoring Metrics and Event Data](https://ibm.github.io/cloud-enterprise-examples/monitoring/controlling-access-to-metrics-and-event-data)
 
 ## 4. CI/CD
 
@@ -101,15 +101,15 @@ One of the patterns emerging with development teams is the ability to use CNCF T
 
 We can build highly available and scalable applications on IBM Cloud Kubernetes service. In this section, we provide you links to resources that help you set up a IKS cluster on a Virtual Private Cloud, and see the autoscaling in action.
 
-[Overview of autoscaling](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/content-overview)
+1. [Overview of autoscaling](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/content-overview)
 
-[Set up IKS and configure the environment](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/setup-environment)
+2. [Set up IKS and configure the environment](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/setup-environment)
 
-[Deploy a sample web application](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/application-deployment)
+3. [Deploy a sample web application](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/application-deployment)
 
-[Horizontal Pod Autoscaler in action](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/hpa)
+4. [Horizontal Pod Autoscaler in action](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/hpa)
 
-[Cluster Autoscaler in action](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/ca)
+5. [Cluster Autoscaler in action](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/ca)
 
 ### 5.2 Virtual Server on Virtual Private Cloud
 
@@ -119,11 +119,11 @@ With Auto Scale for VPC, you can improve performance and costs by dynamically cr
 
 Please refer to the below resources to see autoscaling in action:
 
-[Overview](https://ibm.github.io/cloud-enterprise-examples/deploy-vsi/content-overview)
+1. [Overview](https://ibm.github.io/cloud-enterprise-examples/deploy-vsi/content-overview)
 
-[Set up environment](https://ibm.github.io/cloud-enterprise-examples/deploy-vsi/setup-environment)
+2. [Set up environment](https://ibm.github.io/cloud-enterprise-examples/deploy-vsi/setup-environment)
 
-[Autoscaling in action](https://ibm.github.io/cloud-enterprise-examples/deploy-vsi/monitor-vsi)
+3. [Autoscaling in action](https://ibm.github.io/cloud-enterprise-examples/deploy-vsi/monitor-vsi)
 
 ## 6. Security
 
@@ -135,15 +135,15 @@ Achieve continuous security for your enterprise applications and workloads with 
 
 IBM Cloud provides a service to securely handle certificates used for TLS termination by enterprise applications. This service can store certificates provided by certificate authorities and it can also order free certificates from Let's Encrypt.
 
-[Using Certificate Manager to import and order certificates](https://ibm.github.io/cloud-enterprise-examples/certificate-management/service-setup)
+1. [Using Certificate Manager to import and order certificates](https://ibm.github.io/cloud-enterprise-examples/certificate-management/service-setup)
 
-[Deploying certificates to VPC Load Balancers](https://ibm.github.io/cloud-enterprise-examples/certificate-management/deploy-to-vpclb)
+2. [Deploying certificates to VPC Load Balancers](https://ibm.github.io/cloud-enterprise-examples/certificate-management/deploy-to-vpclb)
 
-[Deploying certificates to applications on Kubernetes](https://ibm.github.io/cloud-enterprise-examples/certificate-management/deploy-to-iks/)
+3. [Deploying certificates to applications on Kubernetes](https://ibm.github.io/cloud-enterprise-examples/certificate-management/deploy-to-iks/)
 
 ### 6.2 IBM Cloud Event Log Integration with Third Party Security Tools
 
 Streaming enables LogDNA to produce content to a message bus queue and Topic. LogDNA streaming helps you to connect third party consumers of topics to ingest into dashboards for visualization of event log data.
 Third party horizonal technologies such as Splunk, used in organizations for application management, security and compliance are able to leverage IBM Cloud Log Analysis with LogDNA Streaming.
 
-[IBM Cloud Event Log Integration](https://ibm.github.io/cloud-enterprise-examples/log-streaming/configure-streaming-for-third-party-tools)
+- [IBM Cloud Event Log Integration](https://ibm.github.io/cloud-enterprise-examples/log-streaming/configure-streaming-for-third-party-tools)
