@@ -96,7 +96,9 @@ One of the patterns emerging with development teams is the ability to use CNCF T
 
 ## 5. Autoscaling
 
-### 5.1 IBM Kubernetes Service
+In this section, we will see how to configure autoscaling for a IBM Kubernetes cluster and Virtual Server on a Virtual Private Cloud. A virtual private cloud (VPC) is a public cloud offering that lets an enterprise establish its own private cloud-like computing environment on shared public cloud infrastructure. A VPC gives an enterprise the ability to define and control a virtual network that is logically isolated from all other public cloud tenants, creating a private, secure place on the public cloud.
+
+### 5.1 IBM Kubernetes Service on Virtual Private Cloud
 
 IBM Cloud Kubernetes Service provides intelligent scheduling, self-healing, horizontal scaling, load balancing, secret and configuration management for your applications. Auto-scaling in Kubernetes comes in two forms: Horizontal Pod Autoscaler (HPA) and Cluster Autoscaler (CA). HPA is autoscaling at the pod level and it scales the pod in a deployment, whereas CA is used to scale nodes in a cluster. In this section, we provide you the resources that help you set up a IKS cluster on a Virtual Private Cloud, and see the autoscaling in action.
 
@@ -112,7 +114,7 @@ IBM Cloud Kubernetes Service provides intelligent scheduling, self-healing, hori
 
 ### 5.2 Virtual Server on Virtual Private Cloud
 
-Virtual server instances for VPC give you access to all of the benefits of IBM Cloud VPC, including network isolation, security, and flexibility. With virtual server instances for VPC, you can quickly provision instances with high network performance. When you provision an instance, you select a profile that matches the amount of memory and compute power that you need for the application that you plan to run on the instance. Instances are available on both x86 and POWER architectures. After you provision an instance, you control and manage those infrastructure resources. 
+Virtual server instances for VPC give you access to all of the benefits of IBM Cloud VPC, including network isolation, security, and flexibility. When you provision an instance, you select a profile that matches the amount of memory and compute power that you need for the application that you plan to run on the instance. Instances are available on both x86 and POWER architectures. After you provision an instance, you control and manage those infrastructure resources. 
 
 With Auto Scale for VPC, you can improve performance and costs by dynamically creating virtual server instances to meet the demands of your environment. You set scaling policies that define your desired average utilization for metrics like CPU, memory, and network usage. 
 
@@ -123,6 +125,12 @@ Please refer to the below resources to see autoscaling in action:
 2. [Set up environment](https://ibm.github.io/cloud-enterprise-examples/deploy-vsi/setup-environment)
 
 3. [Autoscaling in action](https://ibm.github.io/cloud-enterprise-examples/deploy-vsi/monitor-vsi)
+
+### 5.3 Scaling of PaaS services
+
+In this section, we cover the ability to scale important PaaS services on IBM Cloud like Event Streams, MongoDB, PostgreSQL, DB2 and Cloud Object Storage.
+
+[Auto-scale configuration for PaaS services](https://ibm.github.io/cloud-enterprise-examples/paas-services-resources/paas-autoscale)
 
 ## 6. Security
 
