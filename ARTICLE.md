@@ -138,7 +138,7 @@ Please refer to the below resources to see autoscaling in action:
 
 In this section, we cover the ability to scale important PaaS services on IBM Cloud like Event Streams, MongoDB, PostgreSQL, DB2 and Cloud Object Storage.
 
-[Auto-scale configuration for PaaS services](https://ibm.github.io/cloud-enterprise-examples/paas-services-resources/paas-autoscale)
+- [Auto-scale configuration for PaaS services](https://ibm.github.io/cloud-enterprise-examples/paas-services-resources/paas-autoscale)
 
 ## 6. Security
 
