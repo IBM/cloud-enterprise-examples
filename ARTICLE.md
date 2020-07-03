@@ -1,6 +1,6 @@
 # Introduction
 
-In this article, we will provide you resources in the form of cloud patterns to help you started with the different capabilities on IBM Cloud.
+In this article, we will provide you resources in the form of cloud patterns to help you get started with the different capabilities on IBM Cloud.
 For any organization to move their applications to the cloud, certain capabilities that are required are:
 
 - Infrastructure as Code
