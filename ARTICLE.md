@@ -87,6 +87,20 @@ We can build highly available and scalable applications on IBM Cloud Kubernetes 
 
 [Cluster Autoscaler in action](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/ca)
 
+### 5.2 Virtual Server on Virtual Private Cloud
+
+Virtual server instances for VPC give you access to all of the benefits of IBM Cloud VPC, including network isolation, security, and flexibility. With virtual server instances for VPC, you can quickly provision instances with high network performance. When you provision an instance, you select a profile that matches the amount of memory and compute power that you need for the application that you plan to run on the instance. Instances are available on both x86 and POWER architectures. After you provision an instance, you control and manage those infrastructure resources. 
+
+With Auto Scale for VPC, you can improve performance and costs by dynamically creating virtual server instances to meet the demands of your environment. You set scaling policies that define your desired average utilization for metrics like CPU, memory, and network usage. 
+
+Please refer to the below resources to see autoscaling in action:
+
+[Overview](https://ibm.github.io/cloud-enterprise-examples/deploy-vsi/content-overview)
+
+[Set up environment](https://ibm.github.io/cloud-enterprise-examples/deploy-vsi/setup-environment)
+
+[Autoscaling in action](https://ibm.github.io/cloud-enterprise-examples/deploy-vsi/monitor-vsi)
+
 ## 6. Security
 
 IBM has a long-standing history as a leading security provider. Today, IBM Cloud® builds on that tradition as the most open and secure public cloud for business. Leverage market-leading data protection capabilities to secure your data at rest, in motion and in use.
