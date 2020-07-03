@@ -2,7 +2,7 @@
 
 In this article, we will provide you resources in the form of cloud patterns to help you get started with the different capabilities on IBM Cloud.
 
-There are certain key capabilities that organizations look at before migrating or building applications to a public cloud. 
+There are certain key capabilities that organizations look at before migrating or building applications on a public cloud. 
 
 - A secure network with network isolation and access controls.
 - Data protection with encryption of data at rest and in motion.
@@ -13,11 +13,11 @@ There are certain key capabilities that organizations look at before migrating o
 
 We have organized the content into the below six areas with cloud patterns covering the important key capabilities of IBM Cloud.
 
-(I)   Infrastructure as Code
-(II)  Logging
-(III) Monitoring
-(IV)  Autoscaling of applications
-(V)   CI/CD
+(I)   Infrastructure as Code <br/>
+(II)  Logging <br/>
+(III) Monitoring <br/>
+(IV)  CI/CD <br/>
+(V)   Autoscaling of applications <br/>
 (VI)  Security
 
 
@@ -79,20 +79,18 @@ IBM Cloud Monitoring combined partnership with Sysdig and Activity Tracker with 
 
 ## 4. CI/CD
 
-### 5.1 Continuous Integration
 Continuous Integration is a software development practice where members of a team integrate their work frequently, usually each person integrates at least daily - leading to multiple integrations per day. Each integration is verified by an automated build (including test) to detect integration errors as quickly as possible. Many teams find that this approach leads to significantly reduced integration problems and allows a team to develop cohesive software more rapidly
 
-### 5.2 Continuous Delivery
 Continuous delivery is the DevOps approach of frequently making new versions of an application’s components available for deployment to a runtime environment. The process involves automation of the build and validation process and concludes with a new version of the application that is available for promotion to another environment.
 
 Continuous deployment is closely related to continuous delivery except that in continuous deployment an application automatically deploys when it is ready instead of when manually triggered by a user.
 
-### 5.3 CI/CD with IBM Cloud Public
+### 4.1 CI/CD with IBM Cloud Public
 The advantage of using IBM Cloud Toolchain is that it integrates seamlessly with all resources already deployed on IBM Cloud while providing full DevOps capabilities provided by the Open Toolchain. There are some built-in features as well such as enabling DevOps Insights to give you aggregate view of all tests that are running in your pipeline.
 
 [Go here](https://ibm.github.io/cloud-enterprise-examples/ci-cd/cloud-toolchain-setup) to get started.
 
-### 5.4 CI/CD with Cloud Native Tools
+### 4.2 CI/CD with Cloud Native Tools
 One of the patterns emerging with development teams is the ability to use CNCF Tools as part of a more open multi cloud CI/CD strategy. This approach is aligning around the Kubernetes platform. The IBM Cloud supports both upstream Kubernetes for advanced cutting edge workloads and Red Hat OpenShift the proven multi-cloud distribution of Kubernetes that can install on IBM Cloud, Azure, AWS, VMWare and on Premise and many more places. This approach removes cloud vendor lock in around CI/CD tools and enables development teams to be more flexible and the target cloud they focus on deploying and developing with.
 
 [Go here](https://ibm.github.io/cloud-enterprise-examples/ci-cd/cloud-native-setup) to get started.
