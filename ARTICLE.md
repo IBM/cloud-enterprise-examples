@@ -1,16 +1,25 @@
 # Introduction
 
 In this article, we will provide you resources in the form of cloud patterns to help you get started with the different capabilities on IBM Cloud.
-For any organization to move their applications to the cloud, certain capabilities that are required are:
 
-- Infrastructure as Code
-- Logging
-- Monitoring
-- Autoscaling of applications
-- CI/CD
-- Security
+There are certain key capabilities that organizations look at before migrating or building applications to a public cloud. 
 
-In the sections below, we cover each of these areas to help you start the journey to migrate or build applications om IBM Cloud.
+- A secure network with network isolation and access controls.
+- Data protection with encryption of data at rest and in motion.
+- Access control to the cloud.
+- Monitor the environment with a common shared logging and monitoring infrastructure.
+- Deploy as infrastructure with immutable infrastructure as pre-built/pre-tested VM images and fully automated CI/CD pipelines.
+- Make allocation match demand with autoscaling of VMs,containers,applications and PaaS services.
+
+We have organized the content into the below six areas with cloud patterns covering the important key capabilities of IBM Cloud.
+
+(I)   Infrastructure as Code
+(II)  Logging
+(III) Monitoring
+(IV)  Autoscaling of applications
+(V)   CI/CD
+(VI)  Security
+
 
 ## 1. Infrastructure as Code
 
