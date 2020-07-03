@@ -50,17 +50,11 @@ The following topics are covered in the Infrastructure as Code section
 Log Analysis with LogDNA provides a way for quickly finding the sources of issues while gaining deep insights into your cloud applications. LogDNA provides the aggregation of event logging from your applications and services within the IBM Cloud environment.
 
 1. [IBM Cloud Log Analysis with LogDNA Overview](https://ibm.github.io/cloud-enterprise-examples/logging/content-overview)
-
 2. [Deployment Architecture](https://ibm.github.io/cloud-enterprise-examples/logging/deployment-architecture)
-
 3. [Controlling Access with IBM Cloud IAM, Configuring users, groups and applications permissions for Event Logs](https://ibm.github.io/cloud-enterprise-examples/logging/controlling-access)
-
 4. [Configure Virtual Server for LogDNA](https://ibm.github.io/cloud-enterprise-examples/logging/configure-virtual-server)
-
 5. [Configure containers for LogDNA](https://ibm.github.io/cloud-enterprise-examples/logging/configuring-for-containers)
-
 6. [Customizing Event Log Views, Configuring Alert Notifications, configuring preset and alerts](https://ibm.github.io/cloud-enterprise-examples/logging/customize-alerts)
-
 7. [Archive event Logs using IBM Cloud Object Storage (COS)](https://ibm.github.io/cloud-enterprise-examples/logging/archive-logs-for-long-term-storage)
 
 ## 3. Monitoring
@@ -69,11 +63,8 @@ Monitoring is key to making sure your applications perform well and are secure i
 IBM Cloud Monitoring combined partnership with Sysdig and Activity Tracker with LogDNA, provide operational visibility into the performance and health of your applications, services, and platforms. IBM Monitoring offers administrators, DevOps teams and developers full stack telemetry with advanced features to monitor and troubleshoot, define alerts, and design custom dashboards.
 
 1. [IBM Cloud Monitoring with Sysdig](https://ibm.github.io/cloud-enterprise-examples/monitoring/content-overview)
-
 2. [Customize Monitor Alerts](https://ibm.github.io/cloud-enterprise-examples/monitoring/customizing-and-alerts)
-
 3. [Configuring Monitoring for Resource](https://ibm.github.io/cloud-enterprise-examples/monitoring/configuring-monitoring-for-resources)
-
 4. [Controlling Access to Monitoring Metrics and Event Data](https://ibm.github.io/cloud-enterprise-examples/monitoring/controlling-access-to-metrics-and-event-data)
 
 ## 4. CI/CD
@@ -111,13 +102,9 @@ In this section, we will see how to configure autoscaling for a IBM Kubernetes c
 IBM Cloud Kubernetes Service provides intelligent scheduling, self-healing, horizontal scaling, load balancing, secret and configuration management for your applications. Auto-scaling in Kubernetes comes in two forms: Horizontal Pod Autoscaler (HPA) and Cluster Autoscaler (CA). HPA is autoscaling at the pod level and it scales the pod in a deployment, whereas CA is used to scale nodes in a cluster. In this section, we provide you the resources that help you set up a IKS cluster on a Virtual Private Cloud, and see the autoscaling in action.
 
 1. [Overview of autoscaling](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/content-overview)
-
 2. [Set up IKS and configure the environment](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/setup-environment)
-
 3. [Deploy a sample web application](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/application-deployment)
-
 4. [Horizontal Pod Autoscaler in action](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/hpa)
-
 5. [Cluster Autoscaler in action](https://ibm.github.io/cloud-enterprise-examples/deploy-iks/ca)
 
 ### 5.2 Virtual Server on Virtual Private Cloud
@@ -129,9 +116,7 @@ With Auto Scale for VPC, you can improve performance and costs by dynamically cr
 Please refer to the below resources to see autoscaling in action:
 
 1. [Overview](https://ibm.github.io/cloud-enterprise-examples/deploy-vsi/content-overview)
-
 2. [Set up environment](https://ibm.github.io/cloud-enterprise-examples/deploy-vsi/setup-environment)
-
 3. [Autoscaling in action](https://ibm.github.io/cloud-enterprise-examples/deploy-vsi/monitor-vsi)
 
 ### 5.3 Scaling of PaaS services
@@ -151,9 +136,7 @@ Achieve continuous security for your enterprise applications and workloads with 
 IBM Cloud provides a service to securely handle certificates used for TLS termination by enterprise applications. This service can store certificates provided by certificate authorities and it can also order free certificates from Let's Encrypt.
 
 1. [Using Certificate Manager to import and order certificates](https://ibm.github.io/cloud-enterprise-examples/certificate-management/service-setup)
-
 2. [Deploying certificates to VPC Load Balancers](https://ibm.github.io/cloud-enterprise-examples/certificate-management/deploy-to-vpclb)
-
 3. [Deploying certificates to applications on Kubernetes](https://ibm.github.io/cloud-enterprise-examples/certificate-management/deploy-to-iks/)
 
 ### 6.2 IBM Cloud Event Log Integration with Third Party Security Tools
