@@ -1,3 +1,34 @@
+---
+# Related publishing issue: 
+draft: true
+
+authors:
+- name: "Raj Patil"
+  email: "rpatil@ibm.com"
+- name: "Tim Robinson"
+  email: "timro@us.ibm.com"
+- name: "Matthew Perrins"
+  email: "mjperrin@us.ibm.com"
+- name: "Johandry Amador"
+  email: "johandry.amador@ibm.com"
+- name: "Balaji Kadambi"
+  email: "bkadambi@in.ibm.com"
+- name: "Shikha Maheshwari"
+  email: "shikha.mah@in.ibm.com"
+- name: "John Zaccone"
+  email: "john.zaccone@ibm.com"
+- name: "Anthony Fuller"
+  email: "anthony.fuller@ibm.com"
+- name: "Saranyya Chillal"
+  email: "sarannya.chilhal@ibm.com"
+
+completed_date: "2020-07-03"
+last_updated: "2020-07-03"
+
+excerpt: "Explore IBM Cloud through cloud patterns"
+abstract: "This article contains patterns to help an enterprise customer leverage key capabilities of IBM Cloud, including Infrastructure as code, auto-scaling, logging, monitoring, and CI/CD. "
+---
+
 # Introduction
 
 In this article, we will provide you resources in the form of cloud patterns to help you get started with the different capabilities on IBM Cloud.
