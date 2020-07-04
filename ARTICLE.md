@@ -54,9 +54,9 @@ We have organized the content into the below six areas with cloud patterns cover
 
 To follow along with this setup guide, you need the following prerequisites:
 
-    - [IBM Cloud account](https://cloud.ibm.com)
+[IBM Cloud account](https://cloud.ibm.com)
     
-    - [GitHub account](https://github.com)
+[GitHub account](https://github.com)
 
 ## Estimated time
 
