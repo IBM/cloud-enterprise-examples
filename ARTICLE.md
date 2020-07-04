@@ -50,6 +50,15 @@ We have organized the content into the below six areas with cloud patterns cover
 5. Autoscaling of applications <br/>
 6. Security
 
+## Prerequisites
+
+To follow along with this setup guide, you need the following prerequisites:
+    - [IBM Cloud account](https://cloud.ibm.com)
+    - [GitHub account](https://github.com)
+
+## Estimated time
+
+The estimated time is dependent on the areas you would want to explore. We have broken the content into smaller pieces. Each piece should take anywhere from 15 mins to 2 hours to set up and execute. For example, if you wish to see how to send log events from a Virtual Server, you should be able to complete the task in 30 mins. If you are exploring an area under auto-scaling or CI/CD pipelines, it can range from an hour to 2 hours to complete. The time taken can vary depending on your expertise in the area. 
 
 ## 1. Infrastructure as Code
 
