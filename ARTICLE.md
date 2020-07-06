@@ -52,8 +52,6 @@ We have organized the content into the below six areas with cloud patterns cover
 
 ## Prerequisites
 
-To follow along with this setup guide, you need the following prerequisites:
-
 [IBM Cloud account](https://cloud.ibm.com)
 
 ## Estimated time
