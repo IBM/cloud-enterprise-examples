@@ -31,9 +31,7 @@ abstract: "This article contains patterns to help an enterprise customer leverag
 
 # Introduction
 
-In this article, we will provide you resources in the form of cloud patterns to help you get started with the different capabilities on IBM Cloud.
-
-There are certain key capabilities that organizations look at before migrating or building applications on a public cloud. 
+Cloud computing is rapidly proliferating Enterprise IT. Organizations are looking at modernizing their legacy applications or building new solutions on the cloud. There are certain key capabilities that most enterprises need on the cloud for migrating or building applications on a public cloud. 
 
 - A secure network with network isolation and access controls.
 - Data protection with encryption of data at rest and in motion.
@@ -41,6 +39,8 @@ There are certain key capabilities that organizations look at before migrating o
 - Monitor the environment with a common shared logging and monitoring infrastructure.
 - Deploy as infrastructure with immutable infrastructure as pre-built/pre-tested VM images and fully automated CI/CD pipelines.
 - Make allocation match demand with autoscaling of VMs,containers,applications and PaaS services.
+
+Now, the cloud documentaton is quite detailed, and it could take time for a new cloud developer to get started. In this article, we will provide you resources in the form of cloud patterns to help Enterprise developers get started quickly on the different capabilities of IBM Cloud. 
 
 We have organized the content into the below six areas with cloud patterns covering the important key capabilities of IBM Cloud. Each of these areas contain patterns to help an enterprise customer leverage key capabilities of IBM Cloud.
 1. Infrastructure as Code <br/>
