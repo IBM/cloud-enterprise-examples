@@ -40,7 +40,7 @@ Cloud computing is rapidly proliferating Enterprise IT. Organizations are lookin
 - Deploy as infrastructure with immutable infrastructure as pre-built/pre-tested VM images and fully automated CI/CD pipelines.
 - Make allocation match demand with autoscaling of VMs,containers,applications and PaaS services.
 
-This article provides you resources in the form of cloud patterns to help Enterprise developers get started quickly on the different capabilities of IBM Cloud. 
+This article provides you resources in the form of cloud patterns that help Enterprise developers get quickly started on the different capabilities of IBM Cloud. 
 
 We have organized the content into the below six areas with cloud patterns covering the important key capabilities of IBM Cloud. Each of these areas contain patterns to help an enterprise customer leverage key capabilities of IBM Cloud.
 1. Infrastructure as Code <br/>
