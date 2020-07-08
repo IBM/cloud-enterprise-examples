@@ -41,8 +41,7 @@ Cloud computing is rapidly proliferating Enterprise IT. Organizations are lookin
 - Make allocation match demand with autoscaling of VMs,containers,applications and PaaS services.
 
 This article provides you resources in the form of cloud patterns that help Enterprise developers get quickly started on the different capabilities of IBM Cloud. 
-
-We have organized the content into the below six areas with cloud patterns covering the important key capabilities of IBM Cloud. Each of these areas contain patterns to help an enterprise customer leverage key capabilities of IBM Cloud.
+A cloud pattern has detailed instructions to set up and explore a capability. The content is organized into six areas. 
 1. Infrastructure as Code <br/>
 2. Logging <br/>
 3. Monitoring <br/>
