@@ -31,7 +31,7 @@ abstract: "This article contains patterns to help an enterprise customer leverag
 
 # Introduction
 
-Cloud computing is rapidly proliferating Enterprise IT. Organizations are looking at modernizing their legacy applications or building new solutions on the cloud. There are certain key capabilities that most enterprises need on the cloud for migrating or building applications on a public cloud. 
+Cloud computing is rapidly proliferating Enterprise IT. Organizations are looking at modernizing their legacy applications or building new solutions on the cloud. There are certain key capabilities that most enterprises need for migrating or building applications on a public cloud. 
 
 - A secure network with network isolation and access controls.
 - Data protection with encryption of data at rest and in motion.
