@@ -4,11 +4,15 @@ if [[ "$1" == "-h" || "$1" == "--help" ]]; then
 cat <<EOH
 USAGE: $0
 
-The intention of this script is to release the content from the *dev* branch of
+The intention of this script is to release the latest content from
+https://github.ibm.com/att-cloudnative/ibmcloud-pattern-guide to
+https://ibm.github.io/cloud-enterprise-examples/
+
+The script move the content and do other changes from the *dev* branch of
 *github.ibm.com/att-cloudnative/ibmcloud-pattern-guide* to the *gh-pages* branch
 of *github.com/iBM/cloud-enterprise-examples*.
 
-You should have in the same directory a directory with the cloned repository
+You should have in the same base directory a directory with the cloned repository
 github.ibm.com/att-cloudnative/ibmcloud-pattern-guide on the branch dev, and a
 directory with the cloned repository github.com/iBM/cloud-enterprise-examples on
 the branch gh-pages, where this script is located. The cloud-enterprise-examples
@@ -22,6 +26,8 @@ Like so:
 When the script is executed, all is published and you may review the content at:
 https://ibm.github.io/cloud-enterprise-examples/
 EOH
+
+exit 0
 fi
 
 echo "Building the web site"
