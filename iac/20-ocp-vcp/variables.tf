@@ -20,7 +20,7 @@ variable "workers_count" {
   default = [2]
 }
 variable "k8s_version" {
-  default = "4.3_openshift"
+  default = "4.4_openshift"
 }
 
 locals {
