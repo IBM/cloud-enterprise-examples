@@ -28,7 +28,10 @@ web_modules/
 logs
 *.log*
 
-# Keys
+# Keys and Certificates files to ignore
+*.crt
+*.pem
+*.key
 
 # Terraform files to ignore
 **/.terraform/*
