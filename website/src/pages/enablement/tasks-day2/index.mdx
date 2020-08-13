@@ -1,0 +1,61 @@
+---
+title: Day 2 Developer Experience
+---
+
+<PageDescription>
+
+Tasks for developers to understand how to monitor, log and manage deployments of applications
+
+</PageDescription>
+
+
+<InlineNotification>
+
+Before you proceed, make sure you have an IBM GSI Sandbox invite. It is a paid IBM Cloud account with the [Developer Tools environment](https://ibm-garage-cloud.github.io/ibm-garage-developer-guide/overview) already installed and ready for you to use, including both a Kubernetes cluster and an OpenShift cluster. (The environment is locked down to prevent creating any new services.) Also, before proceeding:
+- Install the [IBM Garage for Cloud CLI](https://ibm-garage-cloud.github.io/ibm-garage-developer-guide/getting-started/cli) (again) to ensure you have the latest version
+
+</InlineNotification>
+
+This set of tasks focuses on the Day 2 Developer Experience: How to use the Developer Tools environment to perform the software delivery lifecycle (SDLC).
+
+This homework assumes that you have:
+ - Reviewed the content from the Agenda: [RedHat OpenShift and IBM Kubernetes Fundamentals](enablement/agenda#redhat-openshift-and-ibm-kubernetes-fundamentals)
+ - Seen a demo of each of the tasks below from the Video Presentation
+
+### Learning Tasks
+
+The learning tasls help you understand the tasks in the Day 2 Developer Experience. Day 1 focuses on being able to use the environment well enough to develop and deploy a basic cloud-native application. Day 2 focuses on using the SDLC to iteratively develop, deliver, operate, secure, and manage applications. As a team executes the key agile ceremonies using the [Garage Method](https://www.ibm.com/garage/method/cloud/), it's important for developers and architects to understand what is involved in moving software components consistently and reliably from *dev* to *test* and on to *production*. A good understanding of common Day 2 activities is a critical skill for cloud-native development teams.
+
+These learning tasks are more advanced than those from the Day 1 Experience, so take your time and do some research on the topic before jumping into the task.
+
+| Task                            | Description         | Link        | Time    |
+| --------------------------------| ------------------  |:----------- |---------|
+| Re-read the Developer Guide| There have been updates from the first week. Focus on Tools Guides for the homework below and the guides for Inventory Micro App Part 1 and 2. | [Developer Guide](https://ibm-garage-cloud.github.io/ibm-garage-developer-guide/overview) | 30 min |
+| Review your image registry | Using the Image Registry guide, follow the _Give it a try_ section |[Image Registry](https://ibm-garage-cloud.github.io/ibm-garage-developer-guide/guides/image-registry#give-it-a-try) | 15 mins |
+| Review your app's code quality | Using the SonarQube guide, follow the _Give it a try_ section |[Code Analysis](https://ibm-garage-cloud.github.io/ibm-garage-developer-guide/guides/code-analysis#give-it-a-try) | 30 mins |
+| View your app's logs | Using the LogDNA guide, follow the _Give it a try_ section | [Log Management](https://ibm-garage-cloud.github.io/ibm-garage-developer-guide/guides/log-management#give-it-a-try) | 20 min |
+| Monitor your app | Using the SysDig guide, follow the _Give it a try_ section | [Monitoring](https://ibm-garage-cloud.github.io/ibm-garage-developer-guide/guides/monitoring#give-it-a-try) | 30 min |
+| Inventory Micro App, Part 2 | Using GitOps to deploy your Inventory app's components to `test` | [Inventory Part 2 - CD](https://ibm-garage-cloud.github.io/ibm-garage-developer-guide/practical/inventory-part2#using-cd-to-deliver-to-test) | 45 min |
+| Inventory Micro App, Part 2 | Secure your Inventory app | [Inventory Part 2 - Secure App](https://ibm-garage-cloud.github.io/ibm-garage-developer-guide/practical/inventory-part2#securing-the-solution-with-app-id) | 30 min |
+| Inventory Micro App, Part 2 | Add a cloud database to you Inventory service | [Inventory Part 2 - Database](https://ibm-garage-cloud.github.io/ibm-garage-developer-guide/practical/inventory-part2#add-a-cloudant-integration-to-your-backend-service) | 45 min |
+| Install Dev tools on CRC | Install and configure the Developer Tools into Red Hat CodeReady Containers | [Install CRC](https://ibm-garage-cloud.github.io/ibm-garage-developer-guide/admin/installation-crc) | 1 hr |
+
+Once you have completed these tasks, you will have completed the learning requirements for both the Day 1 Developer Experience and the Day 2 Developer Experience. For Day 1, you created your first app and CI pipeline, and then extended that into a 3-tier polyglot solution. For Day 2, you worked with your application's logs, monitored your app, and moved your code from *dev* to *test*.
+
+What is very clear is that the Developer Tools environment--an application architecture that combines a Red Hat OpenShift or Kubernetes cluster with powerful cloud services, packaged with a development environment with a CI/CD pipeline incorporating best-of-breed open source tools--gives you a powerful development platform that enables you to build any form of cloud-native application. These skills form the foundation not only to develop applications for Kubernetes and OpenShift, but to develop applications that leverage the IBM Cloud Paks as well. 
+
+<InlineNotification>
+
+**Note**: Support is provided in the `#gsi-labs-enablement` Slack channel (in the [GSI Slack Org](https://gsicsi.slack.com/archives/CSRDJD5HA). This channel will also be used to share any common issues found.
+
+</InlineNotification>
+
+### Review Learning Tasks
+
+Working with colleagues review your learning tasks. The GSI team is looking for feedback from three perspectives:
+
+- **What went well?**
+- **What needs improvement?**
+- **Next steps?**
+
+Developers will begin the learning journey with different skill levels and familiarity with this material, but will complete the Cloud Native enablement with a more detailed understanding of how to build solutions for the IBM Cloud. Each student's **Next Steps** will help identify that person's skill gaps to ensure they cover the topics needed to complete the learning journey successfully.

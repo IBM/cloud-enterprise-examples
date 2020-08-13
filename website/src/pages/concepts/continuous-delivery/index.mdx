@@ -1,0 +1,50 @@
+---
+title: Continuous Delivery
+description: Continuous Delivery Concept
+---
+
+<AnchorLinks>
+  <AnchorLink>Introduction</AnchorLink>
+  <AnchorLink>Continuous Delivery</AnchorLink>
+  <AnchorLink>Continuous Deployment</AnchorLink>
+  <AnchorLink>References</AnchorLink>
+</AnchorLinks>
+
+## Introduction
+
+Continuous Integration, Delivery, and Deployment are important devOps practices and we often hear a lot about them. These processes are valuable and ensures that the software is up to date timely.
+
+- **Continuous Integration** is an automation process which allows developers to integrate their work into a repository. When a developer pushes his work into the source code repository, it ensures that the software continues to work properly. It helps to enable collaborative development across the teams and also helps to identify the integration bugs sooner.
+- **Continuous Delivery** comes after Continuous Integration. It prepares the code for release. It automates the steps that are needed to deploy a build.
+- **Continuoud Deployment** is the final step which succeeds Continuous Delivery. It automatically deploys the code whenever a code change is done. Entire process of deployment is automated.
+
+![cicd](src/pages/concepts/continuous-delivery/images/cicd.jpg)
+
+## Continuous Delivery
+
+Continuous Delivery is the next step for Continuous Integration. The artifacts produced in the Continous Integration stage will be deployed on a production like environment. It is more about making sure that the software is ready to be released and it can be deployed to production like environment at any time.
+
+![cd process](src/pages/concepts/continuous-delivery/images/cd_process.png)
+
+Developer initially write code to implement a feature or make a change, compile it, and runs all the required tests. If it is running fine and working well, the next thing is to decide the release to the customer. Before doing the release, there are so many things one should take care of. We need to make sure all the configurations are done properly. Respective configuration files should be replaced correctly in the corresponding environments. Also, backups of the previous version of the software should be taken just in case to use them if the system breaks. There may be need to stop some of the services. For example, if your release involves updating the database, you need to stop some of the services which use that database. Also, when this process is done, we need to turn on the maintenance page because we don't want our users to panic seeing this site can't be reached. After doing all this, we test the software and if the tests are all working, we can restart the service we stopped previously.
+
+Initially, we deploy it to staging environment. If everything looks good, we will receive the approval and then we need to deploy it to production like environment. Once you get the approval, we need to do all the steps we did previously again. This process involves so many steps and it is hard to do all of them correctly every time.
+
+To make lives easier and not to miss any of the steps, automated deployment is necessary. This allows us to deploy more often. Just imagine, if you want to follow all the steps mentioned earlier for every small change, you tend to wait. If we do so and the changes are a lot, then there are more chances of failure and the system may break. So, making the release process automated is very important. By automation, it is easier to deploy smaller changes more frequently. It is also easier to rollback if there is a failure. Moreover, it reduces the overall risk of failure. This allows you to deploy to production like environment at any point of time. To make it possible, the software must all always be in a deliverable state. All your code should be compiled, tested, and the build should succeed.
+
+## Continuous Deployment
+
+Continuous Deployment is the final step. In this stage, every change goes through the pipeline and if it passes all the tests, the code will be deployed into the production automatically. Every step should be automated in this process and the release quality depends mostly on the test suite as everything is automated.
+
+![cd deploy](src/pages/concepts/continuous-delivery/images/cdply_process.png)
+
+All the steps that apply in Continuous Delivery also applies here. You may do some things manually in case of Continuous Delivery but in Continuous Deployment, everything is automated. So, basically every piece of code that is pushed in to the SCM system gets automatically deployed in production like environment if the build is successful. The rationale behind the process is that you are going to deploy the code to production sooner or later anyway.
+
+But it is always recommended not to use it. Because there may be many factors that need to be considered before the release like marketing etc. It is hard to achieve this using Continuous Deployment. But, Continuous Delivery is a must as we are enabling the capability to deliver the software to any given environment at any given time.
+
+To understand continuous delivery and deployment better, feel free to watch this [video](https://mediacenter.ibm.com/media/Continuous+delivery+vs.+continuous+deployment/0_lcetzlcd).
+
+## References
+
+- [Sricharan Vadapalli (2018). DevOps: Continuous Delivery, Integration, and Deployment with DevOps. Publisher: Packt Publishing](https://learning.oreilly.com/library/view/devops-continuous-delivery/9781789132991/)
+- [Sander Rossel (2017). Continuous Integration, Delivery, and Deployment. Publisher: Packt Publishing](https://learning.oreilly.com/library/view/continuous-integration-delivery/9781787286610/)

@@ -1,0 +1,41 @@
+# Global files to ignore in the project
+
+# macOS files to ignore
+.DS_Store
+._*
+
+# Visual Studio Code files to ignore
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+.history/
+
+# Node files to ignore
+node_modules
+bower_components
+build/Release
+web_modules/
+.npm
+*.tgz
+.env
+.env.test
+.cache/
+
+# Log files to ignore
+logs
+*.log*
+
+# Keys and Certificates files to ignore
+*.crt
+*.pem
+*.key
+
+# Terraform files to ignore
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.auto.tfvars
+crash.log

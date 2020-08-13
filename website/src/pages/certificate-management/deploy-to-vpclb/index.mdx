@@ -1,0 +1,144 @@
+---
+title: Deploying certificates to VPC Load Balancers
+description: Loading TLS certificates and private keys to VPC Load Balancer instances
+keywords: 'tls,vpc load balancer,certificate-manager,security'
+---
+
+<!--
+
+The pattern to document the resources is like follow:
+- Introduce the resource with an example
+- List all or the most important input parameters
+- If will be used, list the most important output parameters
+- Provide instructions to get the value of the input parameters, either using `ibmcloud`, API or the Web console.
+- If needed, instructions to execute the code either with Terraform or Schematics
+
+-->
+
+<PageDescription>
+
+Deploying certificates to VPC Load Balancers
+
+</PageDescription>
+
+The Certificate Manager service provides support for deploying certificates to multiple IBM Cloud services. This section reviews how to configure access from the VPC Load Balancer service to the Certificate Manager service and add an HTTPS listener to a VPC Load Balancer.
+
+The example will use the certificate ordered in the [service setup](/certificate-management/service-setup) section. The terraform code from [IaC compute](/iac-resources/compute) will be used to create the vpc, application and load balancer instance.
+
+The code to manage the creation of the example can be found in the GitHub repository https://github.com/IBM/cloud-enterprise-examples/ in the directory [14-certificate-management/vpc-lbaas-certificate](https://github.com/IBM/cloud-enterprise-examples/tree/master/iac/14-certificate-management/vpc-lbaas-certificate).
+
+<AnchorLinks small>
+  <AnchorLink>Configure VPC Load Balancer HTTPS listener</AnchorLink>
+  <AnchorLink>Clean Up</AnchorLink>
+</AnchorLinks>
+
+<InlineNotification>
+
+**Requirements**
+
+To be able to execute and complete the instructions in this page, make sure you have an **IBM Cloud account**: if you don't have one yet, you can [create a Lite account](https://cloud.ibm.com/docs/overview?topic=overview-quickstart_lite#prereqs-lite) for free.
+
+These examples will require an internet DNS domain that is managed by the user or can be used with a domain managed by the IBM Cloud Internet Services service.
+
+Also make sure you have the environment setup as explained in the [Setup Environment](/iac/setup-environment) page to have installed the IBM Cloud CLI, logged in to your account with the IBM Cloud CLI and set the `IC_API_KEY` environment variable to a key which has the ability to manage IAM configuration.
+
+</InlineNotification>
+
+## Configure VPC Load Balancer HTTPS listener
+
+The VPC Load Balancer service can terminate and offload processing of [incoming SSL/TLS connections](https://cloud.ibm.com/docs/vpc?topic=vpc-load-balancers#ssl-offloading-and-required-authorizations). In order to do this, a front-end listener pool is defined using the HTTPS protocol and the CRN of the desired certificate in the Certificate Manager. Access to the certificate and the associated private key requires a service authorization between the VPC Load Balancer service and the Certificate Manager service.
+
+These actions can be performed from the web UI, or the IBM Cloud CLI, but in keeping with the example code that is being extended, terraform code to provide the service authorization and listener pool creation is provided in the `tls.tf` file. This file has a placeholder for the CRN of the certificate to be used by the front-end listener. Update the placeholder with these steps.
+
+Change to the `14-certificate-management/order-certificate` directory and obtain the CRN of the ordered certificate:
+
+```bash
+CERT_CRN=$(terraform output ordered-certificate-id)
+```
+
+Change to the `14-certificate-management/vpc-lbaas-certificate` directory and update the placeholder in the `tls.tf` file.
+
+```bash
+sed -i.bak "s|CERT-CRN|${CERT_CRN}|" tls.tf && rm tls.tf.bak
+```
+
+After running this command, the `tls.tf` file will look like:
+
+```hcl pathname=tls.tf
+data "ibm_resource_instance" "cm" {
+    name     = "iac-certificate-manager"
+    service  = "cloudcerts"
+}
+
+variable "certificate_crn" {
+    default = "crn:v1:bluemix:public:cloudcerts:us-south:a/06788ee4fd5a4d779f236bbe43f09b4b:d6cad342-cf54-49d3-b5f9-42e842e43c40:certificate:df56720b1dab1db089f73d0fd8d6ad20"
+}
+
+resource "ibm_iam_authorization_policy" "policy" {
+  source_service_name           = "is"  
+  source_resource_type          = "load-balancer"
+  target_service_name           = "cloudcerts"
+  roles                          = ["Writer"]
+}
+
+resource "ibm_is_lb_listener" "iac_app_lb_listener_tls" {
+  lb                        = ibm_is_lb.iac_app_lb.id
+  port                      = "443"
+  protocol                  = "https"
+  certificate_instance      = var.certificate_crn
+  default_pool              = ibm_is_lb_pool.iac_app_lb_pool.id
+}
+
+output "load_balancer_host_status" {
+  value = "add the host ${ibm_is_lb.iac_app_lb.hostname} as CNAME to the tls host"
+}
+```
+
+Use this command from the IaC Compute section to add the public key used for SSH connections to the folder for use during the environment creation.
+
+```bash
+echo "public_key = \"$(cat ~/.ssh/id_rsa.pub)\"" > secrets.auto.tfvars
+```
+
+Now use terraform to create the environment with compute, load balancer and the HTTPS enabled front-end listener.
+
+```bash
+terraform init 
+terraform plan 
+terraform apply
+```
+
+When the code completes, a message will appear with the hostname of the VPC Load Balancer:
+
+```text
+Apply complete! Resources: 29 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+entrypoint = http://8f962775-us-south.lb.appdomain.cloud:8080
+lb_ip_address = [
+  "52.116.196.98",
+  "52.117.1.76",
+]
+load_balancer_host_status = add the host 8f962775-us-south.lb.appdomain.cloud as CNAME to the tls host
+```
+
+ Update the DNS domain name entry in the certificate with a CNAME record that direct to the hostname of the VPC Load Balancer. Once the CNAME is in place, you can access the deployed example application.
+
+```bash
+curl https://movies.timro.us/movies/675
+{
+  "id": "675",
+  "title": "Kagemusha",
+...
+```
+
+## Clean up
+
+To cleanup all the resources created by the script, run the following:
+
+```bash
+terraform destroy
+```
+
+This will not delete the Certificate Manager instance or the imported or ordered certificates. Only delete the certificate manager instance if you will not be completing the "Certificates for Kubernetes" example.

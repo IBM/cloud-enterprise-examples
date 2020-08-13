@@ -1,0 +1,104 @@
+---
+title: What is ____?
+description: Overview of ____
+keywords: 'ibm cloud'
+---
+
+<PageDescription>
+
+What is ____?
+
+</PageDescription>
+
+<AnchorLinks small>
+  <AnchorLink>Item 1</AnchorLink>
+  <AnchorLink>Item 2</AnchorLink>
+</AnchorLinks>
+
+<InlineNotification>
+
+###### What is this page for?
+
+This page has some examples of content you can use such as this notification, anchor links, page description and code. Delete all of them from this page or keep it as a sample to create your pattern.
+
+Use this page to introduce your pattern. You may have tiles to the pages of your pattern.
+
+</InlineNotification>
+
+```bash
+echo "This is an example of some shell scripting code"
+echo "just use 'bash' after the 3 back sticks"
+```
+
+```hcl
+variable "example" {
+  description: "You can use other languages too, such as 'hcl' for Terraform code, 'js' for Javascript, 'go', 'python', etc..."
+}
+```
+
+<!--
+This is a comment, they won't show up in the page. You can use it for TODO:, IDEA:, TBD:, etc...
+-->
+
+## Instructions
+
+This page is in MDX format which is Markdown with JSX, or HTML if you want to call it that way. Use an IDE (I suggest Visual Studio Code) to edit the content and install the [Gatsby Snippets](https://marketplace.visualstudio.com/items?itemName=nickytonline.vscode-gatsby-snippets) extension.
+
+This code is made with Gastby using the Carbon theme. To know more about the components of Gastby, Carbon and Markdown refer to the following links:
+
+- [Gatsby theme Carbon](https://gatsby-theme-carbon.now.sh/components/Accordion) Components
+- [Carbon](https://www.carbondesignsystem.com/components/overview) Components
+- [Gatsby](https://www.gatsbyjs.org/tutorial/) Tutorial & Docs
+- [Markdown](https://daringfireball.net/projects/markdown/syntax), if you Google for `Markdown` you'll find more
+
+For every new page you create you have to:
+
+1. Open `src/data/nav-items.yaml`
+2. Locate your pattern title (i.e. `Infrastructure as Code`)
+3. Add a new `title` and `path` under the `pages` section
+4. The `title` would be something like `Content Overview`
+5. The `path` is the relative path from `src/pages` to the new page. Example: `/iac/content-overview`
+6. Create the directory on `src/pages` as specified in `path`. You can execute: `mkdir -p ./src/pages/XYZ/content-overview`, replace `XYZ` to your pattern dir name.
+7. Create the `index.mdx` page inside that directory or copy it from this one, something like this: `cp ./src/pages/XYZ/content-overview/index.mdx ./src/pages/XYZ/ABC/`, replace `XYZ` to your pattern dir name and `ABC` to your new page dir name.
+8. Modify the `title`, `description` and `keyword` inside the page metadata section in `index.mdx`. They are in the first 5 lines of the file.
+9. Modify the `<PageDescription>` section with something similar to the `title` field above.
+10. Update the `<AnchorLinks>` with the sub-titles in your pages. They must have the same text, otherwise the link won't work.
+11. Feel free to refer to other pages in the site to reuse code, design patterns and structure
+12. Add a link from the overview page (this page) to the new page using a tile. Go to IaC > Overview as an example.
+
+To document a pattern, use the following guide or structure when applies:
+
+- Introduce the resource with an example
+- List all or the most important input parameters
+- List the most important output parameters if any or if they will be used
+- Provide instructions to get the value of the input parameters, either using `ibmcloud`, API or the Web console.
+- Provide instructions to execute the code either with Terraform or Schematics, if applies, needed or required.
+
+This pattern applies for IaC, it may not fit for your pattern but try to follow something similar when needed.
+
+To document your examples, use screenshots when using the IBM Cloud Web console. If possible provide code as Infrastructure as Code using Terraform or Schematics. Go to the IaC section for multiple examples, patterns and how to setup your environment to use it.
+
+The development workflow is as follows:
+
+1. Environment Setup: (*only when repo is clone*) Execute `npm install` to download all the dependencies.
+2. Create a branch following this naming convention: `docs/OWNER/issue_NN/NAME` where:
+   1. `OWNER` would be your name or nick name to identify you, could be the GH user if it's short
+   2. `NN` is the issue number linked to this branch or the Pull Request
+   3. `NAME` is the name of the change, it could be the patter name or the page in the pattern
+   4. The command to create the branch is: `git branch -b docs/OWNER/issue_NN/NAME`
+   5. Check the branch you are working on with: `git branch`
+3. To view your changes, execute the following command in the root of the repo `npm run dev`, when you see `http://localhost:8000/` go to that page in a browser.
+4. Every change you do in your code will appear immediately in the browser page, there is no need to refresh.
+5. When happy with the changes push the changes. `git add FILES`, `git commit -m 'DESCRIPTION'`, `git push`
+6. Create a Pull Request in the GitHub page with this new branch (this is a one time step)
+   1. **IMPORTANT**: make sure you the base repository is `ibmcloud-pattern-guide` and NOT `ibm-gsi-cloud-native`
+7. If you have to do more changes go to step #5 but there is no need to repeat step #6
+8. When happy with the changes and ready for Peer Review, you can do one of the following options:
+   1. Provide instructions in the PR to checkout the branch, run Gatsby and view the changes in a browser. Ask a coworker/reviewer to follow those instructions to review your branch
+   2. Merge the changes into `dev`, TravisCI will generate the Web pages. You can ask a coworker/reviewer to review the changes there.
+9. If there are more changes to do or fix, go to step #5 (there is no need to do step #6)
+10. If everything is good, you can close the PR and delete the branch.
+
+When the team is ready to merge from `dev` to `master` it will be done by a team member. This could be done during or after the Sprint Review at the end of the Sprint.
+
+**IMPORTANT**: Make sure to delete these instructions and guides before release the page to the `master` branch. Or, comment them out.

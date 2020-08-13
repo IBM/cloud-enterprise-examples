@@ -1,0 +1,150 @@
+---
+title: SSH Keys Management
+description: Instructions to create SSH keys
+keywords: 'terraform,ibm cloud,ssh keys'
+---
+
+<PageDescription>
+
+Sharing SSH key between projects
+
+</PageDescription>
+
+<AnchorLinks small>
+  <AnchorLink>Create the SSH Key Pair</AnchorLink>
+  <AnchorLink>Using the IBM Cloud CLI to create the SSH Key</AnchorLink>
+  <AnchorLink>Using Terraform to create the SSH Key</AnchorLink>
+  <AnchorLink>Use the created SSH key</AnchorLink>
+  <AnchorLink>Clean up</AnchorLink>
+</AnchorLinks>
+
+Terraform code in the example projects provided in this pattern creates, modifies and destroys the SSH key. However, you may want to use your own SSH key or create, modify and destroy it using a different method. Having a SSH key shared between projects is also good practice to follow. This chapter describes how to manage a SSH key outside of the example project Terraform code.
+
+## Create the SSH Key Pair
+
+Before creating the SSH key in IBM Cloud you need to have a SSH key pair in your system. You can create the key pair using the `ssh-keygen` command. If you use the default parameters it generates the SSH Key Pairs in the files `~/.ssh/id_rsa.pub` and `~/.ssh/id_rsa`. Read [create the SSH key pair](https://cloud.ibm.com/docs/vpc?topic=vpc-ssh-keys) to know more about the command `ssh-keygen` and the different parameters you can use.
+
+You can create the SSH Key on IBM Cloud on different ways, here we'll explain two: Using the IBM Cloud CLI and using Terraform.
+
+## Using the IBM Cloud CLI to create the SSH Key
+
+Make sure you have installed `ibmcloud` and the `infrastructure-service` plugin targeting it to Gen 2. Then login to your account using the `ibmcloud login` command. The [Setup Environment](/iac/setup-environment) page explain how to get this ready.
+
+List the existing SSH Keys using the following command to not use one of the used key names:
+
+```bash
+ibmcloud is keys
+```
+
+To create your SSH Key execute the command `ibmcloud is key-create KEY_NAME (KEY | @KEY_FILE)`. Assuming you'll take the public SSH key from `~/.ssh/id_rsa.pub` and name the key `schematics-test-key`, the command would be like this:
+
+```bash
+ibmcloud is key-create schematics-test-key @~/.ssh/id_rsa.pub
+```
+
+If something went wrong with the creation you can update the key name or delete the SSH key with the following commands respectively. The key ID `00000000-0000-0000-0000-000000000000` is fake, get the correct Key ID using the `ibmcloud is keys` command.
+
+```bash
+ibmcloud is key-update 00000000-0000-0000-0000-000000000000 --name my-new-name
+ibmcloud is key-delete 00000000-0000-0000-0000-000000000000 -f
+```
+
+<InlineNotification>
+
+###### Where can I learn more?
+
+Refer to the documentation the [Keys](https://cloud.ibm.com/docs/cli?topic=vpc-infrastructure-cli-plugin-vpc-reference#keys) in the VPC Infrastructure Service plugin. Or, use the CLI help with `ibmcloud is KEY-CMD --help` where `KEY-CMD` can be `key`, `keys`, `key-create`, `key-delete` or `key-update`.
+
+Notice that some documentation refers to the command `ibmcloud sl security sshkey-*`, this document is to manage the SSH Keys for the Classic Infrastructure or Gen 1.
+
+</InlineNotification>
+
+## Using Terraform to create the SSH Key
+
+A pre-requisite for using Terraform is to complete the [environment setup](/iac/setup-environment). For the steps below, it's required to have Terraform installed, the IBM Cloud Provider installed and the variable `IC_API_KEY` exported with the API Key to access your IBM Cloud account.
+
+In the [Getting Started with Terraform](/iac/getting-started-terraform) we made Terraform code to create a SSH Key for our simple instance. We can reuse that code. Create a directory named `ssh-key` for the following Terraform code:
+
+```bash
+mkdir ssh-key
+cd ssh-key
+```
+
+```hcl path=main.tf
+provider "ibm" {
+  generation         = 2
+  region             = "us-south"
+}
+
+variable "public_key_file"  { default = "~/.ssh/id_rsa.pub" }
+locals {
+  public_key    = file(pathexpand(var.public_key_file))
+}
+
+variable "ssh_key_name" {}
+
+resource "ibm_is_ssh_key" "iac_shared_ssh_key" {
+  name       = var.ssh_key_name
+  public_key = local.public_key
+}
+
+output "id" {
+  value = ibm_is_ssh_key.iac_shared_ssh_key.id
+}
+output "ibm_cloud_url" {
+  value = ibm_is_ssh_key.iac_shared_ssh_key.resource_controller_url
+}
+```
+
+Execute `terraform init`, then execute the following commands to create or update the key (you will be prompted for the key name because there is no default set for ssh_key_name variable in the code):
+
+```bash
+terraform plan
+terraform apply
+```
+
+To destroy the key just execute `terraform destroy`
+
+<InlineNotification>
+
+###### Where can I know more?
+
+Read the web documentation for the [ibm_is_ssh_key](https://cloud.ibm.com/docs/terraform?topic=terraform-vpc-gen2-resources#ssh-key) resource of the IBM Cloud Provider.
+
+</InlineNotification>
+
+## Use the created SSH key
+
+To make the Terraform code in all the examples of the IaC pattern use the recently created SSH Key we need to add the following code the files `variables.tf` and `main.tf` like so:
+
+```hcl path=variables.tf
+variable "ssh_key_name" {}
+```
+
+All the variables related to the SSH Key were replaced by just one `ssh_key_name` which is going to store the name of the recently created SSH Key.
+
+```hcl path=main.tf
+data "ibm_is_ssh_key" "shared_ssh_key" {
+  name = var.ssh_key_name
+}
+
+resource "ibm_is_instance" "iac_instance" {
+  ...
+  keys = [ data.ibm_is_ssh_key.shared_ssh_key.id ]
+  ...
+}
+```
+
+In the `main.tf` remove all the code to create the SSH Key and insert the data source `ibm_is_ssh_key` to get the information from the shared SSH Key. The data source requires the SSH Key name which is stored in the variable `ssh_key_name`. Also, remove any SSH key variable in the `variables.tf` file.
+
+The `ibm_is_instance.iac_instance` instance use a similar code to get the SSH Key ID, but instead it uses the data source `ibm_is_ssh_key.shared_ssh_key`, notice the prefix `data.`.
+
+## Clean up
+
+If you'd like to destroy the shared SSH Key just need to execute the command:
+
+```bash
+terraform destroy
+```
+
+If the SSH key is being used by other resources IBM Cloud will complain and won't let you delete the key. Make sure no resource is using the key in order to delete it.

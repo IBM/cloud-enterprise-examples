@@ -1,0 +1,842 @@
+---
+title: IaC for Cloud Databases and Service Instances
+description: Use IaC to work with managed Cloud Databases and Service Instances
+keywords: 'terraform,ibm cloud,db,dba'
+---
+
+<!--
+
+The pattern to document the resources is like follow:
+- Introduce the resource with an example
+- List all or the most important input parameters
+- If will be used, list the most important output parameters
+- Provide instructions to get the value of the input parameters, either using `ibmcloud`, API or the Web console.
+- If needed, instructions to execute the code either with Terraform or Schematics
+
+-->
+
+<PageDescription>
+
+Use IaC to work with managed Cloud Databases and Service Instances
+
+</PageDescription>
+
+Most of the applications requires a database or service. This page explains how to use the `ibm_database` and `ibm_resource_instance` resources to create different type of databases or services. We will use the API movies demo application to demonstrate the use of a provisioned MongoDB database. The following diagram shows the architecture we will build in this page.
+
+![Architecture](./images/IaC-Cloud_Services_Resources.png "Cloud Database Resources Architecture")
+
+The code to build these resources can be downloaded from the GitHub repository https://github.com/IBM/cloud-enterprise-examples/ in the directory [08_cloud-services](https://github.com/IBM/cloud-enterprise-examples/tree/master/iac/08_cloud-services).
+
+<AnchorLinks small>
+  <AnchorLink>Cloud Database Services</AnchorLink>
+  <AnchorLink>MongoDB</AnchorLink>
+  <AnchorLink>Access the database with MongoDB Compass</AnchorLink>
+  <AnchorLink>Access to the MongoDB database with Python</AnchorLink>
+  <AnchorLink>PostgreSQL</AnchorLink>
+  <AnchorLink>Access to the PostgreSQL database with NodeJS</AnchorLink>
+  <AnchorLink>Service Instances</AnchorLink>
+  <AnchorLink>Message Queue</AnchorLink>
+  <AnchorLink>Final Terraform code</AnchorLink>
+  <AnchorLink>Clean up</AnchorLink>
+</AnchorLinks>
+
+As you look at the PostgreSQL & MongoDB code, you will notice the similarity.  In fact, except for the `service` type, they are identical.  This is because the scripts are using Resource Management Resources and managing resources for the IBM Cloud database services.  You can find out more about it [here](https://cloud.ibm.com/docs/terraform?topic=terraform-resource-mgmt-resources#resource-instance).
+
+## Cloud Database Services
+
+[IBM Cloud Database](https://www.ibm.com/cloud/databases) offers many database options, with each one being useful for a particular use-case. The IBM Cloud Provider supports creation of [Cloud Databases resources](https://cloud.ibm.com/docs/terraform?topic=terraform-databases-resources) of several different flavors including: **etcd**, **PostgreSQL**, **Redis**, **ElasticSearch**, **MongoDB** and messaging with **RabbitMQ**.
+
+To create a Cloud Database we use the Terraform resource `ibm_database`. No matter what database flavor is provisioned, we always provide the same input parameters and get the same output parameters. The DB flavor will only affect the values of these parameters.
+
+The following table lists the most relevant input parameters for the `ibm_database` resource.
+
+| Input parameter | Description |
+|---|---|
+| `name` | name to identify the _database instance_.  The name must not include spaces. Notice that this is not the name as the database |
+| `plan` | service plan that you choose for your instance. The supported values is `standard` |
+| `location` | location to deploy your instance, it must match the region parameter that you specify in the provider block |
+| `tags` | optional list of tags to add to your instance |
+| `service` | type of Cloud Databases to create, the following services are accepted: `databases-for-etcd`, `databases-for-postgresql`, `databases-for-mongodb`, `databases-for-redis`, `databases-for-elasticsearch` and `messages-for-rabbitmq` |
+| `adminpassword`	| password for the database administrator. If not specified, additional users must be specified in a user block |
+| `members_memory_allocation_mb` | amount of memory in megabytes for the database, split across all members |
+| `members_disk_allocation_mb` | amount of disk space for the database, split across all members |
+| `members_cpu_allocation_count` | allocates the number of specified dedicated cores to your deployment |
+| `backup_id` | CRN of a backup resource to restore from. The backup must have been created by a database deployment with the same service ID. The backup is loaded after provisioning and the new deployment starts up that uses that data. A backup CRN is in the format `crn:v1:<…>:backup:`. If omitted, the database is provisioned empty |
+| `key_protect_key` | CRN of a Key Protect root key that you want to use for disk encryption. A key protect CRN is in the format `crn:v1:<…>:key:` |
+| `key_protect_instance` | CRN of a Key Protect instance that you want to use for disk encryption. A key protect CRN is in the format `crn:v1:<…>::` |
+| `service_endpoints` | to enable the `public`, `private`, or both `public-and-private` service endpoints. The default is `public` |
+| `users` | list of users to create on the database. Multiple blocks are allowed |
+| `users.name` | name of the user ID to add to the database instance. The user ID must be between 5 and 32 characters |
+| `users.password` | password for the user ID. The password must be between 10 and 32 characters |
+| `whitelist` | list of IP addresses to allow access for the database. Multiple blocks are allowed. If not specified access from any IP is allowed |
+| `whitelist.address` | The IP address or range of database client addresses to be whitelisted in CIDR format. Example: `172.168.1.2/32` |
+
+The list of output parameters is like follows:
+
+| Input parameter | Description |
+|---|---|
+| `id` | CRN of the database instance |
+| `status` | status of the instance |
+| `adminuser` | user ID of the database administrator. Example: `admin` or `root` |
+| `version` | database version |
+| `connectionstrings` | list of [connection strings](https://cloud.ibm.com/docs/services/databases-for-postgresql?topic=databases-for-postgresql-connection-strings) for the database for each user ID. The results are returned in pairs of the userid and string: `connectionstrings.1.name = admin connectionstrings.1.string = postgres://admin:$PASSWORD@79226bd4-4076-4873-b5ce-b1dba48ff8c4.b8a5e798d2d04f2e860e54e5d042c915.databases.appdomain.cloud:32554/ibmclouddb?sslmode=verify-full` Individual string parameters can be retrieved using Terraform variables and outputs `connectionstrings.x.hosts.x.port` and `connectionstrings.x.hosts.x.host` |
+
+The following sections will explain how to create a simple Cloud Database with **MongoDB** and **PostgreSQL**. To view an example of **etcd**, refer to the section [Setup Terraform Remote State using etcd as backend](/iac/getting-started-terraform/remote-state).
+
+## MongoDB
+
+This is a simple example to create a single instance running MongoDB. The final code can be found in the directory [08_cloud-services/simple_mongodb](https://github.com/IBM/cloud-enterprise-examples/tree/master/iac/08_cloud-services/simple_mongodb) of the GitHub repository with all the code patterns. A full example with application setup on VSI compute can be found in the [08_cloud-services](https://github.com/IBM/cloud-enterprise-examples/tree/master/iac/08_cloud-services) and is discussed towards the end of this article.
+
+To create a MongoDB Cloud Database use the service `databases-for-mongodb`. Create a file to store the database definition (i.e. `db.tf`) with a code similar to this one:
+
+```hcl path=db.tf
+variable "db_admin_password" {}
+
+resource "ibm_database" "db_instance" {
+  name              = "sampledb"
+  plan              = "standard"
+  location          = "us-south"
+  service           = "databases-for-mongodb"
+  resource_group_id = data.ibm_resource_group.group.id
+
+  adminpassword                = var.db_admin_password
+  members_memory_allocation_mb = "3072"
+  members_disk_allocation_mb   = "61440"
+}
+```
+
+A simple `main.tf` code to use the previous database would be like so:
+
+```hcl path=main.tf
+provider "ibm" {
+  region     = "us-south"
+  generation = 2
+}
+
+data "ibm_resource_group" "group" {
+  name = "Default"
+}
+```
+
+To view some important output parameters of the provisioned database create the `output.tf` file with these output variables:
+
+```hcl path=output.tf
+output "db_connection_composed" {
+  value = ibm_database.db_instance.connectionstrings.0.composed
+}
+output "db_connection_certbase64" {
+  value = ibm_database.db_instance.connectionstrings.0.certbase64
+}
+output "db_admin_password" {
+  value = var.db_admin_password
+}
+```
+
+If you need more parameters, add the following output variables to get all the parameters, then add variables with the values of the parameters of the `connectionstrings` or `db_instance` JSON objects.
+
+```hcl
+output "db_connection_string" {
+  value = ibm_database.db_instance.connectionstrings.0
+}
+output "instance" {
+  value = ibm_database.db_instance
+}
+```
+
+To define the value of the admin password variable export the variable `TF_VAR_db_admin_password` with a password with 10-32 characters or use the following command to generate a random password. The password will be used by the URI in the variable `PASSWORD`, so we are exporting both.
+
+```bash
+export PASSWORD=$(LC_CTYPE=C tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 32)
+export TF_VAR_db_admin_password=$PASSWORD
+```
+
+To create the database just execute the following terraform commands:
+
+```bash
+terraform init
+terraform plan
+terraform apply
+```
+
+You'll see the output of the last command with the connection string URI with the variable `db_connection_composed` and the CA certificate encoded with base64 in the variable `db_connection_certbase64`. To get the output varibles again use the command `terraform output`.
+
+You'll need to save the output variables into environment variables and the certificate to a file executing these commands. In order to interpolate the `PASSWORD` variable into the `APP_MONGODB_URI` variable you have to use the `eval` command like so.
+
+```bash
+terraform output db_connection_certbase64 | base64 --decode > db_ca.crt
+export PASSWORD=$(terraform output db_admin_password)
+export APP_MONGODB_URI=$(eval 'echo "'$(terraform output db_connection_composed)'"')
+echo $APP_MONGODB_URI
+```
+
+<!--
+The database name in the URI is `ibmclouddb`, assumig the DB name is `demodb` let's use the `sed` command to change it, like so:
+
+```bash
+export DB_NAME=demodb
+export APP_MONGODB_URI=$(echo $APP_MONGODB_URI | sed 's|/ibmclouddb?|/$DB_NAME?|')
+echo $APP_MONGODB_URI
+```
+-->
+
+All you need to conect to the database is the conection URI, from the environment variable `APP_MONGODB_URI`, and the CA Certificate, stored in the file `./db_ca.crt`.
+
+## Access the database with MongoDB Compass
+
+Let's use the client MongoDB Compass to access the new provisioned database. Download and install the [MongoDB Compass](https://www.mongodb.com/try/download/compass) application for your platform. Alternatively you can use the `brew` command on Mac OS X to install it.
+
+```bash
+brew cask install mongodb-compass
+```
+
+Open MongoDB Compass and you'll see the new connection screen. Copy and paste the connection URI from the environment variable `APP_MONGODB_URI` in the **Paste your connection string** field.
+
+![](./images/mongodb_compass_1.png)
+
+Click on **Fill in connection fields individually**, then select the **More Options** tab. Select **Server Validation** in the **SSL** field, then select the `db_ca.crt` file in the **Certificate Authority** field.
+
+![](./images/mongodb_compass_2.png)
+
+Create a database clicking on the **CREATE DATABASE** button. Name the database `demodb` and the collection `users`.
+
+![](./images/mongodb_compass_3.png)
+
+Click on the **demodb** database, click on the **users** collection, then on ADD DATA > Insert Document to add any data you want, like the following example:
+
+![](./images/mongodb_compass_4.png)
+
+```json
+[
+  {
+    "_id": "5ee428b13265d9083baa0259",
+    "index": 0,
+    "picture": "http://placehold.it/32x32",
+    "age": 21,
+    "name": "Dale Duffy",
+    "gender": "male",
+    "email": "daleduffy@dognosis.com"
+  },
+  {
+    "_id": "5ee428b19eeb7916a4943a64",
+    "index": 1,
+    "picture": "http://placehold.it/32x32",
+    "age": 36,
+    "name": "Price West",
+    "gender": "male",
+    "email": "pricewest@dognosis.com"
+  },
+  {
+    "_id": "5ee428b198517601184ee994",
+    "index": 2,
+    "picture": "http://placehold.it/32x32",
+    "age": 29,
+    "name": "Arline Gordon",
+    "gender": "female",
+    "email": "arlinegordon@dognosis.com"
+  },
+  {
+    "_id": "5ee428b1cd9893fad62cf901",
+    "index": 3,
+    "picture": "http://placehold.it/32x32",
+    "age": 37,
+    "name": "Mathis Gould",
+    "gender": "male",
+    "email": "mathisgould@dognosis.com"
+  },
+  {
+    "_id": "5ee428b19e46e16ef1284030",
+    "index": 4,
+    "picture": "http://placehold.it/32x32",
+    "age": 30,
+    "name": "Rosemarie Morton",
+    "gender": "female",
+    "email": "rosemariemorton@dognosis.com"
+  }
+]
+```
+
+There is more information about how to use MongoDB Compass [with the IBM Cloud Database](https://cloud.ibm.com/docs/databases-for-mongodb?topic=databases-for-mongodb-getting-started) or about how to use [MongoDB Compass](https://docs.mongodb.com/compass/current/) in general.
+
+## Access to the MongoDB database with Python
+
+For simplicity let's create this code in Python to use the conection string and connect to the database. A similar code can be made in any other programming language.
+
+In this example we'll use the [pymongo](https://pypi.org/project/pymongo/) package and a JSON file with mock data to import into the database. All the code is located in the directory [08_cloud-services/simple_mongodb](https://github.com/IBM/cloud-enterprise-examples/tree/master/iac/08_cloud-services/simple_mongodb) of the GitHub repository with all the code patterns.
+
+The `pymongo` package requires the connection URI, obtained from the environment variable `APP_MONGODB_URI` and the CA certificate from the file `db_ca.crt`, like so.
+
+```python
+from pymongo import MongoClient
+import os
+
+mongodb_uri = os.environ.get('APP_MONGODB_URI')
+
+client = MongoClient(mongodb_uri,
+                     ssl=True,
+                     ssl_ca_certs="./db_ca.crt")
+```
+
+The rest of the application is a sample code to insert many documents or just one, to find documents and query the database. Similar sample code can be found in the pymongo [documentation](https://pypi.org/project/pymongo/) or in this [tutorial](https://www.w3schools.com/python/python_mongodb_getstarted.asp). The entire code is shown below and also can be downloaded from [here](https://github.com/IBM/cloud-enterprise-examples/tree/master/iac/08_cloud-services/simple_mongodb/app.py).
+
+```python path=app.py
+from pymongo import MongoClient
+import json
+import os
+
+mongodb_uri = os.environ.get('APP_MONGODB_URI')
+
+client = MongoClient(mongodb_uri,
+                     ssl=True,
+                     ssl_ca_certs="./db_ca.crt")
+
+dbnames = client.list_database_names()
+
+db = client['demodb']
+books = db['books']
+
+if not books.find_one():
+    with open('./db.json') as f:
+        data = json.load(f)
+    books.insert_many(data['books'])
+
+new_book = {
+    "isbn": "9781449325862",
+    "title": "Git Pocket Guide",
+    "subtitle": "A Working Introduction",
+    "author": "Richard E. Silverman",
+    "published": "2013-08-02T00:00:00.000Z",
+    "publisher": "O'Reilly Media",
+    "pages": 234,
+    "description": "This pocket guide is the perfect on-the-job companion to Git, the distributed version control system. It provides a compact, readable introduction to Git for new users, as well as a reference to common commands and procedures for those of you with Git experience.",
+    "website": "http://chimera.labs.oreilly.com/books/1230000000561/index.html"
+}
+
+if books.count_documents({"isbn": new_book['isbn']}) == 0:
+    book = books.insert_one(new_book)
+    print("The new book has been inserted. ID = ", book.inserted_id)
+
+print("Books:")
+for book in books.find({}, {"title": 1}):
+    print("\t", book)
+
+query = {"publisher": "O'Reilly Media"}
+print("O'Reilly Media's Books:")
+for book in books.find(query, {"title": 1, "publisher": 1}):
+    print("\t", book)
+
+client.close()
+```
+
+## PostgreSQL
+
+This is another simple example to create a single instance running PostgreSQL. The final code can be found in the directory [08_cloud-services/simple_postgresql](https://github.com/IBM/cloud-enterprise-examples/tree/master/iac/08_cloud-services/simple_postgresql) of the GitHub repository with all the code patterns.
+
+To create a PostgreSQL Cloud Database use the service `databases-for-postgresql`. Create a file to store the database definition (i.e. `db.tf`) with a code similar to this one:
+
+```hcl path=db.tf
+resource "ibm_database" "db_instance" {
+  name              = "sampledb"
+  plan              = "standard"
+  location          = "us-south"
+  service           = "databases-for-postgresql"
+  resource_group_id = data.ibm_resource_group.group.id
+
+  adminpassword                = "P@ssW0rd"
+  members_memory_allocation_mb = "3072"
+  members_disk_allocation_mb   = "61440"
+}
+```
+
+A simple `main.tf` code to use the previous database would be like so:
+
+```hcl path=main.tf
+provider "ibm" {
+  region             = "us-south"
+  generation         = 2
+}
+
+data "ibm_resource_group" "group" {
+  name = "Default"
+}
+```
+
+To view some important output parameters of the provisioned database create the `output.tf` file with these output variables:
+
+```hcl path=output.tf
+output "db_connection_composed" {
+  value = ibm_database.db_instance.connectionstrings.0.composed
+}
+output "db_connection_certbase64" {
+  value = ibm_database.db_instance.connectionstrings.0.certbase64
+}
+```
+
+If you need more parameters, add the following output variables to get all the parameters, then add variables with the values of the parameters of the `connectionstrings` or `db_instance` JSON objects.
+
+```hcl
+output "db_connection_string" {
+  value = ibm_database.db_instance.connectionstrings.0
+}
+output "instance" {
+  value = ibm_database.db_instance
+}
+```
+
+To define the value of the admin password variable export the variable `TF_VAR_db_admin_password` with a password with 10-32 characters or use the following command to generate a random password. The password will be used by the URI in the variable `PASSWORD`, so we are exporting both.
+
+```bash
+export PASSWORD=$(LC_CTYPE=C tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 32)
+export TF_VAR_db_admin_password=$PASSWORD
+```
+
+To create the database just execute the following terraform commands:
+
+```bash
+terraform init
+terraform plan
+terraform apply
+```
+
+You'll see the output of the last command with the connection string URI with the variable `db_connection_composed` and the CA certificate encoded with base64 in the variable `db_connection_certbase64`. To get the output varibles again use the command `terraform output`.
+
+You'll need to save the output variables into environment variables and the certificate to a file executing these commands. In order to interpolate the `PASSWORD` variable into the `APP_POSTGRESQL_URI` variable you have to use the `eval` command like so.
+
+```bash
+terraform output db_connection_certbase64 | base64 --decode > db_ca.crt
+export PASSWORD=$(terraform output db_admin_password)
+export APP_POSTGRESQL_URI=$(eval 'echo "'$(terraform output db_connection_composed)'"')
+```
+
+The database name in the URI is `ibmclouddb`, assumig the DB name is `demo` let's use the `sed` command to change it, like so:
+
+```bash
+export DB_NAME=demo
+export APP_POSTGRESQL_URI=$(echo $APP_POSTGRESQL_URI | sed "s|/ibmclouddb?|/$DB_NAME?|")
+echo $APP_POSTGRESQL_URI
+```
+
+All you need to conect to the database is the conection URI, from the environment variable `APP_POSTGRESQL_URI`, and the CA Certificate, stored in the file `./db_ca.crt`.
+
+## Access to the PostgreSQL database with NodeJS
+
+For simplicity let's create this code in NodeJS to use the conection string and connect to the database. A similar code can be made in any other programming language.
+
+Let's install the PostgreSQL client [pgAdmin](https://www.pgadmin.org/download/) which is GUI/Web client. It can also be installed on Mac OS X with `brew`.
+
+```bash
+brew cask install pgadmin4
+```
+
+To connect to the Cloud Database using pgAdmin read the [documentation](https://cloud.ibm.com/docs/databases-for-postgresql?topic=databases-for-postgresql-getting-started) or follow this quick instructions:
+
+1. Add a New Server with any given name (i.e. `ibmcloud`)
+2. Go to the Connection tab, enter the **Host name** and **Port** from the `APP_POSTGRESQL_URI` variable.
+3. Enter the **Password** from the `PASSWORD` variable.
+4. Go to the SSL tab, click on the 3 dots to select the `db_ca.crt` file under the **Root certificate** field.
+5. Click on the **Save** button.
+
+Using the GUI or the Query Tool (**Tools** > **Query Tool**), create the database `demo`.
+
+```sql
+CREATE DATABASE demo;
+```
+
+Select the new database with the right click to open the **Query Tool** on the new database. Create the table `users` and insert a few records using the following SQL instruction:
+
+```sql
+CREATE TABLE users (
+  ID SERIAL PRIMARY KEY,
+  name VARCHAR(30),
+  email VARCHAR(30),
+  age INT
+);
+
+INSERT INTO users (name, email, age)
+  VALUES
+    ('Dale Duffy', 'daleduffy@dognosis.com', 21),
+    ('Price West', 'pricewest@dognosis.com', 36);
+```
+
+Verify the data either using the GUI or executing the following SQL instructions
+
+```sql
+SELECT * FROM users;
+```
+
+Create a new NodeJS application and install the `pg` packages.
+
+```bash
+mkdir app
+cd app
+npm init
+npm install pg
+```
+
+Create the `index.js` with the following code to connect to the database, get the list of users and insert a new one.
+
+```javascript
+const { Pool, Client } = require("pg");
+const { readFileSync } = require("fs");
+const { join } = require("path");
+
+const connectionString = process.env.APP_POSTGRESQL_URI;
+const caCertPath = join(__dirname, "..", "db_ca.crt");
+const caCert = readFileSync(caCertPath);
+
+(async () => {
+  const pool = new Pool({
+    connectionString: connectionString,
+    ssl: {
+      ca: caCert,
+      rejectUnauthorized: true,
+    },
+  });
+
+  const resBefore = await pool.query("SELECT * FROM users");
+  console.info(resBefore.rows);
+
+  pool.query("INSERT INTO users (name, email, age) VALUES ($1, $2, $3)", [
+    "Arline Gordon",
+    "arlinegordon@dognosis.com",
+    29,
+  ]);
+
+  const resAfter = await pool.query("SELECT * FROM users");
+  console.info(resAfter.rows);
+
+  await pool.end();
+})();
+```
+
+Execute yuour code with the command:
+
+```bash
+node .
+```
+
+Refer to the [documentation](https://cloud.ibm.com/docs/databases-for-postgresql) to know more about PostgreSQL database on IBM Cloud.
+
+## Service Instances
+
+The `ibm_resource_instance` resource can be used to create, update or delete any of the offered services by IBM Cloud. You can retrieve list of offered services by installing the `catalogs-management` CLI plug-in and running the `service-marketplace` or `search` subcommands of such plugin.
+
+```bash
+ibmcloud plugin install catalogs-management
+
+ibmcloud catalog search
+
+ibmcloud catalog service-marketplace
+ibmcloud catalog service-marketplace | grep message
+
+ibmcloud catalog service mqcloud
+```
+
+You can use the same plugin to create the service however, in this page we'll cover how to manage the service with Terraform, using the resource `ibm_resource_instance`.
+
+The following table list the most relevant input parameters for the `ibm_resource_instance` resource.
+
+| Input parameter | Description |
+|---|---|
+| `name` | name to identify the resource instance |
+| `service` | name of the service offering |
+| `plan` | name of the plan type supported by service. You can retrieve the value by running the `ibmcloud catalog service <servicename>` command |
+| `location` | target location or environment to create the resource instance |
+| `resource_group_id` | ID of the resource group where you want to create the service. You can retrieve the value from data source `ibm_resource_group`. By default uses the Default resource group |
+| `parameters` | Arbitrary parameters to create instance. The value must be a JSON object |
+
+## Message Queue
+
+In this section we'll see an example to create a Message & Queue service using the `ibm_resource_instance` resource. Create the file `mq.tf` with the `ibm_resource_instance` resource to create an `mqcloud` service.
+
+```hcl path=mq.rf
+resource "ibm_resource_instance" "resource_instance" {
+  name              = "mq-instance-test"
+  service           = "mqcloud"
+  plan              = "default"
+  location          = "us-south"
+  resource_group_id = data.ibm_resource_group.group.id
+  tags              = ["message queue", "testmq"]
+
+  timeouts {
+    create = "15m"
+    update = "15m"
+    delete = "15m"
+  }
+}
+```
+
+A simple `main.tf` file to use the above code would be like this:
+
+```hcl path=main.tf
+provider "ibm" {
+  region     = "us-south"
+  generation = 2
+}
+
+data "ibm_resource_group" "group" {
+  name = "Default"
+}
+```
+
+Execute this code with the following terraform commands:
+
+```bash
+terraform init
+terraform plan
+terraform apply
+```
+
+Refer to the [documentation](https://cloud.ibm.com/docs/mqcloud) to know how to use the MQ service from CLI, the Web Console or your own application.
+
+## Final Terraform code
+
+The only cloud database service used in the complete demo application is MongoDB. You can download the code from the GitHub repository https://github.com/IBM/cloud-enterprise-examples/ in the directory [08_cloud-services](https://github.com/IBM/cloud-enterprise-examples/tree/master/iac/08_cloud-services). This code builds off the compute example by adding the following resources and code.
+
+The database definition file `db.tf` using the `ibm_database` resource.
+
+```hcl path=db.tf
+resource "ibm_database" "iac_app_db_instance" {
+  name              = var.db_name
+  plan              = var.db_plan
+  location          = var.region
+  service           = "databases-for-mongodb"
+  resource_group_id = data.ibm_resource_group.group.id
+
+  adminpassword                = var.db_admin_password
+  members_memory_allocation_mb = var.db_memory_allocation
+  members_disk_allocation_mb   = var.db_disk_allocation
+}
+```
+
+Appending the new defined variables in the `variables.tf` file.
+
+```hcl path=variables.tf
+variable "db_plan" {
+  default = "standard"
+}
+variable "db_name" {
+  default = "moviedb"
+}
+variable "db_admin_password" {
+  default = "inSecureP@55w0rd"
+}
+variable "db_memory_allocation" {
+  default = "3072"
+}
+variable "db_disk_allocation" {
+  default = "61440"
+}
+```
+
+The `compute.tf` file has a new Cloud-Init code in the VSI, like so:
+
+```hcl path=compute.tf
+resource "ibm_is_instance" "iac_app_instance" {
+  ...
+
+  user_data = <<-EOUD
+            #!/bin/bash
+            mkdir -p /app
+
+            # Application script and dependencies
+            echo '${data.local_file.requirements.content_base64}' | base64 --decode > /app/requirements.txt
+            echo '${data.local_file.app.content_base64}' | base64 --decode > /app/app.py
+            # Script and database to initially import
+            echo '${data.local_file.db.content_base64}' | base64 --decode > /app/db.json
+            echo '${data.local_file.import.content_base64}' | base64 --decode > /app/import.py
+            # Configuration and credentials
+            echo '${ibm_database.iac_app_db_instance.connectionstrings.0.certbase64}' | base64 --decode > /app/db_certificate.cert
+            export PASSWORD=${var.db_admin_password}
+            export APP_MONGODB_URI="${ibm_database.iac_app_db_instance.connectionstrings.0.composed}"
+            export APP_PORT=${var.port}
+
+
+            # https://askubuntu.com/questions/1154892/prevent-question-restart-services-during-package-upgrades-without-asking
+            echo '* libraries/restart-without-asking boolean true' | debconf-set-selections
+
+            # Python3 is installed by default, pip3 is not
+            apt update
+            apt install -y python3-pip
+
+            # Setup and initialize the DB
+            cd /app
+            pip3 install -r requirements.txt
+            python3 import.py
+
+            # Start up the application
+            python3 app.py &
+            EOUD
+
+  ...
+}
+```
+
+In order to have access to the applications and dependencies file listed below we need to the fine the following terraform data sources with the files content.
+
+```hcl path=app.tf
+data "local_file" "app" {
+  filename = "${path.module}/app/app.py"
+}
+
+data "local_file" "import" {
+  filename = "${path.module}/app/import.py"
+}
+
+data "local_file" "requirements" {
+  filename = "${path.module}/app/requirements.txt"
+}
+
+data "local_file" "db" {
+  filename = "${path.module}/app/db.min.json"
+}
+```
+
+And these files are in the `app/` folder. The `app/app.py` file is the API application using `flask`, `flask-restful` and `flask_mongoengine` packages.
+
+```python path=app/app.py
+from flask import Flask, Response, request
+from flask_restful import Api, Resource
+from flask_mongoengine import MongoEngine
+from datetime import datetime
+import json
+import os
+import logging
+import ssl
+
+logging.basicConfig(filename='app.log',
+                    level=logging.DEBUG)
+mongodb_uri = os.environ.get('APP_MONGODB_URI')
+if not mongodb_uri:
+    mongodb_uri = 'mongodb://localhost/moviedb'
+port = os.environ.get('APP_PORT')
+if not port:
+    port = '8080'
+app = Flask(__name__)
+app.config['MONGODB_SETTINGS'] = {
+    'MONGODB_HOST': mongodb_uri,
+    'MONGODB_DB': 'moviedb',
+    'MONGODB_SSL': True,
+    'MONGODB_SSL_CERT_REQS': ssl.CERT_REQUIRED,
+    'MONGODB_SSL_CA_CERTS': '/app/db_certificate.cert'
+}
+api = Api(app)
+db = MongoEngine()
+db.init_app(app)
+
+class Movie(db.Document):
+    title = db.StringField(required=True)
+    titleSort = db.StringField()
+    originalTitle = db.StringField()
+    contentRating = db.StringField()
+    rating = db.FloatField()
+    ratingImage = db.StringField()
+    audienceRating = db.FloatField()
+    audienceRatingImage = db.StringField()
+    hasPremiumPrimaryExtra = db.IntField()
+    summary = db.StringField(required=False)
+    year = db.IntField(required=False)
+    tagline = db.StringField()
+    duration = db.IntField(required=False)
+    originallyAvailableAt = db.StringField(required=False)
+    addedAt = db.IntField(
+        default=datetime.timestamp(datetime.now()), required=False)
+    updatedAt = db.IntField(
+        default=datetime.timestamp(datetime.now()), required=False)
+    genre = db.StringField(required=True)
+    # genre = db.ListField(required=True)
+    director = db.ListField(db.StringField(), required=True)
+    writer = db.ListField(db.StringField(), required=False)
+    country = db.StringField(required=False)
+    cast = db.ListField(db.StringField(), required=True)
+
+class MoviesApi(Resource):
+    def get(self):
+        movies = Movie.objects().to_json()
+        return Response(movies, mimetype="application/json", status=200)
+
+    def post(self):
+        body = request.get_json()
+        movie = Movie(**body).save()
+        id = movie.id
+        return {'id': str(id)}, 200
+
+class MovieApi(Resource):
+    def put(self, id):
+        body = request.get_json()
+        Movie.objects.get(id=id).update(**body)
+        return '', 200
+
+    def delete(self, id):
+        Movie.objects.get(id=id).delete()
+        return '', 200
+
+    def get(self, id):
+        movie = Movie.objects.get(id=id).to_json()
+        return Response(movie, mimetype="application/json", status=200)
+
+api.add_resource(MoviesApi, '/api/movies')
+api.add_resource(MovieApi, '/api/movies/<id>')
+
+@app.route('/api/healthcheck')
+def health_check():
+    return {'HealthCheckResponse': True}
+
+app.run(host='0.0.0.0', port=port)
+```
+
+The `import.py` application is executed before the API application on every instance created, however it only import the JSON db the first time it's executed, so this avoid repeated documents or records. Similar to the simple Python application showed in this page, it uses the `pymongo` package to connect to the DB and insert all the documents.
+
+```python path=app/import.py
+from pymongo import MongoClient
+import json
+import os
+
+mongodb_uri = os.environ.get('APP_MONGODB_URI')
+if not mongodb_uri:
+    mongodb_uri = 'mongodb://localhost/moviedb'
+
+client = MongoClient(mongodb_uri,
+                     ssl=True,
+                     ssl_ca_certs="/app/db_certificate.cert")
+
+dbnames = client.list_database_names()
+
+if not 'moviedb' in dbnames:
+    db = client['moviedb']
+    movies = db['movie']
+    with open('./db.json') as f:
+        data = json.load(f)
+    movies.insert_many(data['movies'])
+
+client.close()
+```
+
+Last but not least, the `requirements.txt` file with the Python packages required for this demo.
+
+```python path=app/requirements.txt
+flask
+flask-restful
+flask-mongoengine
+pymongo
+```
+
+## Clean up
+
+Finally, when you finish using the infrastructure for any of the presented examples, cleanup everything you created with the execution of:
+
+```bash
+terraform destroy
+```
+
+If the example was created with IBM Cloud Schematics, cleanup everything you created with the execution of:
+
+```bash
+
+ibmcloud schematics destroy --id $WORKSPACE_ID # Identify the Activity_ID
+ibmcloud schematics logs  --id $WORKSPACE_ID --act-id Activity_ID
+
+# ... wait until it's done
+
+ibmcloud schematics workspace delete --id $WORKSPACE_ID
+ibmcloud schematics workspace list
+```

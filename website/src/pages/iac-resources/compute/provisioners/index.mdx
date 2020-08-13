@@ -1,0 +1,58 @@
+---
+title: Using Terraform Provisioners
+description: Use of Terraform Provisioners instead of user_data
+keywords: 'terraform,ibm cloud,compute,provisioner,user_data,file,remote_exec'
+---
+
+<PageDescription>
+
+Use of Terraform Provisioners instead of user_data
+
+</PageDescription>
+
+The compute guide pattern uses a Terraform code to do the configuration of the VSI, this configuration is discouraged - even by [Terraform documentation](https://www.terraform.io/docs/provisioners/) - to be done with Terraform Provisioners such as `file` and `remote_exec`. However, this page will explain how to so it, if you still want to use them.
+
+Instead of using the `user_data` attribute, you can use the Terraform [file provisioner](https://www.terraform.io/docs/provisioners/file.html) to deploy the JSON file to the provisioned VSI, and you can use the [remote-exec Provisioner](https://www.terraform.io/docs/provisioners/remote-exec.html) to installs Node.js and [json-server](https://github.com/typicode/json-server), before to start the server.
+
+That code would be like this inside the `ibm_is_instance.iac_app_instance` resource replacing the `user_data` attribute.
+
+```hcl path=compute.tf
+resource "ibm_is_instance" "iac_app_instance" {
+  ...
+  provisioner "file" {
+    source      = "db.min.json"
+    destination = "/home/ubuntu/db.min.json"
+    connection {
+      user        = "ubuntu"
+      private_key = var.private_key
+      host        = ibm_is_floating_ip.iac_app_floating_ip.address
+    }
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -",
+      "sudo apt-get install -y nodejs",
+      "sudo npm install -g json-server",
+      "json-server --watch /home/ubuntu/db.min.json --port ${var.port} --host 0.0.0.0"
+    ]
+  }
+  ...
+}
+```
+
+As you can see the `file` provisioner needs the private key to make a connection to the server, so the variable `private_key` is required in a similar way the `public_key` was stored. As the private key contain new lines and Terraform requires one line to assign the value to the variable, let's use the following command:
+
+```bash
+echo -n "private_key = \"$(awk -v ORS='\\\\n' '1' ~/.ssh/id_rsa)\"\n" >> secret.auto.tfvars
+```
+
+The variable has to be defined in the `variables.tf` file, like so:
+
+```hcl
+variable "private_key" {}
+```
+
+*INCOMPLETE*
+
+<!-- TODO: Finish this page, there is a cycle error at ibm_is_floating_ip.iac_app_floating_ip.address  -->

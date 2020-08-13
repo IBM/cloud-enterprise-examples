@@ -1,0 +1,34 @@
+---
+title: Trigger auto scale for VSI on VPC (Gen 2) and Monitor
+description: Run application to trigger auto-scaling and monitor the auto scale in and auto scale out.
+keywords: 'ibm cloud'
+---
+
+## Run application
+
+You can choose between the below two algorithms to load the CPU. Invoke the endpoint to load the VSI.
+
+- Computes Fibonacci series upto 1000000000. The count specifies the number of times the algorithm will run.
+```
+http://[IP address]:9080/autoscale-webapp/LoadCPUFibonacci?count=100
+```
+
+- Computes square roots for all numbers less than 1000000. The count specifies the number of times the algorithm will run.
+```
+http://[IP address]:9080/autoscale-webapp/LoadCPUSquareRoot?count=100
+```
+
+The application will increase CPU usage and trigger an auto scale. After the auto scale completes, there will be a new instance of the Virtual Server created.
+
+![autoscale](./images/architecture_autoscale.png "Autoscale architecture")  
+
+
+## Monitor
+
+The number of Virtual server instances can be monitored on the IBM Cloud console.
+![Instances](./images/no_instances.png "Number of instances")   
+
+The resource usage can be monitored on the VSI console.
+
+![Resource Usage](./images/resource_usage.png "Resource Usage")   
+

@@ -1,0 +1,1633 @@
+---
+title: IaC for Containers Registry
+description: Use IaC to create and modify the IBM Container Registry
+keywords: 'terraform,ibm cloud,containers,registry,docker,images,icr,iks,k8s,kubernetes'
+---
+
+<PageDescription>
+
+Automating the management of container services on IBM Cloud including the Container Registry and Kubernetes Services (IKS)
+
+</PageDescription>
+
+<AnchorLinks small>
+  <AnchorLink>Prerequisites</AnchorLink>
+  <AnchorLink>IBM Cloud Container Registry</AnchorLink>
+  <AnchorLink>IBM Cloud Kubernetes Service</AnchorLink>
+  <AnchorLink>IKS with Terraform</AnchorLink>
+  <AnchorLink>IKS with IBM Cloud Schematics</AnchorLink>
+  <AnchorLink>Deploy the Application</AnchorLink>
+  <AnchorLink>Persistent Volumes</AnchorLink>
+  <AnchorLink>External IBM Cloud Database</AnchorLink>
+  <AnchorLink>Deployment Troubleshooting</AnchorLink>
+  <AnchorLink>Final Code</AnchorLink>
+  <AnchorLink>Clean up</AnchorLink>
+</AnchorLinks>
+
+## Prerequisites
+
+The steps in this pattern require the local workstation to be configured with the IBM Cloud CLI, CLI plugins for `container-service`, `container-registry` & `schematics`, the Terraform CLI, IBM Terrraform provider and a local installation of [Docker](https://docs.docker.com/get-docker/) . For more details on setting up the various CLI environments, see the [Setup Environment](/iac/setup-environment) chapter.
+
+## IBM Cloud Container Registry
+
+IBM Cloud Container Registry (ICR) is used to store, manage and deploy private container images in a highly available and scalable architecture. You can also set up your own image namespace and push container images to them. To learn more, see the [Container Registry](https://cloud.ibm.com/docs/Registry?topic=Registry-getting-started) documentation. There are no specific IaC steps required to enable the Container Registry, this is a capablity that is available to an IBM Cloud account without performing a service creation task.
+
+Container images for IBM Cloud follow the [Open Container Initiative](https://www.opencontainers.org/) (OCI) standards to provide interoperability and flexibility in tooling for the container lifecycle. One well known tool for createing OCI-compliant images is `docker` which will be used for the examples in this pattern.
+
+The `docker` command creates an image from a `Dockerfile`, which contains instructions to build the image. A `Dockerfile` might reference build artifacts in its instructions that are stored separately, such as an app, the app's configuration, and its dependencies. Images are typically stored in a registry that can either be accessible by the public (public registry) or set up with limited access for a small group of users (private registry). By using IBM Cloud Container Registry, only users with access to your IBM Cloud account through IAM can access your images.
+
+Continue using the same application from the previous patterns in order to have a simple container image that can be used with the IBM Container Registry and Kubernetes service. Create the first version of a `Dockerfile` with the following content in the directory `docker/1.0/` on this project.
+
+```Dockerfile path=docker/1.0/Dockerfile
+FROM node:13
+
+COPY ./data/v1 /data
+RUN npm install -g json-server
+
+WORKDIR /app
+
+EXPOSE 8080
+
+CMD [ "json-server", "--watch", "/data/db.min.json", "--port", "8080", "--host", "0.0.0.0" ]
+```
+
+Copy to the `data/v1` folder the JSON database file `db.min.json` from the previous patterns. Now, build and test the container image locally using the `docker` command, the Dockerfile in `docker/1.0/` using the current directory as context because it needs the `data/v1/` directory with the JSON database.
+
+```bash
+docker build -t movies:1.0 -f docker/1.0/Dockerfile .
+docker images
+
+docker run --name movies -d --rm -p 80:8080 -v $PWD/data/v1:/data movies:1.0
+
+curl http://localhost/movies/675
+
+docker stop $(docker ps -q --filter name=movies)
+```
+
+To create an Container Registry namespace, use the IBM Cloud CLI with the `container-registry` plugin. Make sure you have the latest version installed and you have [setup the environment](/iac/setup-environment) correctly. Namespace names (like Docker Hub and other container repositories) must be unique for a container registry region, so substitute the name shown here with a unique one of your choosing.
+
+The sub-command `namespace-add` will create the new namespace. The examples that follow will use `iac-registry` as the namespace:
+
+```bash
+ibmcloud cr namespace-list
+ibmcloud cr namespace-add iac-registry
+```
+
+In order to push your local OCI image to the namespace registry, it must be tagged as: `REGION.icr.io/NAMESPACE/IMAGE:TAG`. Use the sub-command `region` to find the registry region you are targeting:
+
+```bash
+ibmcloud cr region
+```
+
+Continuing with the example, the region is `us` so the registry is `us.icr.io`. The namespace is `iac-registry`, the image name is `movies` and the version tag `1.0`. The full tag would be: `us.icr.io/iac-registry/movies:1.0`. The image has already been created with the tag `movies` so to update, use the docker `tag` command:
+
+```bash
+docker images
+docker tag movies us.icr.io/iac-registry/movies:1.0
+```
+
+<InlineNotification>
+
+**Image tags**
+
+Visit the [Docker tag](https://docs.docker.com/engine/reference/commandline/tag/) documentation to find our more about image tags
+
+</InlineNotification>
+
+Before pushing the image to the registry it's required to login with the IBM Cloud CLI `login` sub-command:
+
+```bash
+ibmcloud cr login
+```
+
+This command will set up the local `docker` CLI with a credentials object that allows it to communicate to the namespaces defined for your account in the current container registry region. After logging in, push the image with the Docker command `push`:
+
+```bash
+docker push us.icr.io/iac-registry/movies:1.0
+```
+
+You can check the image in the registry in different ways: (1) listing the images in the registry with the `ibmcloud cr images` command, or (2) using the `docker` command to pull the image, either from a different computer or locally deleting the image and pulling it down from the registry:
+
+```bash
+# Option 1:
+ibmcloud cr images --restrict iac-registry
+
+# Option 2:
+docker rmi us.icr.io/iac-registry/movies:1.0
+docker pull us.icr.io/iac-registry/movies:1.0
+docker images
+```
+
+With the container image uploaded to the IBM Container Registry, you will be able to create Kubernetes deployments of the image by specifying the path to the fully qualified tag name `us.icr.io/iac-registry/movies:1.0` . Before doing this, you will need to create an IKS cluster.
+
+## IBM Cloud Kubernetes Service
+
+IBM Cloud Kubernetes Service (IKS) is a managed offering providing dedicated Kubernetes clusters to deploy and manage containerized apps. In this section you will create a Kubernetes cluster and deploy a simple API application. Examples will be provided using IBM Cloud CLI, Terraform and Schematics. The scope of this section is to cover creation of clusters and simple application deployment using IaC techniques. It will not cover deeper details for managing Kubernetes resources in general or broadly managing Kubernetes and deployments.
+
+To create a Kubernetes cluster using the IBM Cloud CLI you need to specify parameters such as zone and worker node flavor. Discover these using the following commands. In this example, we are using Zone `us-south-1` and worker node flavor `mx2.4x32`.
+
+```bash
+ibmcloud ks zone ls --provider vpc-gen2 --show-flavors
+ZONE=us-south-1
+
+ibmcloud ks flavors --provider vpc-gen2 --zone $ZONE
+FLAVOR=mx2.4x32
+```
+
+You also need a VPC and Subnet for the Kubernetes cluster. If they do not yet exist, they may be created using the IBM Cloud CLI:
+
+```bash
+# VPC Name: iac-iks-vpc
+ibmcloud is vpc-create iac-iks-vpc
+VPC_ID=$(ibmcloud is vpcs --json | jq -r ".[] | select(.name==\"iac-iks-vpc\").id")
+
+# Subnet Name: iac-iks-subnet with 16 IP addresses.
+ibmcloud is subnet-create iac-iks-subnet $VPC_ID --zone $ZONE --ipv4-address-count 16
+SUBNET_ID=$(ibmcloud is subnets --json | jq -r ".[] | select(.name==\"iac-iks-subnet\").id")
+```
+
+After the VPC is created, the default security group will not have network access rules needed by the load balancers of the Kubernetes service to talk to the ingress controllers or other applications deployed as NodePort services. Update the default security group by adding the following rule.
+
+```bash
+DEFAULT_SG_ID=$(ibmcloud is vpc-default-security-group $VPC_ID --json | jq -r ".id")
+
+ibmcloud is security-group-rule-add $DEFAULT_SG_ID inbound tcp --port-min 30000 --port-max 32767
+```
+
+If you already have a VPC and Subnets, get their IDs with the following `ibmcloud ks` sub-commands:
+
+```bash
+ibmcloud ks vpcs --provider vpc-gen2        # VPC Name: iac-iks-vpc
+VPC_ID=$(ibmcloud ks vpcs --provider vpc-gen2 --json | jq -r '.[] | select(.name=="iac-iks-vpc").id')
+
+ibmcloud ks subnets --provider vpc-gen2 --vpc-id $VPC_ID --zone $ZONE   # Subnet Name: iac-iks-subnet
+SUBNET_ID=$(ibmcloud ks subnets --provider vpc-gen2 --vpc-id $VPC_ID --zone $ZONE --json | jq -r '.[] | select(.name=="iac-iks-subnet").id')
+```
+
+The available Kubernetes versions to install are listed with the command `ibmcloud ks versions`. For IKS on Gen2, use a kubernetes cluster version > `1.18`. With all input parameters defined, including a name and Kubernetes veyou are ready to create the cluster using the `cluster create` sub-command, like this:
+
+```bash
+NAME=iac-iks-cluster
+VERSION=1.18.3
+
+ibmcloud ks cluster create vpc-gen2 \
+  --name $NAME \
+  --zone $ZONE \
+  --vpc-id $VPC_ID \
+  --subnet-id $SUBNET_ID \
+  --flavor $FLAVOR \
+  --version $VERSION \
+  # --workers $N \
+  # --entitlement cloud_pak \
+  # --service-subnet $SUBNET_CIDR \
+  # --pod-subnet $POD_CIDR \
+  # --disable-public-service-endpoint \
+```
+
+The default values for the optional parameters are:
+
+- `N`: 1, this is a one worker node cluster.
+- `SUBNET_CIDR`: 172.21.0.0/16
+- `POD_CIDR`: 172.30.0.0/16
+- `disable-public-service-endpoint`: false
+
+To identify your Kubernetes cluster status use the command `ibmcloud ks clusters`, wait a few minutes to have it up and running.
+
+When the Kubernetes cluster state is `normal` get the configuration to access the cluster using the following command:
+
+```bash
+ibmcloud ks cluster config --cluster $NAME
+```
+
+Now you are ready to use the `kubectl` command, these are some initial commands:
+
+```bash
+kubectl cluster-info
+kubectl get nodes
+```
+
+You can obtain more information of the cluster with the commands:
+
+```bash
+ibmcloud ks worker ls --cluster $NAME
+ibmcloud ks cluster get --cluster $NAME
+```
+
+To know more read the [Kubernetes Service (IKS)](https://cloud.ibm.com/docs/containers?topic=containers-getting-started) documentation.
+
+## IKS with Terraform
+
+All the same actions executed with the IBM Cloud CLI has to be done with Terraform, lets create a new `main.tf` file with the IBM Provisioner using Gen 2, the given region and the data source to get the info of the user selected resource group.
+
+```hcl path=main.tf
+provider "ibm" {
+  generation = 2
+  region     = var.region
+}
+
+data "ibm_resource_group" "group" {
+  name = var.resource_group
+}
+```
+
+The `variables.tf` file defines the required variables above, the project name and environment to use them as prefix to name the resources, the code would be like this:
+
+```hcl path=variables.tf
+variable "project_name" {}
+variable "environment" {}
+
+variable "resource_group" {
+  default = "Default"
+}
+variable "region" {
+  default = "us-south"
+}
+```
+
+To not have to enter the variables every time we execute terraform, lets add some variables value to the `terraform.tfvars` file. Make sure this file is appended to the `.gitignore` file.
+
+```hcl path=terraform.tfvars
+project_name = "iac-iks-test"
+environment  = "dev"
+
+# Optional variables
+resource_group = "Default"
+region         = "us-south"
+```
+
+The IKS clusters needs a VPC, Subnet(s) and Security Group Rules(s) added to the default security group of the VPC. Just like we did using the IBM Cloud CLI let's create them allowing inbound traffic to ports 30000 - 32767 for the security group rules. Same as you did on [Network](/iac-resources/network) and [Compute](/iac-resources/compute) the number of subnets is defined by the number of zones provided by the user. Lets code this in the `network.tf` file and append the following variables to `variables.tf`.
+
+```hcl path=network.tf
+resource "ibm_is_vpc" "iac_iks_vpc" {
+  name = "${var.project_name}-${var.environment}-vpc"
+}
+
+resource "ibm_is_subnet" "iac_iks_subnet" {
+  count                    = local.max_size
+  name                     = "${var.project_name}-${var.environment}-subnet-${format("%02s", count.index)}"
+  zone                     = var.vpc_zone_names[count.index]
+  vpc                      = ibm_is_vpc.iac_iks_vpc.id
+  total_ipv4_address_count = 256
+  resource_group           = data.ibm_resource_group.group.id
+}
+
+resource "ibm_is_security_group_rule" "iac_iks_security_group_rule_tcp_k8s" {
+  count     = local.max_size
+  group     = ibm_is_vpc.iac_iks_vpc.default_security_group
+  direction = "inbound"
+  remote    = ibm_is_subnet.iac_iks_subnet[count.index].ipv4_cidr_block
+
+  tcp {
+    port_min = 30000
+    port_max = 32767
+  }
+}
+```
+
+```hcl path=variables.tf
+  ...
+variable "vpc_zone_names" {
+  type    = list(string)
+  default = ["us-south-1", "us-south-2", "us-south-3"]
+}
+
+locals {
+  max_size = length(var.vpc_zone_names)
+}
+```
+
+Last but not least, create the `iks.tf` file to define the IKS cluster using the `ibm_container_vpc_cluster` resource.
+
+```hcl path=iks.tf
+resource "ibm_container_vpc_cluster" "iac_iks_cluster" {
+  name              = "${var.project_name}-${var.environment}-cluster"
+  vpc_id            = ibm_is_vpc.iac_iks_vpc.id
+  flavor            = var.flavor
+  worker_count      = var.workers_count[0]
+  kube_version      = var.k8s_version
+  resource_group_id = data.ibm_resource_group.group.id
+  zones {
+    name      = var.vpc_zone_names[0]
+    subnet_id = ibm_is_subnet.iac_iks_subnet[0].id
+  }
+}
+```
+
+The above code also takes the Kubernetes version, worker nodes flavor and number from the variables `k8s_version`, `flavor` and `workers_count` respectively, so lets add them to the `variables.tf` file.
+
+```hcl path=variables.tf
+  ...
+variable "flavor" {
+  default = "mx2.4x32"
+}
+variable "workers_count" {
+  default = 3
+}
+variable "k8s_version" {
+  default = "1.18.3"
+}
+```
+
+This will create a Kubernetes cluster of 3 worker nodes with 4 CPU and 32 Gb Memory. To know the available flavors in the zone, use the following IBM Cloud CLI command:
+
+```bash
+ibmcloud ks zone ls --provider vpc-gen2 --show-flavors
+
+# Or
+ZONE=us-south-1
+ibmcloud ks flavors --provider vpc-gen2 --zone $ZONE
+```
+
+To sort them by CPU and memory, use the same command with `sort`:
+
+```bash
+ZONE=us-south-1
+ibmcloud ks flavors --provider vpc-gen2 --zone $ZONE -s | sort -k2 -k3 -n
+```
+
+The main input parameters of the `ibm_container_vpc_cluster` resource are listed in the following table:
+
+| Input parameter | Description |
+|---|---|
+| `name` | name of the cluster |
+| `vpc_id` | ID of the VPC that you want to use for your cluster |
+| `flavor` | flavor of the VPC worker node |
+| `zones` | nested block describing the zones of this VPC cluster |
+| `zones.name` | name of the zone |
+| `zones.subnet_id` | subnet in the zone to assign the cluster |
+| `worker_count` | (optional) number of worker nodes per zone in the default worker pool. Default value `1` |
+| `kube_version` | (optional) Kubernetes version, including the major.minor version. If not set, the default version from `ibmcloud ks versions` is used |
+| `resource_group_id` | (optional) ID of the resource group. Defaults to `default` |
+| `wait_till` | (optional) marks the creation of your cluster complete when the given stage is achieved, read below to know the available stages and how this can help you speed up the terraform execution |
+| `disable_public_service_endpoint` | (optional) disable the master public service endpoint to prevent public access. Defaults to `true` |
+| `pod_subnet` | (optional) subnet CIDR to provide private IP addresses for pods. Defaults to `172.30.0.0/16` |
+| `service_subnet` | (optional) subnet CIDR to provide private IP addresses for services. Defaults to `172.21.0.0/16` |
+| `tags` | (optional) list of tags to associate with your cluster |
+
+The creation of a cluster can take some minutes to complete. To avoid long wait times, you can specify the stage when you want Terraform to mark the cluster resource creation as completed. The cluster creation might not be fully completed and continues to run in the background, however this can help you to continue with the code execution without waiting for the cluster to be fully created.
+
+To set the waiting stage, use the `wait_till` with one of the following stages:
+
+- **MasterNodeReady**: Terraform marks the creation of your cluster complete when the cluster master is in a ready state.
+- **OneWorkerNodeReady**: Waits until the master and at least one worker node are in a ready state.
+- **IngressReady**: Waits until the cluster master and all worker nodes are in a ready state, and the Ingress subdomain is fully set up. This is the default value.
+
+This would be enough to have an IKS cluster running. Just need to execute `terraform apply`, however lets create workers pools, one in each subnet or zone, using the resource `ibm_container_vpc_worker_pool`. Replace the code in `iks.tf` file for the following code and modify the variables used for the number of workers and its flavor.
+
+```hcl path=iks.tf
+resource "ibm_container_vpc_cluster" "iac_iks_cluster" {
+  name              = "${var.project_name}-${var.environment}-cluster"
+  vpc_id            = ibm_is_vpc.iac_iks_vpc.id
+  flavor            = var.flavors[0]
+  worker_count      = var.workers_count[0]
+  kube_version      = var.k8s_version
+  resource_group_id = data.ibm_resource_group.group.id
+  wait_till         = "OneWorkerNodeReady"
+  zones {
+    name      = var.vpc_zone_names[0]
+    subnet_id = ibm_is_subnet.iac_iks_subnet[0].id
+  }
+}
+
+resource "ibm_container_vpc_worker_pool" "iac_iks_cluster_pool" {
+  count             = local.max_size - 1
+  cluster           = ibm_container_vpc_cluster.iac_iks_cluster.id
+  worker_pool_name  = "${var.project_name}-${var.environment}-wp-${format("%02s", count.index + 1)}"
+  flavor            = var.flavors[count.index + 1]
+  vpc_id            = ibm_is_vpc.iac_iks_vpc.id
+  worker_count      = var.workers_count[count.index + 1]
+  resource_group_id = data.ibm_resource_group.group.id
+  zones {
+    name      = var.vpc_zone_names[count.index + 1]
+    subnet_id = ibm_is_subnet.iac_iks_subnet[count.index + 1].id
+  }
+}
+```
+
+```hcl path=variables.tf
+variable "flavors" {
+  type    = list(string)
+  default = ["mx2.4x32", "cx2.2x4", "cx2.4x8"]
+}
+variable "workers_count" {
+  type    = list(number)
+  default = [3, 2, 1]
+}
+```
+
+The main input parameters for the `ibm_container_vpc_worker_pool` resource are similar to the parameters for `ibm_container_vpc_cluster` except for `worker_pool_name` which is used to name the pool, and `cluster` with the name or ID of the cluster set this pool.
+
+Using a file `output.tf` helps us to get some useful information about the cluster through output variables, like so.
+
+```hcl path=output.tf
+output "cluster_id" {
+  value = ibm_container_vpc_cluster.iac_iks_cluster.id
+}
+
+output "cluster_name" {
+  value = ibm_container_vpc_cluster.iac_iks_cluster.name
+}
+
+output "entrypoint" {
+  value = ibm_container_vpc_cluster.iac_iks_cluster.public_service_endpoint_url
+}
+```
+
+Now everything is ready to create the cluster with the wellknown Terraform commands:
+
+```bash
+terraform plan
+terraform apply
+```
+
+After having the cluster ready, you can use the IBM Cloud CLI to get the cluster configuration to setup `kubectl`, like so:
+
+```bash
+ibmcloud ks cluster config --cluster $(terraform output cluster_id)
+```
+
+Enjoy the new cluster, here are some basic initial commands to verify the cluster is working
+
+```bash
+kubectl cluster-info
+kubectl get nodes
+kubectl get pods -A
+```
+
+### A simpler IKS cluster
+
+For simplicity and creation speed, lets modify the `terraform.tfvars` to have a simpler cluster with one single node. This will help us to have the cluster quicker.
+
+```hcl path=terraform.tfvars
+project_name = "iac-iks-small-OWNER"
+environment  = "dev"
+
+# Optional variables
+resource_group = "Default"
+region         = "us-south"
+vpc_zone_names = ["us-south-1"]
+flavors        = ["mx2.4x32"]
+workers_count  = [1]
+k8s_version    = "1.18.3"
+```
+
+Remember to get a supported and the latest Kubernetes version from the output of the command `ibmcloud ks versions`, otherwise you may get an error like this one:
+
+```
+Error: Request failed with status code: 400, ServerErrorResponse: {"incidentID":"5a4a1a08a275eb6d-LAX","code":"E0156","description":"A previous patch was specified. Only the most recent patch for a particular minor version can be specified during cluster create.","type":"Versions","recoveryCLI":"To list supported versions, run 'ibmcloud ks versions'."}
+```
+
+Executing `terraform plan & terraform apply` will get an IKS cluster up and running quicker than before.
+
+## IKS with IBM Cloud Schematics
+
+Running this code with IBM Cloud Schematics is the same as with the other patterns. Create the `workspace.json` file adding the variables required for this code and replacing `OWNER` for your username or id, like this one:
+
+```json path=workspace.json
+{
+  "name": "iac_iks_test",
+  "type": [
+    "terraform_v0.12"
+  ],
+  "description": "Sample workspace to test IBM Cloud Schematics. Deploys an web server on a VSI with a Hello World response",
+  "tags": [
+    "app:iac_iks_test",
+    "owner:OWNER",
+    "env:dev"
+  ],
+  "template_repo": {
+    "url": "https://github.com/IBM/cloud-enterprise-examples/tree/master/iac/09-containers"
+  },
+  "template_data": [{
+    "folder": ".",
+    "type": "terraform_v0.12",
+    "variablestore": [{
+        "name": "project_name",
+        "value": "iac-iks-test-OWNER",
+        "type": "string"
+      },
+      {
+        "name": "environment",
+        "value": "dev",
+        "type": "string"
+      },
+      {
+        "name": "region",
+        "value": "us-south",
+        "type": "string"
+      },
+      {
+        "name": "vpc_zone_names",
+        "value": ["us-south-1", "us-south-2", "us-south-3"],
+        "type": "list(string)"
+      },
+      {
+        "name": "flavors",
+        "value": ["mx2.4x32", "cx2.2x4", "cx2.4x8"],
+        "type": "list(string)"
+      },
+      {
+        "name": "workers_count",
+        "value": [3, 2, 1],
+        "type": "list(number)"
+      },
+      {
+        "name": "k8s_version",
+        "value": "1.18.3",
+        "type": "string"
+      }
+    ]
+  }]
+}
+```
+
+To create the workspace using the IBM Cloud CLI execute the following commands:
+
+```bash
+ibmcloud schematics workspace new --file workspace.json
+ibmcloud schematics workspace list          # Identify the WORKSPACE_ID
+WORKSPACE_ID=
+```
+
+Set the variable `WORKSPACE_ID` because it'll be used several times. Then plan and apply the code like so.
+
+```bash
+ibmcloud schematics plan --id $WORKSPACE_ID  # Identify the Activity_ID
+ibmcloud schematics logs  --id $WORKSPACE_ID --act-id Activity_ID
+
+ibmcloud schematics apply --id $WORKSPACE_ID # Identify the Activity_ID
+ibmcloud schematics logs  --id $WORKSPACE_ID --act-id Activity_ID
+```
+
+Note the execution of apply will take some time, so check the logs either with the IBM Cloud CLI command or using the IBM Cloud Web Console. When the cluster is ready, you can use the IBM Cloud CLI to get the cluster configuration to setup `kubectl` and validate the cluster is accesible:
+
+```bash
+CLUSTER_ID=$(ibmcloud schematics workspace output --id $WORKSPACE_ID --json | jq -r '.[].output_values[].cluster_id.value')
+ibmcloud ks cluster config --cluster $CLUSTER_ID
+
+kubectl cluster-info
+kubectl get nodes
+kubectl get pods -A
+```
+
+## Deploy the Application
+
+To deploy the previously built Docker image version 1.0 we use the Kubernetes API and resources. Lets create a deployment file either by getting it from the following example or generating it with kubectl generators, like so:
+
+```bash
+mkdir kubernetes
+kubectl create deployment movies --image=us.icr.io/iac-registry/movies:1.0 --dry-run=client -o yaml > kubernetes/deployment.yaml
+kubectl expose deployment movies --port=80 --target-port=8080 --type=LoadBalancer --dry-run=client -o yaml > kubernetes/service.yaml
+```
+
+```yaml path=kubernetes/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: movies
+  name: movies
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movies
+  template:
+    metadata:
+      labels:
+        app: movies
+    spec:
+      containers:
+        - image: us.icr.io/iac-registry/movies:1.0
+          name: movies
+```
+
+```yaml path=kubernetes/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: movies
+  name: movies
+spec:
+  ports:
+    - name: "http"
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: movies
+  type: LoadBalancer
+```
+
+To deploy the application execute the `kubectl apply` command like this:
+
+```bash
+kubectl apply -f kubernetes/deployment.yaml
+kubectl apply -f kubernetes/service.yaml
+
+kubectl get deployment movies
+kubectl get svc movies
+```
+
+To validate the application you need to get the external IP or DNS to access the application executing the following code. You may have to wait a few minutes until the Load Balancer is ready. You can checkt thest status again using `kubectl get svc movies`.
+
+```bash
+watch kubectl get svc movies
+
+ADDRESS=$(kubectl get svc movies -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+
+curl $ADDRESS/movies/675
+```
+
+In a real application, it's quite common to have new or changing data. In this example, such a change to the JSON database would require a new image. If this happens very often it becomes very efficient. To address this inflexible model, you can put the JSON database in a ConfigMap. Create the `cm.yaml` file to define the ConfigMap with the content of the JSON file `data/v1/db.min.json` using this command
+
+```bash
+kubectl create configmap movies-db --from-file=./data/v1/db.min.json --dry-run=client -o yaml > kubernetes/cm.yaml
+```
+
+Or, edit the file yourself with the following content.
+
+```yaml path=kubernetes/cm.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: movies-db
+data:
+  db.min.json: |
+    {"movies":[ ... HERE GOES THE JSON FILE ... ]}
+```
+
+And apply the code to the cluster using `kubectl`, like this.
+
+```bash
+kubectl apply -f kubernetes/cm.yaml
+kubectl get cm
+```
+
+To make the pod access the JSON file you need to modify the Pod definition inside the deployment. Modify the `deployment.yaml` file to add the `volumes` and `volumeMounts` specifications, like so.
+
+```yaml path=kubernetes/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+  ...
+    spec:
+      volumes:
+        - name: db-volume
+          configMap:
+            name: movies-db
+      containers:
+        - image: us.icr.io/iac-registry/movies:1.0
+          name: movies
+          volumeMounts:
+            - name: db-volume
+              mountPath: /data
+```
+
+Update the new Pod applying the code, then verify it was sucessfuly applied using these commands.
+
+```bash
+kubectl apply -f kubernetes/v1.0/deployment.yaml
+kubectl get deployments,pods
+```
+
+The application should be running as usual:
+
+```bash
+ADDRESS=$(kubectl get svc movies -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+curl $ADDRESS/movies/675
+```
+
+<InlineNotification>
+
+**What about the JSON DB in the container?**
+
+Ideally you need to remove the line that copy the JSON database file into the image from the Dockerfile (`COPY ./data/v1 /data`), then re-build and push the image to ICR. However, this is a simple example and we will modify this application docker image even more.
+
+With the new ConfigMap the current `/data/db.min.json` file in the container is replaced by the one from the ConfigMap. You can verify it's there with the execution of `kubectl exec --stdin --tty movies-89977dc9-7gdpd -- cat /data/db.min.json`, replacing `movies-89977dc9-7gdpd` for the name of the movies Pod.
+
+</InlineNotification>
+
+To double check, modify the ConfigMap updating a movie or modifying the database, then access the application using `curl`. The instructions when the ConfigMap is modified are as follows.
+
+1. Modify the ConfigMap in the file `cm.yaml`
+2. Applying the changes with the command `kubectl apply -f kubernetes/cm.yaml`
+3. Delete the running pods so the Replica Set create a new pod using the new JSON database. Identify the Pod name using `kubectl get pods` then use the command `kubectl delete pod <Movies Pod Name>`
+4. Verify the change with `curl $ADDRESS/movies/`.
+
+## Persistent Volumes
+
+In the version 1.0 of the application, the JSON database was in the ephemeral container, this may not be good practice in general so let's migrate the database to a persistent storage such as IBM Cloud Block Storage for VPC. This storage provides hypervisor-mounted, high-performance data storage for your VSI or IKS nodes that you can provision within a VPC.
+
+Let's start creating the file `pvc.yaml` with the definition of a [Persisten Volume Claim](https://kubernetes.io/docs/tasks/configure-pod-container/configure-persistent-volume-storage/#create-a-persistentvolumeclaim) with 1Gb and the profile `ibmc-vpc-block-5iops-tier`.
+
+```yaml path=kubernetes/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: movies
+spec:
+  storageClassName: ibmc-vpc-block-general-purpose
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+```
+
+Before use the Persistent Volume Claim (PVC) apply the changes, it has to be ready before being used.
+
+```bash
+kubectl apply -f kubernetes/pvc.yaml
+kubectl get pvc movies
+```
+
+To use this volume we need to modify the Pod specification in the deployment, open the `kubernetes/deployment.yaml` file to add the `volumes` and `volumeMounts` specifications.
+
+However, these changes don't put the initial JSON database into the volume yet. There may be different ways to do this, a possible option is to the use of [Init Containers](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/) to dump the initial JSON database into the volume, but this option cannot be used because the volume access mode is **ReadWriteOnce** which only allows one container to access the volume at a time. Other option, and the one we will implement, is to make the Docker container copy the initial database into the volumen if there isn't any yet. The initial JSON file is provided with a ConfigMap, let's add it just like we did in the previous section.
+
+The `deployment.yaml` file will be like this.
+
+```yaml path=kubernetes/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: movies
+  name: movies
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movies
+  template:
+    metadata:
+      labels:
+        app: movies
+    spec:
+      volumes:
+        - name: movies-volume
+          persistentVolumeClaim:
+            claimName: movies
+        - name: db-volume
+          configMap:
+            name: movies-db
+      containers:
+        - image: us.icr.io/iac-registry/movies:1.1
+          name: movies
+          volumeMounts:
+            - name: db-volume
+              mountPath: /data/init
+            - name: movies-volume
+              mountPath: "/data"
+```
+
+As you can see the image version is different, it is `1.1`. In the new Dockerfile we remove the line `COPY ./data/v1 /data` and add the line `VOLUME /data`. Also, instead of executing the `json-server` command, it runs a script to copy the database to the right location. The new Dockerfile, to be tagged with version `1.1`, is like this.
+
+```dockerfile path=docker/1.1/Dockerfile
+FROM node:13
+
+RUN npm install -g json-server
+ADD entrypoint.sh /entrypoint.sh
+
+WORKDIR /app
+VOLUME /data
+
+EXPOSE 8080
+
+ENTRYPOINT [ "/entrypoint.sh" ]
+
+CMD [ "" ]
+```
+
+And the script to be executed as entrypoint executes the input with `exec "$@"`, however if no command is passed in it'll execute `json-server` after initialize the JSON database file. This script is like follows.
+
+```bash path=docker/1.1/entrypoint.sh
+#!/bin/bash
+
+if [[ -n "$@" ]]; then
+  exec "$@"
+  exit $?
+fi
+
+port="8080"
+host="0.0.0.0"
+init_db='{"movies": []}'
+init_db_file=/data/init/db.min.json
+db_file=/data/db.json
+
+init_database() {
+  # If the DB is there and contain movies, there is nothing to do
+  [[ -e $db_file ]] && grep -q '"movies"' $db_file && echo "A database file with movies already exists." && return
+
+  # If the init DB file is there, copy it to the DB file and return if succeed
+  [[ -e $init_db_file ]] && cp $init_db_file $db_file && echo "initialized the database with the database file $init_db_file." && return
+
+  # if everything failed, initiallize the DB with empty list of movies
+  echo "initializing the database with an empty database."
+  echo $init_db > $db_file
+}
+
+init_database
+
+echo "Starting json-server on $host:$port watching for DB file $db_file"
+json-server --port $port --host $host --watch $db_file
+```
+
+This new image has to be built, tagged and pushed to ICR very similar to like we did with the initial version and that's what we will do in a moment. This time the context of `docker build` change to `docker/1.1` because we don't use the `./data` directory and we use the `docker/1.1/entrypoint.sh` script.
+
+```bash
+docker build -t us.icr.io/iac-registry/movies:1.1 -f docker/1.1/Dockerfile docker/1.1
+docker push us.icr.io/iac-registry/movies:1.1
+
+ibmcloud cr images --restrict iac-registry
+```
+
+Apply all files and verify the new changes executing the following commands.
+
+```bash
+kubectl apply -f kubernetes/pvc.yaml
+kubectl apply -f kubernetes/cm.yaml
+kubectl apply -f kubernetes/deployment.yaml
+
+kubectl get pvc movies
+kubectl get cm movies
+kubectl get deployment movies
+kubectl get pods
+
+ADDRESS=$(kubectl get svc movies -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+curl $ADDRESS/movies/83
+```
+
+Having the JSON Database in a persistent volume we can modify the database and the changes will persist the next time we deploy the application or restart the container. Having the following movie to add:
+
+```json path=data/v1/new_movie.json
+{
+  "id": "32",
+  "title": "13 Assassins",
+  "originalTitle": "十三人の刺客",
+  "contentRating": "R",
+  "summary": "Cult director Takashi Miike (Ichi the Killer, Audition) delivers a bravado period action film set at the end of Japan’s feudal era. 13 Assassins - a “masterful exercise in cinematic butchery” (New York Post) - is centered around a group of elite samurai who are secretly enlisted to bring down a sadistic lord to prevent him from ascending to the throne and plunging the country into a war torn future.",
+  "rating": "9.6",
+  "audienceRating": "8.8",
+  "year": "2011",
+  "tagline": "Take up your sword.",
+  "duration": "7505063",
+  "originallyAvailableAt": "2011-07-05",
+  "addedAt": "1351391906",
+  "updatedAt": "1546942538",
+  "audienceRatingImage": "rottentomatoes://image.rating.upright",
+  "hasPremiumPrimaryExtra": "1",
+  "ratingImage": "rottentomatoes://image.rating.ripe",
+  "genre": "Action & Adventure",
+  "director": "Takashi Miike",
+  "writer": ["Kaneo Ikegami", "Daisuke Tengan"],
+  "country": "Japan",
+  "cast": ["Yusuke Iseya", "Kôji Yakusho"]
+}
+```
+
+Lets add the new movie using `curl`, scale the deployment to zero containers, then back to one and verify the new movie is still there.
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d@data/v1/new_movie.json $ADDRESS/movies
+curl $ADDRESS/movies/32
+
+kubectl scale deployment movies --replicas=0
+kubectl get deployments movies
+kubectl get pods
+kubectl get pv,pvc
+
+kubectl scale deployment movies --replicas=1
+kubectl get deployments movies
+watch kubectl get pods
+
+# When the pod is running:
+curl $ADDRESS/movies/32
+```
+
+To learn more about the storage provided to the persistent volume claim, see the [Block Storage for VPC](https://cloud.ibm.com/docs/containers?topic=containers-vpc-block) documentation.
+
+## External IBM Cloud Database
+
+This section provides an example of deploying the Python API application used in the [Cloud Databases](/iac-resources/services) pattern also in the GitHub repository https://github.com/IBM/cloud-enterprise-examples/ in the directory [08_cloud-services/app](https://github.com/IBM/cloud-enterprise-examples/tree/master/iac/08_cloud-services/app).
+
+This change requires more major changes to the Docker container so it's going to make sense to bump the tag to `2.0`. In the following Dockerfile we use a multi-stage build to reduce the size of the final Docker image. The `build` stage use Python VirtualEnv to install all the required packages then they are copied to the `app` image which is used to execute the API application.
+
+```dockerfile path=docker/2.0/Dockerfile
+FROM python:3.7-slim AS build
+
+RUN apt-get update && \
+  apt-get install -y --no-install-recommends build-essential gcc && \
+  pip install --upgrade pip && \
+  pip install pip-tools
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY app.py .
+COPY import.py .
+COPY requirements.txt requirements.in
+RUN pip-compile requirements.in > requirements.txt && \
+  pip-sync && \
+  pip install -r requirements.txt
+
+FROM python:3.7-slim AS app
+COPY --from=build /opt/venv /opt/venv
+
+COPY app.py .
+COPY import.py .
+RUN chmod +x app.py import.py
+
+ENV PATH="/opt/venv/bin:$PATH"
+
+CMD [ "python", "app.py" ]
+```
+
+Just as with the previous versions, let's build and push the container using the following commands:
+
+```bash
+docker build -t us.icr.io/iac-registry/movies:2.0 -f docker/2.0/Dockerfile docker/2.0
+docker push us.icr.io/iac-registry/movies:2.0
+
+ibmcloud cr images --restrict iac-registry
+```
+
+We also need the IBM Cloud Database, with the following Terraform code in the `db.tf` file copied from the [Cloud Databases](/iac-resources/services) pattern, like so.
+
+```hcl path=db.tf
+resource "ibm_database" "iac_app_db_instance" {
+  name              = var.db_name
+  plan              = var.db_plan
+  location          = var.region
+  service           = "databases-for-mongodb"
+  resource_group_id = data.ibm_resource_group.group.id
+
+  adminpassword                = var.db_admin_password
+  members_memory_allocation_mb = var.db_memory_allocation
+  members_disk_allocation_mb   = var.db_disk_allocation
+}
+```
+
+This file also requires addition of the following input variables to the `variables.tf` file and output variables to the `output.tf` file:
+
+```hcl path=variables.tf
+variable "db_plan" {
+  default = "standard"
+}
+variable "db_name" {
+  default = "moviedb"
+}
+variable "db_admin_password" {
+  default = "inSecurePa55w0rd"
+}
+variable "db_memory_allocation" {
+  default = "3072"
+}
+variable "db_disk_allocation" {
+  default = "61440"
+}
+```
+
+```hcl path=output.tf
+output "db_connection_string" {
+  value = ibm_database.iac_app_db_instance.connectionstrings.0.composed
+}
+output "db_connection_certbase64" {
+  value = ibm_database.iac_app_db_instance.connectionstrings.0.certbase64
+}
+output "db_admin_userid" {
+  value = ibm_database.iac_app_db_instance.adminuser
+}
+output "db_id" {
+  value = ibm_database.iac_app_db_instance.id
+}
+output "db_password" {
+  value = var.db_admin_password
+}
+```
+
+To get it running, execute the `plan` and `apply` Terraform commands.
+
+```bash
+terrform plan
+terrform apply
+```
+
+Before deploying the container to our Kubernetes cluster, do some local testing using just Docker. Execute the following commands to run the container locally, mounting the local directory `./data/v2` in a volume on the container directory `/data/init/` so the application can reach the `db.min.json` file with the initial values of the database. The initial database `db.min.json` file is different to the one used for version 1 because the `id` field is not required. Also, to allow the container to reach the IBM Cloud MongoDB Database that was created, populate environment variables with values from the Terraform output variables.
+
+ The following commands will: create all the application input data, initialize the database, run the container with the API application and finally query the application with `curl`.
+
+```bash
+mkdir ./secret
+terraform output db_connection_certbase64 | base64 --decode > ./secret/db_ca.crt
+
+export PASSWORD=$(terraform output db_password)
+export APP_MONGODB_URI=$(terraform output db_connection_string)
+export APP_PORT=8080
+export APP_SSL_CA_CERT="/secret/db_ca.crt"
+
+docker run --rm \
+  --name init-movies \
+  -v $PWD/data/v2:/data/init \
+  -v $PWD/secret:/secret \
+  -e APP_SSL_CA_CERT=$APP_SSL_CA_CERT \
+  -e PASSWORD=$PASSWORD \
+  -e APP_MONGODB_URI=$APP_MONGODB_URI \
+  us.icr.io/iac-registry/movies:2.0 python import.py
+
+docker run --rm \
+  --name movies \
+  -p 80:$APP_PORT \
+  -v $PWD/secret:/secret \
+  -e APP_SSL_CA_CERT=$APP_SSL_CA_CERT \
+  -e PASSWORD=$PASSWORD \
+  -e APP_MONGODB_URI=$APP_MONGODB_URI \
+  -e APP_PORT=$APP_PORT \
+  us.icr.io/iac-registry/movies:2.0
+
+curl http://localhost/api/healthcheck
+curl http://localhost/api/movies
+
+
+id=$(curl -s "http://localhost/api/movies" | jq -r '.[0]._id | .["$oid"]')
+curl "http://localhost/api/movies/$id"
+```
+
+To wipe out the database use the same docker container but instead run the `python import.py` command with the `--empty` parameter, like so:
+
+```bash
+docker run --rm \
+  --name drop-movies \
+  -v $PWD/secret:/secret \
+  -e APP_SSL_CA_CERT=$APP_SSL_CA_CERT \
+  -e PASSWORD=$PASSWORD \
+  -e APP_MONGODB_URI=$APP_MONGODB_URI \
+  us.icr.io/iac-registry/movies:2.0 python import.py --empty
+```
+
+The current Database was created with a public endpoint (it's public by default) and considering the current IKS cluster is private you may also want to migrate this database to be private as well. It was not created from the very begining because you may want to test the database from your computer, ilke we did running Docker locally.
+
+To set this database with a private endpoint add the parameter `service_endpoints = "private"` to the `ibm_database.iac_app_db_instance` located in the `db.tf` file, Like so:
+
+```hcl path=db.tf
+resource "ibm_database" "iac_app_db_instance" {
+  name              = var.db_name
+  plan              = var.db_plan
+  location          = var.region
+  service           = "databases-for-mongodb"
+  resource_group_id = data.ibm_resource_group.group.id
+  service_endpoints = "private"
+
+  adminpassword                = var.db_admin_password
+  members_memory_allocation_mb = var.db_memory_allocation
+  members_disk_allocation_mb   = var.db_disk_allocation
+}
+```
+
+To apply this migration the database has to be deleted first, applying this change now with Terrafor will cause an error because it's a parameter that cannot be set and modify the database. So, delete the database using the `destroy` Terraform command targetting the database, then apply the changes.
+
+```bash
+terraform destroy -target ibm_database.iac_app_db_instance
+
+terraform apply
+```
+
+If the local docker container works, everything is ready to work on the Kubernetes deployment. A new ConfigMap is required with the initial data for MongoDB, another ConfigMap is required with the environment variables to have access to the database, and finally, two Secrets are required, the first [Secret](https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/#define-container-environment-variables-using-secret-data) is used to store the database CA certificate and the second [Secret](https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/#configure-all-key-value-pairs-in-a-secret-as-container-environment-variables) stores the DB admin password. Create the ConfigMaps and Secrets with the following commands
+
+```bash
+export PASSWORD=$(terraform output db_password)
+export APP_MONGODB_URI=$(terraform output db_connection_string)
+export APP_SSL_CA_CERT="/secret/db_ca.crt"
+
+kubectl create configmap movies-db \
+  --from-file=./data/v2/db.min.json \
+  --dry-run=client -o yaml > kubernetes/cm.yaml
+
+kubectl create configmap config \
+  --from-literal=APP_SSL_CA_CERT=$APP_SSL_CA_CERT \
+  --from-literal=APP_MONGODB_URI=$APP_MONGODB_URI \
+  --dry-run=client -o yaml > kubernetes/config.yaml
+
+kubectl create secret generic db-admin-password \
+  --from-literal=PASSWORD=$PASSWORD \
+  --dry-run=client -o yaml > kubernetes/db_admin_password.yaml
+
+mkdir ./secret
+terraform output db_connection_certbase64 | base64 --decode > ./secret/db_ca.crt
+kubectl create secret generic db-ssl-ca-cert \
+  --from-file=./secret/db_ca.crt \
+  --dry-run=client -o yaml > kubernetes/db_ca_cert.yaml
+rm -rf ./secret
+```
+
+The new `deployment.yaml` uses the ConfigMap to initialize the database but this time with an [Init Container](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/) to execute the `import.py` python script. Both containers get the ConfigMap with the environment variables and the two Secrets.
+
+```yaml path=kubernetes/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: movies
+  name: movies
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movies
+  template:
+    metadata:
+      labels:
+        app: movies
+    spec:
+      volumes:
+        - name: db-volume
+          configMap:
+            name: movies-db
+        - name: db-ca-cert
+          secret:
+            secretName: db-ssl-ca-cert
+      initContainers:
+        - name: init-db
+          image: us.icr.io/iac-registry/movies:2.0
+          command: ["python", "import.py"]
+          envFrom:
+            - secretRef:
+                name: db-admin-password
+            - configMapRef:
+                name: config
+          volumeMounts:
+            - name: db-volume
+              mountPath: /data/init
+            - name: db-ca-cert
+              mountPath: "/secret"
+              readOnly: true
+      containers:
+        - image: us.icr.io/iac-registry/movies:2.0
+          name: movies
+          envFrom:
+            - secretRef:
+                name: db-admin-password
+            - configMapRef:
+                name: config
+          volumeMounts:
+            - name: db-ca-cert
+              mountPath: "/secret"
+              readOnly: true
+```
+
+All is set to apply the new Deployment, Services, Secrets and ConfigMaps with the following commands.
+
+```bash
+kubectl apply -f kubernetes/cm.yaml
+kubectl apply -f kubernetes/config.yaml
+kubectl apply -f kubernetes/db_admin_password.yaml
+kubectl apply -f kubernetes/db_ca_cert.yaml
+kubectl apply -f kubernetes/deployment.yaml
+kubectl apply -f kubernetes/service.yaml
+```
+
+The PersistentVolumeClaim is not longer required for this version, so you may delete it with this command.
+
+```bash
+kubectl delete pvc movies
+watch kubectl get pv,pvc
+```
+
+<InlineNotification>
+
+**VRF enablement**
+
+VRF stands for **Virtual Route Framework**, it's a way for routers to partition route tables logically, sort of like VLANS for L3.
+
+The new generation of private connectivity for VPC requires that each account switch over to VRF, giving all the networks in the account it's own routing context.
+
+If at this point you are having troubles to connect to the database from the container chances are you need to enable VRF to your account. Submit a ticket to the IBM Cloud Support team for VRF enablement.
+
+Read this [documentation](https://cloud.ibm.com/docs/resources?topic=resources-private-network-endpoints) to know more.
+</InlineNotification>
+
+One of the differences with the version 1 is that this new architecture allows us to scale up the replicas of the pods. You can try it with these commands:
+
+```bash
+kubectl scale deployment movies --replicas=5
+
+watch kubectl get po,deploy,rs
+```
+
+To verify the application is working, use the same `curl` commands we've been using.
+
+```bash
+ADDRESS=$(kubectl get svc movies -o=jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+
+# Get all movies
+curl $ADDRESS/api/movies
+
+# Get a movie
+id=$(curl -s "http://$ADDRESS/api/movies" | jq -r '.[0]._id | .["$oid"]')
+curl "http://$ADDRESS/api/movies/$id" | jq
+
+# Create a movie
+id=$(curl -s -X POST -H "Content-Type: application/json" -d@data/v2/new_movie.json $ADDRESS/api/movies | jq -r '.id')
+curl $ADDRESS/api/movies/$id
+
+# Update a movie
+sed 's/13 Assassins/14 Assassins/' data/v2/new_movie.json > data/v2/update_movie.json
+curl -s -X PUT -H "Content-Type: application/json" -d@data/v2/update_movie.json $ADDRESS/api/movies/$id
+curl $ADDRESS/api/movies/$id
+rm data/v2/update_movie.json
+
+# Delete a movie
+curl -X DELETE $ADDRESS/api/movies/$id
+curl $ADDRESS/api/movies/$id
+curl -s $ADDRESS/api/movies | grep '14 Assassins'
+```
+
+There is more that you can do with this sample application, you can:
+
+- Add resource limits to the Pod so is can be scaled up or down automatically
+- Deploy a new Angular, React or Vue application to visualize the movies
+- Deploy a container with your own MongoDB to use it instead of the IBM Cloud MongoDB
+
+## Deployment Troubleshooting
+
+If you have any problem with the validation and want to [debug or troubleshot it](https://kubernetes.io/docs/tasks/debug-application-cluster/), use the following commands to identify the root cause.
+
+```bash
+kubectl get deploy,po
+
+pod_id=$(kubectl get deploy,po | grep pod/movies | head -1 | awk '{print $1}')
+
+kubectl describe pod $pod_id
+kubectl logs $pod_id
+kubectl logs $pod_id init-db
+
+kubectl exec $pod_id --container init-db -- cat /secret/db_ca.crt
+kubectl exec $pod_id --container movies -- env | grep APP
+```
+
+If you need to login to a container replace the `command` in the deployment for `command: ["/bin/sh", "-c", "while true; do sleep 1000;done"]` so it doesn't fail and you have time to execute a remote bash session.
+
+```bash
+kubectl exec --stdin --tty $pod_id -- /bin/bash
+kubectl exec --stdin --tty $pod_id --container init-db  -- /bin/bash
+```
+
+If you need to connect to the database and it has a private endpoint, deploy a MongoDB container with the `mongo` client and the required ConfigMaps and Secrets to connect to the database. Push to ICR the official MongoDB image and execute the `kubectl` generator, then modify the output file to include the ConfigMap and Secrets:
+
+```bash
+docker pull mongo:bionic
+docker tag mongo:bionic us.icr.io/iac-registry/mongo:bionic
+docker push us.icr.io/iac-registry/mongo:bionic
+
+kubectl create deployment mongo --image us.icr.io/iac-registry/mongo:bionic --dry-run=client -o yaml > kubernetes/mongo.yaml
+```
+
+```yaml path=kubernetes/mongo.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mongo
+  name: mongo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+        - image: us.icr.io/iac-registry/mongo:bionic
+          name: mongo
+          envFrom:
+            - secretRef:
+                name: db-admin-password
+            - configMapRef:
+                name: config
+          volumeMounts:
+            - name: db-volume
+              mountPath: /data/init
+            - name: db-ca-cert
+              mountPath: "/secret"
+              readOnly: true
+```
+
+Then login into the container and run the `mongo` client like so.
+
+```bash
+kubectl exec --stdin --tty $(kubectl get pods | grep mongo | awk '{print $1}')  -- /bin/bash
+# verify the enviroment variable APP_MONGODB_URI has the password from $PASSWORD
+APP_MONGODB_URI=$(echo $APP_MONGODB_URI | sed -e "s/\$PASSWORD/$PASSWORD/" -e "s/ibmclouddb/moviesdb/")
+echo $APP_MONGODB_URI
+mongo $APP_MONGODB_URI --tls --tlsCAFile $APP_SSL_CA_CERT
+```
+
+Or, instead, just execute this one-liner:
+
+```bash
+kubectl exec --stdin --tty $(kubectl get pods | grep mongo | awk '{print $1}')  -- /bin/bash -c 'mongo $(echo $APP_MONGODB_URI | sed -e "s/\$PASSWORD/$PASSWORD/" -e "s/ibmclouddb/moviesdb/") --tls --tlsCAFile $APP_SSL_CA_CERT'
+```
+
+## Final Code
+
+All the code used for this pattern is located and available to download in the GitHub repository https://github.com/IBM/cloud-enterprise-examples/ in the directory [09-containers](https://github.com/IBM/cloud-enterprise-examples/tree/master/iac/09-containers). The main files for the latest version (version 2) of the application are:
+
+```hcl path=network.tf
+resource "ibm_is_vpc" "iac_iks_vpc" {
+  name = "${var.project_name}-${var.environment}-vpc"
+}
+
+resource "ibm_is_subnet" "iac_iks_subnet" {
+  count                    = local.max_size
+  name                     = "${var.project_name}-${var.environment}-subnet-${format("%02s", count.index)}"
+  zone                     = var.vpc_zone_names[count.index]
+  vpc                      = ibm_is_vpc.iac_iks_vpc.id
+  total_ipv4_address_count = 256
+  resource_group           = data.ibm_resource_group.group.id
+}
+
+resource "ibm_is_security_group_rule" "iac_iks_security_group_rule_tcp_k8s" {
+  count     = local.max_size
+  group     = ibm_is_vpc.iac_iks_vpc.default_security_group
+  direction = "inbound"
+  remote    = ibm_is_subnet.iac_iks_subnet[count.index].ipv4_cidr_block
+
+  tcp {
+    port_min = 30000
+    port_max = 32767
+  }
+}
+```
+
+```hcl path=iks.tf
+resource "ibm_container_vpc_cluster" "iac_iks_cluster" {
+  name              = "${var.project_name}-${var.environment}-cluster"
+  vpc_id            = ibm_is_vpc.iac_iks_vpc.id
+  flavor            = var.flavors[0]
+  worker_count      = var.workers_count[0]
+  kube_version      = var.k8s_version
+  resource_group_id = data.ibm_resource_group.group.id
+  wait_till         = "OneWorkerNodeReady"
+  zones {
+    name      = var.vpc_zone_names[0]
+    subnet_id = ibm_is_subnet.iac_iks_subnet[0].id
+  }
+}
+
+resource "ibm_container_vpc_worker_pool" "iac_iks_cluster_pool" {
+  count             = local.max_size - 1
+  cluster           = ibm_container_vpc_cluster.iac_iks_cluster.id
+  worker_pool_name  = "${var.project_name}-${var.environment}-wp-${format("%02s", count.index + 1)}"
+  flavor            = var.flavors[count.index + 1]
+  vpc_id            = ibm_is_vpc.iac_iks_vpc.id
+  worker_count      = var.workers_count[count.index + 1]
+  resource_group_id = data.ibm_resource_group.group.id
+  zones {
+    name      = var.vpc_zone_names[count.index + 1]
+    subnet_id = ibm_is_subnet.iac_iks_subnet[count.index + 1].id
+  }
+}
+```
+
+```hcl path=db.tf
+resource "ibm_database" "iac_app_db_instance" {
+  name              = var.db_name
+  plan              = var.db_plan
+  location          = var.region
+  service           = "databases-for-mongodb"
+  resource_group_id = data.ibm_resource_group.group.id
+  service_endpoints = "private"
+
+  adminpassword                = var.db_admin_password
+  members_memory_allocation_mb = var.db_memory_allocation
+  members_disk_allocation_mb   = var.db_disk_allocation
+}
+```
+
+```hcl path=variables.tf
+variable "project_name" {}
+variable "environment" {}
+
+variable "resource_group" {
+  default = "Default"
+}
+variable "region" {
+  default = "us-south"
+}
+variable "vpc_zone_names" {
+  type    = list(string)
+  default = ["us-south-1", "us-south-2", "us-south-3"]
+}
+variable "flavors" {
+  type    = list(string)
+  default = ["cx2.2x4", "cx2.4x8", "cx2.8x16"]
+}
+variable "workers_count" {
+  type    = list(number)
+  default = [3, 2, 1]
+}
+variable "k8s_version" {
+  default = "1.18.3"
+}
+
+locals {
+  max_size = length(var.vpc_zone_names)
+}
+
+variable "db_plan" {
+  default = "standard"
+}
+variable "db_name" {
+  default = "moviedb"
+}
+variable "db_admin_password" {
+  default = "inSecurePa55w0rd"
+}
+variable "db_memory_allocation" {
+  default = "3072"
+}
+variable "db_disk_allocation" {
+  default = "61440"
+}
+```
+
+```hcl path=output.tf
+output "cluster_id" {
+  value = ibm_container_vpc_cluster.iac_iks_cluster.id
+}
+output "cluster_name" {
+  value = ibm_container_vpc_cluster.iac_iks_cluster.name
+}
+output "entrypoint" {
+  value = ibm_container_vpc_cluster.iac_iks_cluster.public_service_endpoint_url
+}
+
+output "db_connection_string" {
+  value = ibm_database.iac_app_db_instance.connectionstrings.0.composed
+}
+output "db_connection_certbase64" {
+  value = ibm_database.iac_app_db_instance.connectionstrings.0.certbase64
+}
+output "db_admin_userid" {
+  value = ibm_database.iac_app_db_instance.adminuser
+}
+output "db_id" {
+  value = ibm_database.iac_app_db_instance.id
+}
+output "db_password" {
+  value = var.db_admin_password
+}
+```
+
+```Dockerfile path=docker/2.0/Dockerfile
+FROM python:3.7-slim AS build
+
+RUN apt-get update && \
+  apt-get install -y --no-install-recommends build-essential gcc && \
+  pip install --upgrade pip && \
+  pip install pip-tools
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY app.py .
+COPY import.py .
+COPY requirements.txt requirements.in
+RUN pip-compile requirements.in > requirements.txt && \
+  pip-sync && \
+  pip install -r requirements.txt
+
+FROM python:3.7-slim AS app
+COPY --from=build /opt/venv /opt/venv
+
+COPY app.py .
+COPY import.py .
+RUN chmod +x app.py import.py
+
+ENV PATH="/opt/venv/bin:$PATH"
+
+CMD [ "python", "app.py" ]
+
+```
+
+```yaml path=kubernetes/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: movies
+  name: movies
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movies
+  template:
+    metadata:
+      labels:
+        app: movies
+    spec:
+      volumes:
+        - name: db-volume
+          configMap:
+            name: movies-db
+        - name: db-ca-cert
+          secret:
+            secretName: db-ssl-ca-cert
+      initContainers:
+        - name: init-db
+          image: us.icr.io/iac-registry/movies:2.3
+          command: ["python", "import.py"]
+          # command: ["/bin/sh", "-c", "while true; do sleep 1000;done"]
+          envFrom:
+            - secretRef:
+                name: db-admin-password
+            - configMapRef:
+                name: config
+          volumeMounts:
+            - name: db-volume
+              mountPath: /data/init
+            - name: db-ca-cert
+              mountPath: "/secret"
+              readOnly: true
+      containers:
+        - image: us.icr.io/iac-registry/movies:2.3
+          name: movies
+          envFrom:
+            - secretRef:
+                name: db-admin-password
+            - configMapRef:
+                name: config
+          volumeMounts:
+            - name: db-ca-cert
+              mountPath: "/secret"
+              readOnly: true
+```
+
+```yaml path=kubernetes/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: movies
+  name: movies
+spec:
+  ports:
+    - name: "http"
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: movies
+  type: LoadBalancer
+```
+
+## Clean up
+
+When you are done with the Kubernetes cluster should destroy it.
+
+If you want to keep the cluster running but remove everything you have done, you can execute:
+
+```bash
+kubectl delete -f kubernetes/
+
+kubectl get configmap,secret,service,deployment,pod,pvc,pv
+```
+
+If the cluster was created **using the IBM Cloud CLI**, execute the following commands:
+
+```bash
+NAME=iac-iks-cluster
+ibmcloud ks cluster rm --cluster $NAME
+
+Subnet_Name=iac-iks-subnet
+SUBNET_ID=$(ibmcloud is subnets --json | jq -r ".[] | select(.name==\"$Subnet_Name\").id")
+ibmcloud is subnet-delete $SUBNET_ID
+
+VPC_Name=iac-iks-vpc
+VPC_ID=$(ibmcloud is vpcs --json | jq -r ".[] | select(.name==\"$VPC_Name\").id")
+ibmcloud is vpc-delete $VPC_Name
+```
+
+If the cluster was created **using Terraform**, just need to execute the command:
+
+```bash
+terraform destroy
+```
+
+And, if the cluster was created **using IBM Cloud Schematics**, execute the following commands:
+
+```bash
+ibmcloud schematics workspace list              # Identify the WORKSPACE_ID
+WORKSPACE_ID=
+
+ibmcloud schematics destroy --id $WORKSPACE_ID  # Identify the Activity_ID
+ibmcloud schematics logs  --id $WORKSPACE_ID --act-id Activity_ID
+
+# ... wait until it's done
+
+ibmcloud schematics workspace delete --id $WORKSPACE_ID
+ibmcloud schematics workspace list
+```

@@ -1,0 +1,217 @@
+- title: Introduction
+  pages:
+    - path: /overview/pattern-introduction
+
+# - title: Cloud Principles
+#   pages:
+#    - title: Secure the Network
+#      path: /concepts/cloud-native-overview
+#    - title: Protect the Data
+#      path: /concepts/containers
+#    - title: Control the Access
+#      path: /concepts/continuous-integration
+#    - title: Monitor the Environment
+#      path: /concepts/continuous-delivery
+#    - title: Deploy as Infrastructure
+#      path: /concepts/continuous-delivery
+#    - title: Make Allocation Match Demand
+#      path: /concepts/continuous-delivery
+#
+#- title: Patterns
+#  pages:
+#    - title: Overview
+#      path: /activation/overview
+#    - title: Cloud Native Deployment
+#      path: /activation/cloudnative-deployment
+#    - title: Cloud Native Development
+#      path: /activation/cloudnative-development
+#    - title: OpenShift Interactive Learning Portal
+#      path: /activation/redhat-learning
+#    - title: Garage Method Development
+#      path: /activation/garage-development
+#
+#- title: Code and Terraform
+#  pages:
+#    - title: Content Overview
+#      path: /overview/content-overview
+#    - title: Day 1 Developer
+#      path: /enablement/tasks-day1
+#    - title: Day 2 Developer
+#      path: /enablement/tasks-day2
+#    - title: Cloud Pak for Apps
+#      path: /enablement/tasks-icp4a
+#    - title: App Modernization
+#      path: /enablement/tasks-appmod
+#    - title: App Integration
+#      path: /enablement/tasks-icp4i
+#
+- title: Infrastructure as Code
+  pages:
+    - title: Content Overview
+      path: /iac/content-overview
+    - title: Environment Setup
+      path: /iac/setup-environment
+    - title: Getting Started with Terraform
+      path: /iac/getting-started-terraform
+    - title: IBM Cloud Schematics
+      path: /iac/schematics
+    # - title: Create Images with Packer
+    #   path: /iac/packer
+    # - title: IBM Cloud API
+    #   path: /iac/api
+
+- title: IaC Resources
+  pages:
+    - title: IAM
+      path: /iac-resources/iam
+    - title: Network
+      path: /iac-resources/network
+    - title: Compute
+      path: /iac-resources/compute
+    - title: Cloud Services
+      path: /iac-resources/services
+    - title: Containers
+      path: /iac-resources/container
+    # - title: Serverless
+    #   path: /iac-resources/serverless
+
+- title: IaC Configuration Management
+  pages:
+    - title: User Data
+      path: /iac-conf-mgmt/user-data
+    - title: Ansible
+      path: /iac-conf-mgmt/ansible
+    # - title: Helm
+    #   path: /iac-conf-mgmt/helm
+
+- title: Logging
+  pages:
+    - title: Content Overview
+      path: /logging/content-overview
+    - title: Deployment Architecture
+      path: /logging/deployment-architecture
+    - title: Create LogDNA Instance
+      path: /logging/create-logdna-instance
+    - title: Configuring Access
+      path: /logging/controlling-access
+    - title: Configuring for VSI
+      path: /logging/configure-virtual-server
+    - title: Configuring for Containers
+      path: /logging/configuring-for-containers
+    - title: Customizing & Alerts
+      path: /logging/customize-alerts
+    - title: Archive for Long Term Storage
+      path: /logging/archive-logs-for-long-term-storage
+
+- title: Monitoring
+  pages:
+    - title: Content Overview
+      path: /monitoring/content-overview
+    - title: Controlling Access
+      path: /monitoring/controlling-access-to-metrics-and-event-data
+    - title: Customizing & Alerts
+      path: /monitoring/customizing-and-alerts
+    - title: Customize for Resources
+      path: /monitoring/configuring-monitoring-for-resources
+
+- title: Log Streaming
+  pages:
+    - title: Content Overview
+      path: /log-streaming/content-overview
+    - title: Configure Streaming for Third Party Tools
+      path: /log-streaming/configure-streaming-for-third-party-tools
+
+#- title: Forensic Investigations
+#  pages:
+#    - title: Content Overview
+#      path: /forensic/content-overview
+#    - title: Conducting Forensic Investigations
+#      path: /forensic/investigation
+#
+- title: CI/CD
+  pages:
+    - title: Content Overview
+      path: /ci-cd/content-overview
+    - title: "Cloud Toolchain- Setup"
+      path: /ci-cd/cloud-toolchain-setup
+    #    - title: Cloud Toolchain- VSIs
+    #      path: /ci-cd/cloud-toolchain-vsis
+    - title: "Cloud Toolchain- Cross-account"
+      path: /ci-cd/cloud-toolchain-across-accounts
+    - title: Cloud Toolchain- Schematics
+      path: /ci-cd/cloud-toolchain-schematics
+    - title: "Cloud Toolchain- SDLC/Tests"
+      path: /ci-cd/cloud-toolchain-sdlc
+    - title: "Cloud Native Tools- Setup"
+      path: /ci-cd/cloud-native-setup
+    - title: "Cloud Native- Dev Tools"
+      path: /ci-cd/cloud-native-setup-tools
+    - title: "Cloud Native- CI"
+      path: /ci-cd/cloud-native-ci-tools
+    - title: "Cloud Native- Pipeline/Test"
+      path: /ci-cd/cloud-native-deploy
+    - title: "Cloud Native- CD"
+      path: /ci-cd/cloud-native-cd
+    - title: "Cloud Native- Code Patterns"
+      path: /ci-cd/cloud-native-codepatterns
+
+- title: VSI - Deploy and Scale App
+  pages:
+    - title: Content Overview
+      path: /deploy-vsi/content-overview
+    - title: Environment Setup
+      path: /deploy-vsi/setup-environment
+    - title: Monitoring auto-scaling
+      path: /deploy-vsi/monitor-vsi
+
+- title: IKS - Deploy and Scale App
+  pages:
+    - title: Content Overview
+      path: /deploy-iks/content-overview
+    - title: Environment Setup
+      path: /deploy-iks/setup-environment
+    - title: Deploy Application to IKS
+      path: /deploy-iks/application-deployment
+    #    - title: Auto-Scaling of IKS
+    #      path: /deploy-iks/auto-scaling
+    - title: Horizontal Pod Auto-Scaling
+      path: /deploy-iks/hpa
+    - title: Cluster Auto-Scaling
+      path: /deploy-iks/ca
+
+- title: Managing Certificates
+  pages:
+    - title: Certificate Manager
+      path: /certificate-management/service-setup
+    - title: Certificates for VPC LBaaS
+      path: /certificate-management/deploy-to-vpclb
+    - title: Certificates for Kubernetes
+      path: /certificate-management/deploy-to-iks/
+
+- title: Resources
+  pages:
+    - title: CSP Quotas
+      path: /paas-services-resources/csp-quotas
+    - title: Auto scale PaaS
+      path: /paas-services-resources/paas-autoscale
+    - title: PaaS storage types
+      path: /paas-services-resources/storage-types
+    - title: Billing
+      path: /paas-services-resources/billing
+
+#- title: Scaling PaaS Services
+#  pages:
+#    - title: Content Overview
+#      path: /scaling-paas/content-overview
+#
+#- title: Account Management
+#  pages:
+#    - title: Content Overview
+#      path: /acc-mgmt/content-overview
+
+#- title: Resources
+#  pages:
+#    - title: Pattern Repository
+#      path: https://github.com/ibm/cloud-enterprise-examples
+#    - title: Additional Code Patterns
+#      path: https://developer.ibm.com/patterns

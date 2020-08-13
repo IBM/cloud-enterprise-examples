@@ -1,0 +1,39 @@
+{
+  "name": "ibmcloud-pattern-guide",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d public",
+    "build": "gatsby build --prefix-paths",
+    "dev": "gatsby develop -H 0.0.0.0",
+    "dev:clean": "gatsby clean && gatsby develop -H 0.0.0.0",
+    "serve": "gatsby serve",
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
+    "start": "npm run dev",
+    "clean": "gatsby clean",
+    "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\" && exit 1"
+  },
+  "dependencies": {
+    "gatsby": "2.22.20",
+    "gatsby-image": "^2.4.5",
+    "gatsby-plugin-google-analytics": "^2.3.3",
+    "gatsby-plugin-manifest": "^2.4.9",
+    "gatsby-plugin-offline": "^3.2.7",
+    "gatsby-plugin-react-helmet": "^3.3.2",
+    "gatsby-plugin-sharp": "^2.6.9",
+    "gatsby-source-filesystem": "^2.3.8",
+    "gatsby-theme-carbon": "^1.24.3",
+    "gatsby-transformer-json": "^2.4.4",
+    "gatsby-transformer-sharp": "^2.5.3",
+    "prop-types": "^15.7.2",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-helmet": "^6.0.0",
+    "prismjs": "^1.20.0"
+  },
+  "devDependencies": {
+    "gh-pages": "^2.2.0",
+    "prettier": "^1.19.1"
+  }
+}
