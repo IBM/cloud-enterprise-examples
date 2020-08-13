@@ -1,0 +1,39 @@
+---
+title: Create a LogDNA instance on IBM Cloud
+description: Install LogDNA and start seeing logs via Kubernetes, Code libraries, OS agents, or syslog.
+keywords:  'ibm cloud, logging, logdna'
+---
+
+## Create an instance of LogDNA on IBM Cloud
+
+In this section, we will review the steps you must take when creating a LogDNA instance.  
+The steps we will take are:
+- Create the LogDNA instance
+- instructions on how to configure it to collect from platform services
+- finally the dashboard which helps you review the logs from all the sources.  
+
+For creating the logDNA in the IBM Client UI, please click [here](https://cloud.ibm.com/catalog/services/ibm-log-analysis-with-logdna) .
+
+Select the plan you are interested in (we have seleced `7 day Log Search` plan). Enter a service name, and click `Create`.
+
+![Create instance](./images/create_instance.png "Create instance of LogDNA")  
+
+The newly created instance can be seen on the console.
+
+Click on `Configure platform logs` to select the IBM Log Analysis with LogDNA instance to receive platform logs.
+
+![Open configure platform logs](./images/click_configure_logs.png "Open configure platform logs")  
+
+Select the LogDNA instance and click `Configure`.
+
+![Configure platform logs](./images/configure_platform_logs.png "Configure platform logs")  
+
+The LogDNA Dashboard can be accessed by clicking on the link as shown below:
+
+![Open Dashboard](./images/open_logdna_dashboard.png "Open Dashboard") 
+
+
+LogDNA Dashboard:
+
+![Dashboard](./images/dashboard.png "Dashboard") 
+

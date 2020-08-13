@@ -1,0 +1,148 @@
+---
+title: Welcome to your IBM GSI Sandbox
+---
+
+<PageDescription>
+
+The following steps verify you have access to the IBM GSI Sandbox
+
+</PageDescription>
+
+Congratulations on becoming part of the IBM GSI learning journey to Cloud Native. You should have received a Welcome email that provides the details of the IBM GSI Sandbox you've been assigned to and pointing you to this welcome page. By participating in this Cloud Native Learning Journey, you have access to:
+- The crafted education journey [Agenda](/enablement/agenda)
+- A RedHat OpenShift managed service cluster that has been pre-installed with the IBM Garage Cloud Native Toolkit and IBM Cloud Pak for Applications. 
+ - The development environment is pre-configured in a pay-as-you-go IBM Cloud account which you'll use to perform your learning tasks.
+
+<InlineNotification kind="warning">
+
+**Warning:** If you did not receive the Welcome email this will mean you may not have been given access to the IBM Cloud account. Please contact your GSI Business Development Executive.
+
+</InlineNotification>
+
+## Notification
+
+The Welcome email gives you detail on how to access the development environment for team.
+
+**IBM GSI Sandbox Registration Details**
+- **Account**: This is the IBM Cloud account with a configured sandbox development environment, this will enable you to complete the learning agenda
+- **Team**: This is the name of your development team
+- **GitHub Organization**: This is the GitHub organization that will be used for storing your code during your learning activities
+- **Resource Group**: This is the IBM Cloud resource group where the development cluster and cloud resources have been provisioned.
+
+You must associate your email address with your public GitHub account or make sure you have a public account that is using an email address that matches the one you have linked to your sandbox environment. 
+
+To set your email address in GitHub:
+- Go to [Github](https://github.com) (public, not enterprise)
+- Log into your account or create one
+- Navigate to you account settings
+- Select emails, check your IBM email address is your primary email for the account
+- If it is not, then add you IBM email and verify it
+- If you are correctly verified and associated, you will receive a second email inviting you to your team's GitHub organization
+
+<InlineNotification kind="warning">
+
+**Warning:** If you do not associate your business email with you public GitHub account, you will not receive
+a Git Organization invite, and you will have issues completing the learning activities. IBM is not mixing personal email addresses with the business email that has been associated with your **GSI Sandbox**.
+
+</InlineNotification>
+
+## Sandbox
+
+[The Cloud Native Sandbox](/overview) is designed to make it easier for you to develop and deploy cloud-native applications. It includes an OpenShift cluster, cloud services bound to the cluster, and open source developer tools installed in the cluster. This combination supports developing cloud-native microservices architecture applications and CI/CD continuous deployment of those applications. 
+
+The Cloud Native Sandbox has been configured exactly how IBM recommends setting up a multi-tennat development team on the IBM Cloud. 
+
+Each development team can contain up to **150+** developers. Each team has been configured in [IAM](https://cloud.ibm.com/docs/iam) with its own access group with a corresponding resource group. Your resources for your team's Developer Tools environment have been created in that resource group. As a member of your team's access group, you'll have access to the resources in your team's Developer Tools environment. You are restricted from creating new cloud resources or deleting existing ones.
+
+The following diagram shows how access has been configured. Imagine you are the Green user: There will be a number of other users in your team accessing the same development cluster. You will all be sharing the same cloud resources. The Sandbox administrators will be monitoring the cluster to identify any issues early and resolve them.
+
+![MOOC Teams](devteams-master.png)
+
+You will be given access to your team's GitHub organization will be expected to create all of your application source code into this organization. This is how real world development projects work. This enables you to collaborate with your fellow team members and prevents you from creating duplicate project names.
+
+## Team locations
+
+The teams can be spread globally in different geographic locations listed below. IBM will try to make team membership as close to your home geographic as possible.
+
+<InlineNotification>
+
+**Note:** After you receive your team notification email, please remember to accept your invitation join your team's GitHub organization.
+
+</InlineNotification>
+
+
+| Team | Location | Region | Data Center | Git Org |
+| ---  | ------- | ------ | ---- | ----- |-------- |
+| **gsi-cloudnative-team** | London | eu-gb | lon06 | [GSI Enablement Code Repository](https://github.com/gsi-enablement-one) |
+
+![Team Locations](https://www.ibm.com/cloud-computing/images/bluemix/data-centers/030-Data-Center-Maps_1-0.png)
+
+## Validating your access the IBM Cloud
+
+<InlineNotification>
+
+**Note**: If you have issues with any of the following steps, please raise an issue on the Slack channel **#gsi-labs-enablement** [Slack Channel](https://gsicsi.slack.com/archives/CSRDJD5HA). All task issues should be raised on this slack channel any issues related to the IBM Garage for Cloud Developer Tools show be raised on the **#catalyst-project** [Channel](https://ibm-garage.slack.com/archives/CPJDVFAN8) in the IBM Cloud Slack Organisation.
+
+</InlineNotification>
+
+Follow these steps to check you can access your team's Developer Tools environment.
+
+Login and view the resources.
+
+- Login to the [IBM Cloud](https://cloud.ibm.com)
+- The Welcome email with the IBM GSI Sandbox Registration Details will tell you your account, team, GitHub organization, and resource group
+- In the IBM Cloud console, switch to the account specified in the email
+- Navigate to the *Resource List*
+- In the Group filter, select your team's resource group
+- Click on **Expand All** (top right) to show all of the resources in your resource group
+- Under Cluster, you should see two clusters named `gsi-{team}-ocp??-cluster
+` and `gsi-{team}-iks??-cluster` (where `{team}` is the name of your team
+ some clusters may have number when there is more than one of that type)
+
+Explore the Red Hat OpenShift resources and set up the CLI.
+
+- In the Tags filter, enter both `ocp` to see just the Red Hat
+ OpenShift cluster and services
+![Resource List](devtoolsservices.png)
+- Click on the name of each cloud service instance and verify you can open each one's dashboard
+- Click on the names of the Red Hat OpenShift cluster to open its dashboard
+- Switch to the **Access** tab
+- Follow the instructions to install the CLI, access the cluster from the CLI, and validate that you are successfully connected
+- Press the *OpenShift web console* button and verify that you can open the Red Hat OpenShift console
+
+Explore the IKS resources and set up the CLI.
+
+- Return to the **Resource List**
+- Remove the `ocp` tags and add the `iks` tag
+- Repeat the same steps for your team's Kubernetes cluster and services
+
+<InlineNotification kind="success">
+
+You have completed this task if you have:
+- Managed to access IBM Cloud account
+- Viewed your team's Red Hat OpenShift cluster
+- Accessed the cluster from the command line
+
+</InlineNotification>
+
+## Etiquette
+
+Please remember that you are sharing a development cluster with other colleagues, so be considerate of the following rules:
+
+- Make sure you use your own namespace/project for you applications
+    - Name your personal namespace/project using the convention `dev-{your initials}`, i.e. `dev-mjp`
+    - Any namespaces/projects not following this approach will be deleted by the [master builders](https://www.youtube.com/watch?v=Um-PlX6oPBQ)
+- Name your applications using the convention `{app name}-{your initials}`, i.e. `inventory-bff-mjp`
+    - Using the team GitHub organization will help avoid creating apps with the same name
+- Use Slack to talk to your fellow team members to help debug issues
+- Use the [GitHub team discussion](https://help.github.com/en/github/building-a-strong-community/about-team-discussions) feature to share knowledge
+- Do not delete anything in the cluster that is not yours
+    - Especially secrets and configMaps--deleting these will mess up how the environment works for you and your colleagues, and more importantly will cause unnecessary repair work for the [master builders](https://www.youtube.com/watch?v=Um-PlX6oPBQ)
+    - Do not delete other people's pipelines or deployed apps
+- Do not create anything that will cause unnecessary stress to or load on your team's cluster, its environment, or the IBM GSI Sandbox account
+
+Remember:
+- Part of what you should be learning is how to be team members working on multiple microservices in the same development cluster with other developers
+- "[My app runs on my computer](https://donthitsave.com/comic/2016/07/15/it-works-on-my-computer)" is necessary but not sufficient, it needs to run in the OpenShift or IKS clusters as well
+- IBM Cloud is like one big lego set of software and services
+    - After this course, you be on your way to be a master builder, it's loads of fun

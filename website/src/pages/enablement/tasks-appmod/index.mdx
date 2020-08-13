@@ -1,0 +1,56 @@
+---
+title: Application Modernization
+---
+
+<PageDescription>
+
+Learning tasks for developers to understand how to use the Transformation advisor and Eclipse tools to support App Modernization
+</PageDescription>
+
+<InlineNotification>
+
+Before you proceed, make sure you have an IBM GSI Sandbox invite. It enables you to access an IBM Cloud account with the <a target="_blank" href="https://ibm-garage-cloud.github.io/ibm-garage-developer-guide/overview">Developer Tools environment</a> already installed and ready for you to use, including both a Kubernetes cluster and an OpenShift cluster. (The environment is locked down to prevent creating any new services.) Also, before proceeding:
+- Install the <a target="_blank" href="https://ibm-garage-cloud.github.io/ibm-garage-developer-guide/getting-started/cli">IBM Garage for Cloud CLI</a> (again) to ensure you have the latest version
+
+</InlineNotification>
+
+This set of learning tasks Application Modernization: How to assess and modernize an existing Java application using the tools in the CloudPak for Applications (CP4Apps).
+
+This learning tasks assumes that you have:
+ - Reviewed the content from the Agenda: [Application Modernization](/enablement/agenda#application-modernization)
+ - Seen a demo of each of the tasks below from the Video Presentation
+
+### Learning tasks
+
+The learning tasks help you understand the tasks related to Application Modernization for existing Java applications. As discussed in the Monday session, "Application Modernization doesn't always mean modernization to microservices."
+
+There are 4000+ existing WebSphere Application Server customers. The majority of them have a significant number of legacy monolithic applications running in WebSphere Application Server Network Deployment (WAS ND) on traditional IT. This was state-of-the-art back when the applications were first deployed, but the runtime requires periodic maintenance and constant administration. Now the customer would like to host the application in a cloud environment, but they have no desire to make any code changes to move the apps. While it might be beneficial for the customer to invest money in rethinking and redesigning their entire portfolio of applications as part of moving off of traditional WebSphere, in reality this is overkill for applications that still provide the proper business functionality just fine and require little maintenance for bug fixes or new features. For these legacy monoliths, we can reduce the maintenance overhead by moving the apps as-is to run in WebSphere Liberty on Red Hat OpenShift. We can also reduce the administrative overhead by implementing common CI/CD and SRE practices.
+
+This learning starts with some background reading and then completes with hands on exercises.
+
+| Task                            | Description         | Link        | Time    |
+| --------------------------------| ------------------  |:----------- |---------|
+| Watch Kyle Brown present App Mod Use Cases| Where Do I Start? Approaches and Case Studies for Application Modernization | <a href="https://www.ustream.tv/recorded/124074109" target="_blank">Video</a> | 60 min |
+| Read Roland's Medium Post | It’s time to stop making “Microservices” the goal of modernization | <a href="https://medium.com/ibm-garage/its-time-to-stop-making-microservices-the-goal-of-modernization-71758b400287" target="_blank">Medium</a> | 5 mins |
+| Read Kyle and Yaro's App Mod Medium Article (Part 1) | Where does Modernization start? | <a href="https://medium.com/ibm-garage/the-steps-to-application-modernization-for-the-cloud-part-1-7ac07515dc16" target="_blank">Medium</a> | 15 mins |
+| Read Kyle and Yaro's App Mod Medium Article (Part 2) | Maps for the Journey | <a href="https://medium.com/ibm-garage/maps-for-the-journey-950153ed39ce" target="_blank">Medium</a> | 15 mins |
+| Review the GSE team assets for AppMod | The Garage SE team has created a Reference Architecture and a set of working solutions | <a href="https://ibm-cloud-architecture.github.io/cloudpak-for-applications/" target="_blank">Garage assets</a> | 30 min |
+| Watch the GSE AppMod Video | This Runtime Modernization video demonstrates Transformation Advisor and deployment to Red Hat OpenShift | <a href="https://mediacenter.ibm.com/media/Cloud+Pak+for+Applications+-+WebSphere+Runtime+Modernization/1_x1xntvmz" target="_blank">Garage video</a> | 20 min |
+| AppMod Lab Exercise 1 | A simple runtime modernization exercise with no code changes | <a href="https://ibm-garage-cloud.github.io/ibm-garage-developer-guide/practical/appmod-exercise1" target="_blank">AppMod Exercise 1</a> | 1 hour |
+| AppMod Lab Exercise 2 | A runtime modernization exercise with some simple code changes | <a href="https://ibm-garage-cloud.github.io/ibm-garage-developer-guide/practical/appmod-exercise2" target="_blank">AppMod Exercise 2</a> | 2 hours |
+
+Once you have completed these tasks, you will have completed the learning tasks for App Modernization. You will have heard about the application modernization use cases from Kyle, Roland, and Yaro, and now will understand the IBM Clouds approach to assessing and modernizing existing WebSphere Java applications using IBM Cloud Transformation Advisor which is a key component of IBM Cloud Pak for Applications.
+
+<InlineNotification>
+
+**Note**: Support is provided in the `#gsi-labs-enablement` Slack channel (in the <a href="" target="_blank">GSI Slack Org</a>(https://gsicsi.slack.com/archives/CSRDJD5HA). This channel will also be used to share any common issues found.
+
+</InlineNotification>
+
+### Review Learning Tasks
+
+Working with colleagues review your learning tasks. The GSI team is looking for feedback from three perspectives:
+
+- **What went well?**
+- **What needs improvement?**
+- **Next steps?**

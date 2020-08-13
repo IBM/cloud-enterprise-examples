@@ -1,0 +1,135 @@
+
+div[class*='page-header'] {
+    --height: 6rem;
+}
+
+h1[id*='page-title'] {
+    font-size: 2em;
+}
+
+@media only screen and (max-width: 450px) {
+    h1[id*='page-title'] {
+        font-size: 1.5em;
+    }
+}
+
+
+h3[class*='Markdown-module--h3'] {
+    margin-top: 1em;
+}
+
+ul[class*='Markdown-module--list']  {
+    padding-left: 2em;
+}
+
+ol[class*='Markdown-module--list']  {
+    padding-left: 2em;
+}
+
+div[class*='Tabs-module--tab-container'] {
+    margin-left: -0rem;
+}
+
+div[class*='Tabs-module--tab-contents'] {
+    margin-left: 0rem;
+}
+
+h2[class*='Markdown-module--h2'] {
+    margin-top: 1em;
+}
+
+p[class*='paragraph--responsive']{
+    width:90%;
+    padding-bottom: .5em;
+}
+
+ul[class*='module--list'] {
+    width:75%
+}
+
+div[class*='module--paragraph-row']{
+    margin-bottom: .45em;
+}
+
+div[class*='module--notification']{
+
+    flex: 0 0 80%;
+    max-width: 75%;
+
+}
+
+div[class*='module--container']{
+    overflow-y: visible;
+    max-height: 900px;
+}
+
+div[class*='Code-module--row']{
+    width:95%;
+}
+
+.bx--list--nested {
+    margin-bottom: 1.5em;
+}
+
+.bx--resource-card--dark .bx--tile {
+    background-color:grey;
+}
+
+
+.bx--article-card--ibm .bx--tile {
+    background-color:#0062ff;
+}
+
+.bx--article-card--ibm:hover .bx--tile {
+    background-color:#3d3d3d;
+}
+
+
+.bx--article-card--ibm .bx--article-card__subtitle {
+    color: var(--cds-text-04, #ffffff);
+}
+
+.bx--article-card--redhat .bx--tile {
+    background-color: #e00;
+}
+
+
+.bx--article-card--redhat:hover .bx--tile {
+    background-color:cornflowerblue;
+}
+
+.bx--article-card--redhat .bx--article-card__subtitle {
+    color: var(--cds-text-04, #ffffff);
+}
+
+.bx--resource-card--dark .bx--tile:hover {
+    background-color:cornflowerblue;
+}
+
+
+.bx--resource-card--dark .bx--tile:hover {
+    background-color:cornflowerblue;
+}
+
+
+ul[class*='Tabs-module--tab-list']{
+    margin-left: 0rem;
+}
+
+
+section[class*='Tabs-module--panel']{
+    margin-left: 0rem;
+    margin-right: 0rem;
+}
+
+.bx--list--nested {
+    margin-bottom: 1.5rem;
+}
+
+.bx--resource-card--dark .bx--tile {
+    background-color:grey;
+}
+
+.bx--resource-card--dark .bx--tile:hover {
+    background-color:cornflowerblue;
+}

@@ -1,0 +1,32 @@
+---
+title: Auto-scale configuration for PaaS services
+description: Configuring auto scale on PaaS services
+keywords: 'ibm cloud, auto scaling, PaaS'
+---
+
+In this section, we cover the auto scale configuration for IBM Event streams, Mongo DB, PostgreSQL, DB2 and Cloud Object Storage.
+
+## IBM Event Streams for IBM Cloud Enterprise
+
+Event Streams uses quotas to control the resources, such as network bandwidth, that a service can consume. The types and levels of quotas depend on whether you're using the Lite, Standard, or Enterprise plan. Please refer link for more details -
+https://cloud.ibm.com/docs/EventStreams?topic=eventstreams-kafka_quotas#limits_enterprise.
+
+## Autoscaling for MongoDB  
+
+Autoscaling is designed to respond to the short-to-medium term trends in resource usage on your IBM® Cloud Databases for MongoDB deployment. Please refer link for more details - https://cloud.ibm.com/docs/databases-for-mongodb?topic=databases-for-mongodb-autoscaling.
+
+## Autoscaling for PostgreSql 
+
+Autoscaling is designed to respond to the short-to-medium term trends in resource usage on your IBM® Cloud Databases for PostgreSQL deployment. Please refer link for more details - https://cloud.ibm.com/docs/databases-for-postgresql?topic=databases-for-postgresql-autoscaling.
+
+## Autoscaling for DB2Flexible scaling
+
+Independent scaling of RAM, storage, and compute cores. Please refer link for more details - https://cloud.ibm.com/docs/Db2onCloud?topic=Db2onCloud-scale.
+
+## IBM Cloud Object Storage (COS)
+
+IBM Cloud Object Storage is designed to support exponential data growth and cloud-native workloads.  With  built-in  high-speed  file  transfer  capabilities,  cross-region  offerings,  and integrated  services,  IBM  Cloud  Object  Storage  can  help  you  securely  leverage  your  data. More details can be found at:
+https://cloud.ibm.com/docs/cloud-object-storage?topic=cloud-object-storage-about-cloud-object-storage.
+
+COS  is  configured  on  a  shared  device  with  a  much  larger  capacity  than  any  individual customer  could  consume.  It  does  not  follow  scale-up  and  scale-down  on  demand.  On  the backend IBM monitors the usage trends and buy additional capacity ahead of demand. So for a customer, it is limitless storage. Please refer link for more details -
+https://www.ibm.com/cloud/object-storage?cm_sp=Cloud-Product-_-OnPageNavLink-IBMCloudPlatform_IBMObjectStorage-_-Storage_ProductBand.
