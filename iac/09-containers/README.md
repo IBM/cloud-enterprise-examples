@@ -12,12 +12,16 @@ Check list for every README:
 - [Infrastructure as Code: Managing Container Registry (ICR) & Kubernetes Services (IKS) Resources](#infrastructure-as-code-managing-container-registry-icr--kubernetes-services-iks-resources)
   - [General Requirements](#general-requirements)
   - [Project Requirements](#project-requirements)
+  - [How to use with the IBM Cloud CLI](#how-to-use-with-the-ibm-cloud-cli)
   - [How to use with Terraform](#how-to-use-with-terraform)
   - [How to use with Schematics](#how-to-use-with-schematics)
   - [Project Validation locally with Docker](#project-validation-locally-with-docker)
     - [Version 1.0](#version-10)
-    - [Version 2.0](#version-20)
     - [Version 1.1](#version-11)
+    - [Version 2.0](#version-20)
+  - [Kubernetes Deployments](#kubernetes-deployments)
+    - [Version 1.0](#version-10-1)
+    - [Version 1.1](#version-11-1)
     - [Version 2.0](#version-20-1)
   - [Project Validation on Kubernetes](#project-validation-on-kubernetes)
 
@@ -42,6 +46,7 @@ Executing these commands you are validating part of these requirements:
 ibmcloud --version
 ibmcloud plugin show infrastructure-service | head -3
 ibmcloud plugin show schematics | head -3
+ibmcloud plugin show container-registry | head -3
 ibmcloud target
 terraform version
 ls ~/.terraform.d/plugins/terraform-provider-ibm_*

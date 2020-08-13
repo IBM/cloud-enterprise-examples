@@ -63,7 +63,7 @@ This project requires the following actions:
 1. Create the file `terraform.tfvars` file with values for the variables, this is an example with the required and optional variables:
 
    ```hcl
-   project_name = "iac-db-test-ja"
+   project_name = "iac-db-test-OWNER"
    environment  = "dev"
 
    port           = 8080
