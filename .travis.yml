@@ -1,0 +1,59 @@
+language: node_js
+node_js:
+  - 13
+
+env:
+  global:
+    - PAGES_FQDN="pages.github.ibm.com"
+
+# services:
+#   - docker
+
+# install:
+#   - curl -sL https://ibm.biz/idt-installer | bash
+
+before_script:
+  - npm install
+  - |
+    if [[ ${TRAVIS_BRANCH} == "dev" ]]; then
+      sed -i.bkp 's|/att-cloudnative/ibmcloud-pattern-guide|/att-cloudnative/ibmcloud-pattern-guide-staging|g' gatsby-config.js
+    fi
+    if [[ ${TRAVIS_BRANCH} == "x" ]]; then
+      sed -i.bkp 's|/att-cloudnative/ibmcloud-pattern-guide|/cloud-enterprise-examples|g' gatsby-config.js
+    fi
+
+script:
+  - npm run build
+
+# after_success:
+#   - |
+#     if [[ ${TRAVIS_BRANCH} != "dev" && ${TRAVIS_BRANCH} != "master" ]]; then
+#       ibmcloud login -r 'us-south' --apikey $IC_API_KEY
+#       ibmcloud cr login
+#       bash scripts/container.sh --build --deploy
+#     fi
+
+before_deploy:
+  - mkdir -p release/${TRAVIS_BRANCH}
+  - mv public release/${TRAVIS_BRANCH}/public
+  - echo "Built on ${TRAVIS_BRANCH}" >> release/${TRAVIS_BRANCH}/public/.source_branch
+
+deploy:
+  - provider: pages
+    skip_cleanup: true
+    github_url: github.ibm.com
+    github_token: $GITHUB_TOKEN
+    keep_history: false
+    local_dir: release/${TRAVIS_BRANCH}/public
+    on:
+      branch: master
+
+  - provider: pages
+    skip_cleanup: true
+    github_url: github.ibm.com
+    github_token: $GITHUB_TOKEN
+    repo: att-cloudnative/ibmcloud-pattern-guide-staging
+    keep_history: false
+    local_dir: release/${TRAVIS_BRANCH}/public
+    on:
+      branch: dev
