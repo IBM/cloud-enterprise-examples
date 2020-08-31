@@ -76,7 +76,7 @@ Create a folder `connector` in the directory `kafka_splunk_integration`. Copy th
 
 #### Modify connect-distributed.properties for Kafka connect
 
-Download the `connect-distributed.properties` [here](https://github.com/IBM/cloud-enterprise-examples/blob/master/artifacts/logdna-splunk-integration/connect-distributed.propertes).
+Download the `connect-distributed.properties` [here](https://github.com/IBM/cloud-enterprise-examples/blob/master/artifacts/logdna-splunk-integration/connect-distrubuted.properties).
 - Edit connect-distributed.properties replacing the [BOOTSTRAP_SERVERS] and [APIKEY] placeholders with your Event Streams credentials.
 - Modify the `plugin.path` in the file contents to point to the directory `connector` we created in the previous step.
 - Now copy the file `connect-distributed.properties` to the `config` folder under the `kafka_2.13-2.5.0` folder.
@@ -120,7 +120,7 @@ Enter a name say `logdnaindex` and click on `Save`.
 
 
 The index is now created. Make a note of the index name. We will need it to instantiate the connector.
-Next go to `General Settings` on HTTP Event Collector page and un-select the `Enable SSL` option.
+Next, click on `Settings`-`Data Input`-`HTTP Event Collector` to go to `HTTP Event Collector` page. Click on `General Settings` on HTTP Event Collector page and un-select the `Enable SSL` option.
 
 #### Create a token
 
