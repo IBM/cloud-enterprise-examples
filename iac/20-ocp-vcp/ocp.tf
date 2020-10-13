@@ -15,7 +15,7 @@ resource "ibm_container_vpc_cluster" "iac_iks_cluster" {
   entitlement       = "cloud_pak"
   cos_instance_crn  = ibm_resource_instance.cos_instance.id
   resource_group_id = data.ibm_resource_group.group.id
-  public_service_endpoint = var.public_endpoint
+  disable_public_service_endpoint = var.public_endpoint_disable
   wait_till         = "OneWorkerNodeReady"
   zones {
     name      = var.vpc_zone_names[0]

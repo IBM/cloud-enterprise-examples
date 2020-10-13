@@ -5,7 +5,7 @@ resource "ibm_container_vpc_cluster" "iac_iks_cluster" {
   worker_count      = var.workers_count[0]
   kube_version      = var.k8s_version
   resource_group_id = data.ibm_resource_group.group.id
-  public_service_endpoint = var.public_endpoint
+  disable_public_service_endpoint = var.public_endpoint_disable
   wait_till         = "OneWorkerNodeReady"
   zones {
     name      = var.vpc_zone_names[0]

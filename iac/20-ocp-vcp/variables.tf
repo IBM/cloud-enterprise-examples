@@ -23,9 +23,9 @@ variable "k8s_version" {
   default = "4.4_openshift"
 }
 
-variable "public_endpoint" {
+variable "public_endpoint_disable" {
   type = bool
-  default = true
+  default = false
 }
 
 locals {

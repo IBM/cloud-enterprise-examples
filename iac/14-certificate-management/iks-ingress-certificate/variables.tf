@@ -23,9 +23,9 @@ variable "k8s_version" {
   default = "1.18"
 }
 
-variable "public_endpoint" {
+variable "public_endpoint_disable" {
   type = bool
-  default = true
+  default = false
 }
 
 locals {
