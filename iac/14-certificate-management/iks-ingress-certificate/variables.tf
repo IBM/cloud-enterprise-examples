@@ -23,6 +23,11 @@ variable "k8s_version" {
   default = "1.18"
 }
 
+variable "public_endpoint" {
+  type = bool
+  default = true
+}
+
 locals {
   max_size = length(var.vpc_zone_names)
 }
