@@ -20,6 +20,7 @@ resource "ibm_is_subnet" "iac_iks_subnet" {
   ipv4_cidr_block          = "172.26.${format("%01s", count.index)}.0/26"
   # total_ipv4_address_count = 64
   resource_group           = data.ibm_resource_group.group.id
+  public_gateway           = ibm_is_public_gateway.iac_iks_gateway[count.index]
   
   depends_on  = [ibm_is_vpc_address_prefix.vpc_address_prefix]
 }
