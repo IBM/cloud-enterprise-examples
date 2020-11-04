@@ -68,7 +68,7 @@ IKS_CLUSTER=$(terraform output cluster_name)
 
 ## Import certificate from Certificate Manager
 
-Deploying certificates from the Certificate Manager service to a kubernetes cluster can be performed from the IBM Cloud CLI using the container service plugin command [`ibmcloud ks alb cert deploy`](https://cloud.ibm.com/docs/cli?topic=containers-cli-plugin-kubernetes-service-cli#cs_alb_cert_deploy).
+Deploying certificates from the Certificate Manager service to a kubernetes cluster can be performed from the IBM Cloud CLI using the container service plugin command [`ibmcloud ks ingress secret create`](https://cloud.ibm.com/docs/cli?topic=containers-cli-plugin-kubernetes-service-cli#cs_ingress_secret_create).
 
 Alternatively, the certificate may also be added using a resource and terraform code. To do this, the CRN of the desired certificate in Certificate Manager is needed. This example will use the certificate that was imported in the Certificate Manager [service setup](/certificate-management/service-setup).
 
@@ -98,11 +98,10 @@ terraform plan
 terraform apply
 ```
 
-Verify the secret in the cluster. Configure the kubectl context with access to the IKS cluster using the `ibmcloud ks cluster config` command. Then verify the secret in the `default` namespace.
+Verify the secret in the cluster.
 
 ```bash
-ibmcloud ks cluster config --cluster $IKS_CLUSTER
-kubectl get secrets -n default
+ibmcloud ks ingress secret ls
 ```
 
 The secret as named in the `tls.tf` file will be shown along with other secrets in the default namespace. The secret created in the `default` namespace is a reference to the actual secret which is maintained in the `ibm-cert-store` namespace. This secret can be read by ingress resources created in **any** namespace of the cluster.
