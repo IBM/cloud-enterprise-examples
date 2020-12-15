@@ -309,3 +309,36 @@ steps:
           storage: 10G
       storageClassName: portworx-shared-sc
     ```
+
+### Adding storage classes for CP4D/IAF
+
+The IAF installation process is configured to alternately use specific portworx storage classes for shared volumes. To create the expected storageClass use this command:
+
+```shell
+cat <<EOF | oc create -f -
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: portworx-shared-gp3
+parameters:
+  priority_io: high
+  repl: "3"
+  sharedv4: "true"
+  io_profile: db_remote
+  disable_io_profile_protection: "1"
+allowVolumeExpansion: true
+provisioner: kubernetes.io/portworx-volume
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+EOF
+```
+
+### Cleaning up and removing portworx:
+
+run in the cluster:
+
+```text
+curl -fsL https://install.portworx.com/px-wipe | bash
+```
+
+Remove the resource from the IBM Cloud Console with delete, then deprovision the OpenShift Cluster
