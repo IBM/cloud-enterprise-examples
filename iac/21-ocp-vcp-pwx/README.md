@@ -179,13 +179,9 @@ kubectl get pods -A
 
 ## Notes on Portworx setup
 
-Portworks requires workers in VPC that are 16cpu/64GB (or 32) so the bx2.16x64 profile
+Portworks requires workers in VPC that are 16cpu/64GB (or 32) so the bx2.16x64 profile should be used at a minimum for the worker nodes.
+
 Separate unformatted volumes need to be attached to the workers. The IAC code in this folder will create a VPC, OpenShift cluster and volumes that can me bound to the workers. These steps provide a fast path to manually completing the installation based on information from [Storing data with Portworx](https://cloud.ibm.com/docs/openshift?topic=openshift-portworx).
-
-https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#create_block_storage
-
-for VPC this links to: https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#create_block_storage
-steps:
 
 1. Log in to IBM Cloud CLI and set the target resource group to the group with your target cluster. Verify the cluster is present using `ibmcloud oc clusters`
 
