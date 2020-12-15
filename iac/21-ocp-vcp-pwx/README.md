@@ -193,8 +193,8 @@ Separate unformatted volumes need to be attached to the workers. The IAC code in
 
     ```text
     IAM_TOKEN=$(ibmcloud iam oauth-tokens --output json | jq -r '.iam_token')
-    CLUSTER=clustername
     RESOURCE_GROUP=$(ibmcloud target --output json | jq -r '.resource_group.guid')
+    CLUSTER=clustername
     ```
 
 1. Using the id of the desired worker node and the storage volume, use CLI command to attach - template for command listed first followed by example invocations, edit these to match your volume and worker id:
