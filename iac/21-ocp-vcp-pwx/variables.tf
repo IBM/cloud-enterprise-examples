@@ -2,7 +2,7 @@ variable "project_name" {}
 variable "environment" {}
 
 variable "resource_group" {
-  default = "IKS-RG1"
+  default = "Default"
 }
 variable "region" {
   default = "us-east"

@@ -180,36 +180,31 @@ kubectl get pods -A
 ## Notes on Portworx setup
 
 Portworks requires workers in VPC that are 16cpu/64GB (or 32) so the bx2.16x64 profile
-Separate unformatted volumes need to be attached to the workers. Steps:
+Separate unformatted volumes need to be attached to the workers. The IAC code in this folder will create a VPC, OpenShift cluster and volumes that can me bound to the workers. These steps provide a fast path to manually completing the installation based on information from [Storing data with Portworx](https://cloud.ibm.com/docs/openshift?topic=openshift-portworx).
 
 https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#create_block_storage
 
 for VPC this links to: https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#create_block_storage
 steps:
 
-1. determine the region and zone of the worker for storage: `ibmcloud oc worker ls --cluster <clustername>`
+1. Log in to IBM Cloud CLI and set the target resource group to the group with your target cluster. Verify the cluster is present using `ibmcloud oc clusters`
 
-1. add a block storage volume with desired tier and capacity to the same zone as the worker: https://cloud.ibm.com/docs/vpc?topic=vpc-creating-block-storage . Do this for all workers
+1. Unformatted block storage volumes will be created as part of the terraform code. Retrieve the ids with the `ibmcloud is volumes` command.
+
+1. Obtain the ids for each worker with: `ibmcloud oc workers list --cluster <clustername>`
+
+1. Retrieve IAM token: `ibmcloud iam oauth-tokens`  set this to IAM_TOKEN, and set the CLUSTER environment variable to the cluster name and the RESOURCE_GROUP environment variable to the resource group id to save typing in later commands.
 
     ```text
-    ibmcloud is volume-create VOLUME_NAME PROFILE_NAME ZONE_NAME [--capacity CAPACITY] [--iops IOPS] [--resource-group-id RESOURCE_GROUP_ID | --resource-group-name RESOURCE_GROUP_NAME] [--json]
-
-    ibmcloud is volume-create timro-pwx-vol01 10iops-tier us-east-1 --capacity 200
-    ibmcloud is volume-create timro-pwx-vol02 10iops-tier us-east-1 --capacity 200
-    ibmcloud is volume-create timro-pwx-vol03 10iops-tier us-east-1 --capacity 200
+    IAM_TOKEN=$(ibmcloud iam oauth-tokens --output json | jq -r '.iam_token')
+    CLUSTER=clustername
+    RESOURCE_GROUP=$(ibmcloud target --output json | jq -r '.resource_group.guid')
     ```
 
-    > These volumes should be created if the terraform automation in this directory was used to create the cluster and the id's can be retreived with `ibmcloud is volumes`
-
-1. Retrieve IAM token: `ibmcloud iam oauth-tokens`  set this to IAM_TOKEN
-
-1. Using the id of the desired worker node and the storage volume, use CLI command to attach. (POST command in documentation throws an error):
+1. Using the id of the desired worker node and the storage volume, use CLI command to attach - template for command listed first followed by example invocations, edit these to match your volume and worker id:
 
     ```text
      ibmcloud ks storage attachment create --cluster CLUSTER --volume VOLUME --worker WORKER
-
-     CLUSTER=timro-pwx-vpc-cluster
-     RESOURCE_GROUP=5831b69fab464da7a96f7b989dfdf32a
 
      ibmcloud ks storage attachment create --cluster $CLUSTER --volume r014-aef666d3-5072-4900-a1b2-23a69cb3f96b --worker kube-bvc11mbw0n2a9mccenlg-timropwxvpc-default-000002a7
 
@@ -228,7 +223,7 @@ steps:
 
 1. Continue with setting up Portworkx starting with kv for volume: https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#portworx_database . Choose to us in-cluster KVDB for simplicity and continue to main installation steps: https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#install_portworx
 
-1. Skip volume encryption
+1. Skip volume encryption. [Use these steps to configure encryption for the volumes](https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#encrypt_volumes)
 
 1. Copy pull secrets from `default` namespace to `kube-system` and associate with service account:
 
