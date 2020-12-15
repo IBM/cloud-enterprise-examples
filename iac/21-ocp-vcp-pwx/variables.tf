@@ -2,7 +2,7 @@ variable "project_name" {}
 variable "environment" {}
 
 variable "resource_group" {
-  default = "Default"
+  default = "IKS-RG1"
 }
 variable "region" {
   default = "us-east"
@@ -13,11 +13,11 @@ variable "vpc_zone_names" {
 }
 variable "flavors" {
   type    = list
-  default = ["mx2.4x32"]
+  default = ["bx2.16x64"]
 }
 variable "workers_count" {
   type    = list
-  default = [2]
+  default = [3]
 }
 variable "k8s_version" {
   default = "4.5_openshift"
