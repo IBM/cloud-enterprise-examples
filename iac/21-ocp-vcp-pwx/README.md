@@ -179,7 +179,7 @@ kubectl get pods -A
 
 ## Notes on Portworx setup
 
-Portworks requires workers in VPC that are 16cpu/64GB (or 32) so the bx2.16x64 profile should be used at a minimum for the worker nodes.
+Portworks requires workers in VPC that are 16cpu/64GB (or 32) so the bx2.16x64 profile should be used at a minimum for the worker nodes. The minimum steps necessary are shown here along with related links to the relevant IBM Cloud documentation sections.
 
 Separate unformatted volumes need to be attached to the workers. The IAC code in this folder will create a VPC, OpenShift cluster and volumes that can me bound to the workers. These steps provide a fast path to manually completing the installation based on information from [Storing data with Portworx](https://cloud.ibm.com/docs/openshift?topic=openshift-portworx).
 
@@ -189,7 +189,7 @@ Separate unformatted volumes need to be attached to the workers. The IAC code in
 
 1. Obtain the ids for each worker with: `ibmcloud oc workers list --cluster <clustername>`
 
-1. Retrieve IAM token: `ibmcloud iam oauth-tokens`  set this to IAM_TOKEN, and set the CLUSTER environment variable to the cluster name and the RESOURCE_GROUP environment variable to the resource group id to save typing in later commands.
+1. Retrieve IAM token with `ibmcloud iam oauth-tokens` and set this to IAM_TOKEN, set the the RESOURCE_GROUP environment variable to the resource group id, and set the CLUSTER environment variable to the cluster name to save typing in later commands.
 
     ```text
     IAM_TOKEN=$(ibmcloud iam oauth-tokens --output json | jq -r '.iam_token')
@@ -217,7 +217,7 @@ Separate unformatted volumes need to be attached to the workers. The IAC code in
 
     {"volume_attachments":[{"id":"0757-1e3db03e-e9bb-44ba-b423-14570a3511e6","volume":{"name":"timro-pwx-vol01","id":"r014-aef666d3-5072-4900-a1b2-23a69cb3f96b"},"device":{"id":"0757-1e3db03e-e9bb-44ba-b423-14570a3511e6-8xbd9"},"name":"volume-attachment","status":"attached","type":"data"},{"id":"0757-6a52d8da-3192-4ac9-b78d-3fa3e402be4f","volume":{"name":"gab-wistful-stimulate-nutmeg","id":"r014-54a8d1d0-b679-4c7e-bec6-b91deb30e98f"},"device":{"id":"0757-6a52d8da-3192-4ac9-b78d-3fa3e402be4f-x5rql"},"name":"volume-attachment","status":"attached","type":"boot"}]}
 
-1. Continue with setting up Portworkx starting with kv for volume: https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#portworx_database . Choose to us in-cluster KVDB for simplicity and continue to main installation steps: https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#install_portworx
+1. Continue with setting up Portworkx starting with review of options for metadata key-value store for volume: https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#portworx_database . Choose to use in-cluster KVDB for simplicity and continue to main installation steps: https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#install_portworx
 
 1. Skip volume encryption. [Use these steps to configure encryption for the volumes](https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#encrypt_volumes)
 
