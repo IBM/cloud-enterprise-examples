@@ -179,7 +179,7 @@ kubectl get pods -A
 
 ## Notes on Portworx setup
 
-Portworks requires workers in VPC that are 16cpu/64GB (or 32) so the bx2.16x64 profile should be used at a minimum for the worker nodes. The minimum steps necessary are shown here along with related links to the relevant IBM Cloud documentation sections.
+Portworx requires workers in VPC that are 16cpu/64GB (or 32) so the bx2.16x64 profile should be used at a minimum for the worker nodes. The minimum steps necessary are shown here along with related links to the relevant IBM Cloud documentation sections.
 
 Separate unformatted volumes need to be attached to the workers. The IAC code in this folder will create a VPC, OpenShift cluster and volumes that can me bound to the workers. These steps provide a fast path to manually completing the installation based on information from [Storing data with Portworx](https://cloud.ibm.com/docs/openshift?topic=openshift-portworx).
 
@@ -187,7 +187,7 @@ Separate unformatted volumes need to be attached to the workers. The IAC code in
 
 1. Unformatted block storage volumes will be created as part of the terraform code. Retrieve the ids with the `ibmcloud is volumes` command.
 
-1. Obtain the ids for each worker with: `ibmcloud oc workers list --cluster <clustername>`
+1. Obtain the ids for each worker with: `ibmcloud oc workers --cluster <clustername>`
 
 1. Retrieve IAM token with `ibmcloud iam oauth-tokens` and set this to IAM_TOKEN, set the the RESOURCE_GROUP environment variable to the resource group id, and set the CLUSTER environment variable to the cluster name to save typing in later commands.
 
