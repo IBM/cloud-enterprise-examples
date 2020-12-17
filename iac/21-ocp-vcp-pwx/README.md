@@ -345,7 +345,7 @@ Separate unformatted volumes need to be attached to the workers. The IAC code in
 
 ### Adding storage classes for CP4D/IAF
 
-The IAF installation process is configured to alternately use specific portworx storage classes for shared volumes. To create the expected storageClass use this command:
+The IAF installation process is configured to alternately use specific portworx storage classes for shared volumes. To create the expected storage classes use these commands:
 
 ```shell
 cat <<EOF | oc create -f -
@@ -358,6 +358,24 @@ parameters:
   repl: "3"
   sharedv4: "true"
   io_profile: db_remote
+  disable_io_profile_protection: "1"
+allowVolumeExpansion: true
+provisioner: kubernetes.io/portworx-volume
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+EOF
+```
+
+```shell
+cat <<EOF | oc create -f -
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: portworx-metastoredb-sc
+parameters:
+  priority_io: high
+  io_profile: db_remote
+  repl: "3"
   disable_io_profile_protection: "1"
 allowVolumeExpansion: true
 provisioner: kubernetes.io/portworx-volume
