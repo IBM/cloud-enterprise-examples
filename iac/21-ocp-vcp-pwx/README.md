@@ -177,6 +177,48 @@ kubectl get pods -A
 
 <--TODO update with instructions to deploy the application >
 
+## Initial configuration for IAF beta installations
+
+Before configuring and installing Portworx, there are ROKS worker node specific customization that should be performed as these steps will cause the worker notes to be replaced (which breaks Portworx!). Follow the instructions from the [IAF playbook pre-requisites](https://pages.github.ibm.com/automation-base-pak/abp-playbook/planning-install/prerequisites) and perform the following tasks:
+
+1. From the "Adding the image pull mirror and editing the global pull secret" section, use the console to add pull secrets for the cp.icr.io and cp.stg.icr.io registries. See [entitled registry options](https://playbook.cloudpaklab.ibm.com/ibm-developer-entitled-registry-login-options/) for how to get these secrets. Note: for access to `cp.stg.icr.io` you may need to request federation of your IBMid to the staging environment. Also add your docker hub credentials to allow authenticated pulls and avoid rate-limiting. After all secrets have been added to the `openshift-config/pull-secret` secret, replace the workers using either the cli or web UI
+
+1. After the worker replacement is complete access each worker using a debug pod: `oc debug node/<nodeIP>` and append an image mirror to the `/etc/containers/registries.conf` file. Append the following (verify indentation matches lines above)
+
+    ```text
+    oc debug node/<nodeIP>
+    chroot /host
+    cat >> /etc/containers/registries.conf
+
+    # paste in the following followed by Ctrl-D
+
+    [[registry]]
+      prefix = ""
+      location = "cp.icr.io/cp"
+      mirror-by-digest-only = true
+
+      [[registry.mirror]]
+        location = "cp.stg.icr.io/cp"
+
+    [[registry]]
+      prefix = ""
+      location = "docker.io/ibmcom"
+      mirror-by-digest-only = true
+
+      [[registry.mirror]]
+        location = "cp.stg.icr.io/cp"
+
+    tail -30 /etc/containers/registries.conf
+
+    # verify indentation is as expected (if not use vi to fix)
+    ```
+
+1. After the mirror settings have been applied to all workers, reload each worker with (this will be quick):
+
+    ```text
+    ibmcloud cs worker reboot --cluster <cluster_name_or_ID> CLUSTER_NAME -w <workerID>
+    ```
+
 ## Notes on Portworx setup
 
 Portworx requires workers in VPC that are 16cpu/64GB (or 32) so the bx2.16x64 profile should be used at a minimum for the worker nodes. The minimum steps necessary are shown here along with related links to the relevant IBM Cloud documentation sections.
