@@ -196,9 +196,10 @@ Before configuring and installing Portworx, there are ROKS worker node specific 
       prefix = ""
       location = "cp.icr.io/cp"
       mirror-by-digest-only = true
+      prefix = ""
 
       [[registry.mirror]]
-        location = "cp.stg.icr.io/cp"
+      location = "cp.stg.icr.io/cp"
 
     [[registry]]
       prefix = ""
@@ -206,18 +207,23 @@ Before configuring and installing Portworx, there are ROKS worker node specific 
       mirror-by-digest-only = true
 
       [[registry.mirror]]
-        location = "cp.stg.icr.io/cp"
+      location = "cp.stg.icr.io/cp"
 
     tail -30 /etc/containers/registries.conf
 
     # verify indentation is as expected (if not use vi to fix)
     ```
 
-1. After the mirror settings have been applied to all workers, reload each worker with (this will be quick):
+1. After the mirror settings have been applied to all workers, reboot each worker with (allow 5 minutes for reboots to complete):
 
     ```text
     ibmcloud cs worker reboot --cluster <cluster_name_or_ID> CLUSTER_NAME -w <workerID>
+
+    # after 5 minutes verify all nodes ready
+    oc get nodes
     ```
+
+Rebooting the nodes appears to create an issue for the internal registry pod. After all of the workers have rebooted it will go into a crash loop scenario. The crashing pod can be stopped by setting `config.imageregistry.operator.openshift.io/cluster` .spec.replicas to 0 if desired.
 
 ## Notes on Portworx setup
 
