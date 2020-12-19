@@ -175,7 +175,7 @@ kubectl get nodes
 kubectl get pods -A
 ```
 
-<--TODO update with instructions to deploy the application >
+<-- TODO update with instructions to deploy the application >
 
 ## Initial configuration for IAF beta installations
 
@@ -251,9 +251,7 @@ Separate unformatted volumes need to be attached to the workers. The IAC code in
      ibmcloud ks storage attachment create --cluster CLUSTER --volume VOLUME --worker WORKER
 
      ibmcloud ks storage attachment create --cluster $CLUSTER --volume r014-aef666d3-5072-4900-a1b2-23a69cb3f96b --worker kube-bvc11mbw0n2a9mccenlg-timropwxvpc-default-000002a7
-
      ibmcloud ks storage attachment create --cluster $CLUSTER --volume r014-2e73f277-83a1-4741-b7f6-f56c92480874 --worker kube-bvc11mbw0n2a9mccenlg-timropwxvpc-default-000003e1
-
      ibmcloud ks storage attachment create --cluster $CLUSTER --volume r014-a5876bae-c839-426e-b7dd-6304c4c9ce3f --worker kube-bvc11mbw0n2a9mccenlg-timropwxvpc-default-0000011c
 
 1. Verify attachments:
@@ -262,10 +260,9 @@ Separate unformatted volumes need to be attached to the workers. The IAC code in
     curl -X GET "https://containers.cloud.ibm.com/v2/storage/getAttachments?cluster=$CLUSTER&worker=<worker_ID>" --header "X-Auth-Resource-Group-ID: $RESOURCE_GROUP" --header "Authorization: $IAM_TOKEN"
 
     curl -X GET "https://containers.cloud.ibm.com/v2/storage/getAttachments?cluster=$CLUSTER&worker=kube-bvc11mbw0n2a9mccenlg-timropwxvpc-default-000002a7" --header "X-Auth-Resource-Group-ID: $RESOURCE_GROUP" --header "Authorization: $IAM_TOKEN"
-
     {"volume_attachments":[{"id":"0757-1e3db03e-e9bb-44ba-b423-14570a3511e6","volume":{"name":"timro-pwx-vol01","id":"r014-aef666d3-5072-4900-a1b2-23a69cb3f96b"},"device":{"id":"0757-1e3db03e-e9bb-44ba-b423-14570a3511e6-8xbd9"},"name":"volume-attachment","status":"attached","type":"data"},{"id":"0757-6a52d8da-3192-4ac9-b78d-3fa3e402be4f","volume":{"name":"gab-wistful-stimulate-nutmeg","id":"r014-54a8d1d0-b679-4c7e-bec6-b91deb30e98f"},"device":{"id":"0757-6a52d8da-3192-4ac9-b78d-3fa3e402be4f-x5rql"},"name":"volume-attachment","status":"attached","type":"boot"}]}
 
-1. Continue with setting up Portworkx starting with review of options for metadata key-value store for volume: https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#portworx_database . Choose to use in-cluster KVDB for simplicity and continue to main installation steps: https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#install_portworx
+1. Continue with setting up Portworkx starting with [review of install options](https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#portworx_database) including metadata key-value store for volume. For this non-production scenario, choose to use in-cluster KVDB for simplicity and [continue to main installation steps.](https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#install_portworx)
 
 1. Skip volume encryption. [Use these steps to configure encryption for the volumes](https://cloud.ibm.com/docs/openshift?topic=openshift-portworx#encrypt_volumes)
 
@@ -276,9 +273,9 @@ Separate unformatted volumes need to be attached to the workers. The IAC code in
     oc patch -n kube-system serviceaccount/default --type='json' -p='[{"op":"add","path":"/imagePullSecrets/-","value":{"name":"all-icr-io"}}]'
     oc describe serviceaccount default -n kube-system
 
-1. Open the Portworx catalog tile: https://cloud.ibm.com/catalog/services/portworx-enterprise . Select region, resource group, provide as tag the cluster name, provide an API key for the cloud account. Select portworx KVDB in the pulldown for metadata key-value store
+1. Open the [Portworx catalog tile](https://cloud.ibm.com/catalog/services/portworx-enterprise) . Select the region, resource group, and provide as the tag the cluster name. Do not provide any other tags. Provide an API key for the cloud account to allow the catalog tile to search for the target cluster. Once the target cluster in the account has been selected, select portworx KVDB in the pulldown for metadata key-value store.
 
-1. Verify the deployment:
+1. After the service shows as active in the IBM Cloud resource view, verify the deployment:
 
     ```text
     kubectl get pods -n kube-system | grep 'portworx\|stork'
@@ -304,33 +301,33 @@ Separate unformatted volumes need to be attached to the workers. The IAC code in
     ```text
     kubectl exec portworx-647c5 -it -n kube-system -- /opt/pwx/bin/pxctl status
     Status: PX is operational
-    License: PX-Enterprise IBM Cloud (expires in 1205 days)
-    Node ID: 9fdd4434-b75c-4329-8db5-7dd54c3a3998
-	    IP: 172.26.0.5 
- 	    Local Storage Pool: 1 pool
-	    POOL	IO_PRIORITY	RAID_LEVEL	USABLE	USED	STATUS	ZONE		REGION
-	    0	LOW		raid0		200 GiB	12 GiB	Online	us-east-1	us-east
-	    Local Storage Devices: 1 device
-	    Device	Path		Media Type		Size		Last-Scan
-	    0:1	/dev/vdd	STORAGE_MEDIUM_MAGNETIC	200 GiB		15 Dec 20 16:51 UTC
-	    * Internal kvdb on this node is sharing this storage device /dev/vdd  to store its data.
-	    total		-	200 GiB
-	  Cache Devices:
-	    * No cache devices
+    License: PX-Enterprise IBM Cloud (expires in 1201 days)
+    Node ID: 5d65ce5b-1333-4b0c-b469-ccf7df1ce94a
+      IP: 172.26.0.10 
+      Local Storage Pool: 1 pool
+      POOL    IO_PRIORITY  RAID_LEVEL  USABLE    USED     STATUS  ZONE      REGION
+      0       LOW          raid0       400 GiB   18 GiB   Online  us-east-1 us-east
+      Local Storage Devices: 1 device
+      Device  Path      Media Type               Size     Last-Scan
+      0:1     /dev/vdd  STORAGE_MEDIUM_MAGNETIC  400 GiB  18 Dec 20 04:43 UTC
+      * Internal kvdb on this node is sharing this storage device /dev/vdd  to store its data.
+      total   -         400 GiB
+      Cache Devices:
+        * No cache devices
     Cluster Summary
-	  Cluster ID: pwx-demo
-	  Cluster UUID: e55324f0-e896-428f-a7b2-c31ff009df6a
-	  Scheduler: kubernetes
-	  Nodes: 3 node(s) with storage (3 online)
-	     IP		ID					SchedulerNodeName	StorageNode	Used	Capacity	Status	StorageStatus	Version		Kernel				OS
-	     172.26.0.4	c7f48fb2-7253-4a0a-b59c-2df4aa220657	172.26.0.4		Yes		12 GiB	200 GiB		Online	Up		2.6.1.6-3409af2	3.10.0-1160.6.1.el7.x86_64	Red Hat
-	     172.26.0.5	9fdd4434-b75c-4329-8db5-7dd54c3a3998	172.26.0.5		Yes		12 GiB	200 GiB		Online	Up (This node)	2.6.1.6-3409af2	3.10.0-1160.6.1.el7.x86_64	Red Hat
-	     172.26.0.6	331f94cf-260e-4d2d-8b99-7c67d040cb92	172.26.0.6		Yes		12 GiB	200 GiB		Online	Up		2.6.1.6-3409af2	3.10.0-1160.6.1.el7.x86_64	Red Hat
-	  Warnings: 
-		   WARNING: Internal Kvdb is not using dedicated drive on nodes [172.26.0.4 172.26.0.5]. This configuration is not recommended for production clusters.
+      Cluster ID: pwx-iaf
+      Cluster UUID: 45fc03a8-7e82-497d-bc2a-0844dca1459f
+      Scheduler: kubernetes
+      Nodes: 3 node(s) with storage (3 online)
+      IP           ID                                   SchedulerNodeName  StorageNode  Used    Capacity  Status  StorageStatus Version         Kernel                      OS
+      172.26.0.9   f96e278c-fd06-42a8-9684-0d91bc0bde9c 172.26.0.9         Yes          18 GiB  400 GiB   Online  Up            2.6.1.6-3409af2 3.10.0-1160.6.1.el7.x86_64  Red Hat
+      172.26.0.10  5d65ce5b-1333-4b0c-b469-ccf7df1ce94a 172.26.0.10        Yes          18 GiB  400 GiB   Online  Up (This node 2.6.1.6-3409af2 3.10.0-1160.6.1.el7.x86_64  Red Hat
+      172.26.0.11  1b56ec6c-6dcd-4807-a9cd-cf1ae12e7635 172.26.0.11        Yes          18 GiB  400 GiB   Online  Up            2.6.1.6-3409af2 3.10.0-1160.6.1.el7.x86_64  Red Hat
+      Warnings: 
+          WARNING: Internal Kvdb is not using dedicated drive on nodes [172.26.0.11 172.26.0.9 172.26.0.10]. This configuration is not recommended for production clusters.
     Global Storage Pool
-	    Total Used    	:  36 GiB
-	    Total Capacity	:  600 GiB
+      Total Used      :  53 GiB
+      Total Capacity  :  1.2 TiB
     ```
 
 1. Test by creating a PVC - create a yaml file with a read-write-many claim:
@@ -390,7 +387,7 @@ volumeBindingMode: Immediate
 EOF
 ```
 
-### Cleaning up and removing portworx:
+### Cleaning up and removing Portworx
 
 run in the cluster:
 
