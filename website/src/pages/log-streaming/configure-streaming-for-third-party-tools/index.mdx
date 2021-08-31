@@ -1,11 +1,11 @@
 ---
-title: Configure Streaming for Third Party Tools
-description: How does Log Streaming work & how to leverage it
-keywords: 'ibm cloud'
+Title: Configure Streaming for Third Party Tools
+Description: How does Log Streaming work & how to leverage it
+Keywords: 'ibm cloud'
 ---
 
-In this document, We will show you how to stream log events from LogDNA to [Splunk](https://www.splunk.com/). In order to achieve this, we will use the below two capabilities:
-- the streaming feature of logDNA that can be used to stream events to IBM Event Streams.
+In this document, We will show you how to stream log events from IBM Log Analysis and IBM Cloud Activity Tracker to [Splunk](https://www.splunk.com/). In order to achieve this, we will use the below two capabilities:
+- the streaming feature of IBM Log Analysis that can be used to stream events to IBM Event Streams.
 - the Kafka Splunk connect to stream events from IBM Event Streams to Splunk.
 - Configure a Kafka Splunk Connect custom dashboard.
 
@@ -39,9 +39,9 @@ Select message retention time and click `Create Topic`.
 Click on `Service credentials`. Note down the `apikey` and `broker urls`.
 ![Note credentials](./images/note_credentials.png "Note credentials")
 
-### Configure streaming on LogDNA
+### Configure streaming on IBM Log Analysis
 
-On the LogDNA Dashboard,navigate to the navigate to the gear icon (settings) > Streaming to enter the credentials gathered in the previous step as follows:
+On the IBM Log Analysis Dashboard, navigate to the gear icon (settings) > Streaming to enter the credentials gathered in the previous step as follows:
 
 a.	Username = user   //always “token”
 
