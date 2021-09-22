@@ -30,15 +30,15 @@ IBM Cloud Event Streams is a high-through put message bus built with Kafka, see 
 
 ## Create IBM Event Streams Instance
 
-You can use an existing IBM Log Analysis instance or create a new one, refer [Provisioning an Instance](https://cloud.ibm.com/docs/activity-tracker?topic=activity-tracker-provision)
+You can use an existing IBM Log Analysis instance from your existing IBM enterprise cloud account or create a new one, you can refer [Provisioning an Instance](https://cloud.ibm.com/docs/log-analysis?topic=log-analysis-provision) to do so.
 
-For the demo, an IBM Cloud Event Streams instance is required. Log into IBM Cloud > services and create your Event Streams instance, see [Provision Event Streams Instance](https://cloud.ibm.com/docs/EventStreams?topic=EventStreams-connecting#provision_instance)
+For the demo, an IBM Cloud Event Streams instance is required. Log into IBM Cloud > services and create your Event Streams instance, refer [Provision Event Streams Instance](https://cloud.ibm.com/docs/EventStreams?topic=EventStreams-connecting#provision_instance)
 
 Once your IBM Event Stream instance is setup, create a **Service Credential** account and then expand it to show the username, password (apikey) and kafka_brokers_sasl, similar to the screen shown below.
 
-![Service Credential](./images/servicecredential1.png)
+![Service Credential](./images/Logstreamsplunk_service_cred.png)
 
-**Make a copy of the Service Credential username, password and Kafka_brokers_sasl URL. **
+Make a copy of the Service Credential username, password and Kafka_brokers_sasl URL.
 
 ## Setup Event Streams Demo
 
@@ -48,7 +48,7 @@ For this demo, choose the **kafka-java-console-sample** from the Git Hub repo, [
 
 Make sure to create the sample topic "**kafka-java-console-sample-topic**" in your IBM Cloud Event Streams instance, similar to the screen shown below.
 
-![Topic](./images/topic.png)
+![Topic](./images/LogStreamSplunkTopic.png)
 
 
 Once your **Producer** is up and running with the **kafka-java-console-sample-topic**, you should see a screen similar to the one shown below.
