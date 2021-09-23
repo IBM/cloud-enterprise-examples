@@ -81,9 +81,7 @@ Download the `connect-distributed.properties` [here](https://github.com/IBM/clou
 - Modify the `plugin.path` in the file contents to point to the directory `connector` we created in the previous step.
 - Now copy the file `connect-distributed.properties` to the `config` folder under the `kafka_2.13-2.5.0` folder.
 
-### Run Kafka connect
-
-Open a terminal. Run the below commands. The [base dir] is the directory under which we created the folder `kafka_splunk_integration`.
+### Run Kafka connectOpen a terminal. Run the below commands. The [base dir] is the directory under which we created the folder `kafka_splunk_integration`.
 
 ```
 $ export KAFKA_HOME=[base dir]/kafka_splunk_integration/kafka_2.13-2.5.0
@@ -91,6 +89,17 @@ $ $KAFKA_HOME/bin/connect-distributed.sh $KAFKA_HOME/config/connect-distributed.
 ```
 
 ### Install Splunk
+
+Typically, those interested in this functionality already have Splunk implemented in their environment and have the technical expertise to configure it with the Kafka messaging services.  
+
+The following instructions describe the steps necessary to create a Splunk instance that is deployed on a workstation using a Docker container.  Additionally, configuring the Splunk system for communication with the IBM Event Streams through Kafka is demonstrated.  
+
+Check the following links to ensure that you have the latest installation pre-requisites satisfied for the platform being used.  
+
+Docker:https://docs.docker.com/engine/install/binaries/
+
+Splunk:https://docs.splunk.com/Documentation/Splunk/8.2.2/Installation/Beforeyouinstall
+
 
 We will install Splunk inside a container here. 
 Open a new terminal. Run the below commands.
