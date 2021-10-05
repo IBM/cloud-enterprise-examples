@@ -1,30 +1,30 @@
 ---
-Title: Log Streaming
-Description: How does Log Streaming work & how to leverage it
+Title: Event Streaming
+Description: How does Event Streaming work & how to leverage it
 Keywords: 'ibm cloud'
 ---
 
 <PageDescription>
 
-What is Log Streaming?
+What is Event Streaming?
 
 </PageDescription>
 
 
-Streaming enables IBM Log Analysis to produce content to a message bus queue and Topic. IBM Log Analysis streaming helps you to connect third party consumers of topics to ingest into dashboards for visualization of event log data. 
+Event Streaming enables IBM Log Analysis to produce content to a message bus queue and Topic. IBM Log Analysis streaming helps you to connect third party consumers of topics to ingest into dashboards for visualization of event log data. 
 
-Third party horizonal technologies such as Splunk, used in organizations for application management, security and compliance are able to leverage IBM Cloud Log Analysis with Log Streaming.
+Third party horizonal technologies such as Splunk, used in organizations for application management, security and compliance are able to leverage IBM Cloud Log Analysis with Event Streaming.
 
-The content in this pattern, we will walk through setting up a sample event stream by utilizing IBM Cloud Event Streams and Log Streaming, to produce events to a topic for a simple consumer application to ingest.
+The content in this pattern, we will walk through setting up a sample event stream by utilizing IBM Cloud Event Streams and Event Streaming, to produce events to a topic for a simple consumer application to ingest.
 
 IBM Cloud Event Streams is a high-through put message bus built with Kafka, see [What is Event Streams](https://cloud.ibm.com/docs/EventStreams?topic=EventStreams-about) and [Choosing Your Plan](https://cloud.ibm.com/docs/EventStreams?topic=EventStreams-plan_choose)
 
 
-<AnchorLinks small>
+<AnchorLinks bold>
   <AnchorLink>Create IBM Event Streams Instance</AnchorLink><br/>
   <AnchorLink>Setup Event Streams Demo</AnchorLink><br/>
-  <AnchorLink>Configure Log Streaming</AnchorLink><br/>
-  <AnchorLink>Start Log Streaming to Consumer</AnchorLink><br/>
+  <AnchorLink>Configure Event Streaming</AnchorLink><br/>
+  <AnchorLink>Start Event Streaming to Consumer</AnchorLink><br/>
 </AnchorLinks>
 <p>&nbsp;</p>
 
@@ -49,7 +49,8 @@ For this demo, choose the **kafka-java-console-sample** from the Git Hub repo, [
 Make sure to create the sample topic "**kafka-java-console-sample-topic**" in your IBM Cloud Event Streams instance, similar to the screen shown below.
 
 ![Topic](./images/LogStreamSplunkTopic.png)
-
+![Topic](./images/TopicPartition.png)
+![Topic](./images/TopicMessageRetention.png)
 
 Once your **Producer** is up and running with the **kafka-java-console-sample-topic**, you should see a screen similar to the one shown below.
 
@@ -76,11 +77,11 @@ Lets get started by following the steps below:
 
 </InlineNotification>
 
-If your Log Streaming has been whitelisted, you should see a screen similar to the one shown below. 
+If your Event Streaming has been whitelisted, you should see a screen similar to the one shown below. 
 
 ![Log Streaming](./images/eventstreams2.png)
 
-** To configure IBM Log Streaming Streaming, follow the instructions below:**
+** To configure Event Streaming, follow the instructions below:**
 
 1. Obtain the IBM Cloud Event Streams Service Credential, **username**, **password** and **Kafka_brokers_sasl** URL.
 2. Configure the Event Streams **Service Credential** information in the **Log Streaming** fields.
@@ -91,9 +92,9 @@ If your Log Streaming has been whitelisted, you should see a screen similar to t
 
 ![Consumer](./images/producer_stopped.png)
 
-## Start Log Streaming to Consumer
+## Start Event Streaming to Consumer
 
-Let's go a head and start Log Streaming, you may see a notice from Log Streaming asking if you've received the sample messages similar to the screen shown below, click yes.
+Let's go a head and start Event Streaming, you may see a notice from Event Streaming asking if you've received the sample messages similar to the screen shown below, click yes.
 
 ![Samples](./images/sample_logs.png)
 
@@ -105,13 +106,13 @@ IBM Log Analysis should now have been successfully configured. If you have a **K
 
 ![Log Streaming Started](./images/logdna_streaming_start.png)
 
-LogDNA **Streaming** is active, similar to the screen shown below. 
+Event streaming **Streaming** is active, similar to the screen shown below. 
 
-![Consumer Recevied LogDNA Streams](./images/consumer_logdna_activity.png)
+![Consumer Recevied Event Streams](./images/consumer_logdna_activity.png)
 
 <InlineNotification>
 
-**The Consumer is now consuming an event log topic, that LogDNA Streaming is sending to the IBM Cloud Event Streams message bus**. 
+**The Consumer is now consuming an event log topic, that Event Streaming is sending to the IBM Cloud Event Streams message bus**. 
 
 </InlineNotification>
 
