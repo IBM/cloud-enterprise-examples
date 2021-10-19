@@ -1,46 +1,46 @@
 ---
-Title: Event Streaming
-Description: How does Event Streaming work & how to leverage it
+Title: Log Streaming
+Description: How does Log Streaming work & how to leverage it
 Keywords: 'ibm cloud'
 ---
 
 <PageDescription>
 
-What is Event Streaming?
+What is Log Streaming?
 
 </PageDescription>
 
 
-Event Streaming enables IBM Log Analysis to produce content to a message bus queue and Topic. IBM Log Analysis streaming helps you to connect third party consumers of topics to ingest into dashboards for visualization of event log data. 
+Log Streaming enables IBM Log Analysis to produce content to a message bus queue and Topic. IBM Log Analysis streaming helps you to connect third party consumers of topics to ingest into dashboards for visualization of event log data. 
 
-Third party horizonal technologies such as Splunk, used in organizations for application management, security and compliance are able to leverage IBM Cloud Log Analysis with Event Streaming.
+Third party horizonal technologies such as Splunk, used in organizations for application management, security and compliance are able to leverage IBM Cloud Log Analysis with Log Streaming.
 
-The content in this pattern, we will walk through setting up a sample event stream by utilizing IBM Cloud Event Streams and Event Streaming, to produce events to a topic for a simple consumer application to ingest.
+The content in this pattern, we will walk through setting up a sample event stream by utilizing IBM Cloud Event Streams and Log Streaming, to produce events to a topic for a simple consumer application to ingest.
 
 IBM Cloud Event Streams is a high-through put message bus built with Kafka, see [What is Event Streams](https://cloud.ibm.com/docs/EventStreams?topic=EventStreams-about) and [Choosing Your Plan](https://cloud.ibm.com/docs/EventStreams?topic=EventStreams-plan_choose)
 
 
 <AnchorLinks bold>
-  <AnchorLink>Create IBM Event Streams Instance</AnchorLink><br/>
-  <AnchorLink>Setup Event Streams Demo</AnchorLink><br/>
-  <AnchorLink>Configure Event Streaming</AnchorLink><br/>
-  <AnchorLink>Start Event Streaming to Consumer</AnchorLink><br/>
+  <AnchorLink>Create IBM Log Streams Instance</AnchorLink><br/>
+  <AnchorLink>Setup Log Streams Demo</AnchorLink><br/>
+  <AnchorLink>Configure Log Streaming</AnchorLink><br/>
+  <AnchorLink>Start Log Streaming to Consumer</AnchorLink><br/>
 </AnchorLinks>
 <p>&nbsp;</p>
 
-## Create IBM Event Streams Instance
+## Create IBM Log Streams Instance
 
 You can use an existing IBM Log Analysis instance from your existing IBM enterprise cloud account or create a new one, you can refer [Provisioning an Instance](https://cloud.ibm.com/docs/log-analysis?topic=log-analysis-provision) to do so.
 
 For the demo, an IBM Cloud Event Streams instance is required. Log into IBM Cloud > services and create your Event Streams instance, refer [Provision Event Streams Instance](https://cloud.ibm.com/docs/EventStreams?topic=EventStreams-connecting#provision_instance)
 
-Once your IBM Event Stream instance is setup, create a **Service Credential** account and then expand it to show the username, password (apikey) and kafka_brokers_sasl, similar to the screen shown below.
+Once your IBM Log Stream instance is setup, create a **Service Credential** account and then expand it to show the username, password (apikey) and kafka_brokers_sasl, similar to the screen shown below.
 
 ![Service Credential](./images/Logstreamsplunk_service_cred.png)
 
 Make a copy of the Service Credential username, password and Kafka_brokers_sasl URL.
 
-## Setup Event Streams Demo
+## Setup Log Streams Demo
 
 You'll need to setup a sample **Topic**, **Producer** and **Consumer**, see [Getting Started Tutorial](https://cloud.ibm.com/docs/EventStreams?topic=EventStreams-getting_started).
 
@@ -77,7 +77,7 @@ Lets get started by following the steps below:
 
 </InlineNotification>
 
-If your Event Streaming has been whitelisted, you should see a screen similar to the one shown below. 
+If your Log Streaming has been whitelisted, you should see a screen similar to the one shown below. 
 
 ![Log Streaming](./images/eventstreams2.png)
 
