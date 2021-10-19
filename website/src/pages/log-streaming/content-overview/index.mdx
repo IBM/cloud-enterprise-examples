@@ -1,51 +1,46 @@
 ---
-title: Log Streaming
-description: How does Log Streaming work & how to leverage it
-keywords: 'ibm cloud'
+Title: Log Streaming
+Description: How does Log Streaming work & how to leverage it
+Keywords: 'ibm cloud'
 ---
 
 <PageDescription>
 
-What is LogDNA Streaming? 
+What is Log Streaming?
 
 </PageDescription>
 
 
-Streaming enables LogDNA to produce content to a message bus queue and Topic. LogDNA streaming helps you to connect third party consumers of topics to ingest into dashboards for visualization of event log data. 
+Log Streaming enables IBM Log Analysis to produce content to a message bus queue and Topic. IBM Log Analysis streaming helps you to connect third party consumers of topics to ingest into dashboards for visualization of event log data. 
 
-Third party horizonal technologies such as Splunk, used in organizations for application management, security and compliance are able to leverage IBM Cloud Log Analysis with LogDNA Streaming.
+Third party horizonal technologies such as Splunk, used in organizations for application management, security and compliance are able to leverage IBM Cloud Log Analysis with Log Streaming.
 
-The content in this pattern, we'll walk through setting up a sample event stream by utilizing IBM Cloud Event Streams and LogDNA Streaming, to produce events to a topic for a simple consumer application to ingest. 
+The content in this pattern, we will walk through setting up a sample event stream by utilizing IBM Cloud Event Streams and Log Streaming, to produce events to a topic for a simple consumer application to ingest.
 
 IBM Cloud Event Streams is a high-through put message bus built with Kafka, see [What is Event Streams](https://cloud.ibm.com/docs/EventStreams?topic=EventStreams-about) and [Choosing Your Plan](https://cloud.ibm.com/docs/EventStreams?topic=EventStreams-plan_choose)
 
 
-<AnchorLinks small>
-  <AnchorLink>Create IBM Event Streams Instance</AnchorLink>
-  <AnchorLink>Setup Event Streams Demo</AnchorLink>
-  <AnchorLink>Configure LogDNA Streaming</AnchorLink>
-  <AnchorLink>Start LogDNA Streaming to Consumer</AnchorLink>
+<AnchorLinks bold>
+  <AnchorLink>Create IBM Log Streams Instance</AnchorLink><br/>
+  <AnchorLink>Setup Log Streams Demo</AnchorLink><br/>
+  <AnchorLink>Configure Log Streaming</AnchorLink><br/>
+  <AnchorLink>Start Log Streaming to Consumer</AnchorLink><br/>
 </AnchorLinks>
-<InlineNotification>
+<p>&nbsp;</p>
 
-** Please Note:** The functionality of connecting LogDNA to Event Streams is currently available as an `Early Access` only.  You will need approval from IBM to have it enabled for a specific instance of LogDNA.
+## Create IBM Log Streams Instance
 
-</InlineNotification>
+You can use an existing IBM Log Analysis instance from your existing IBM enterprise cloud account or create a new one, you can refer [Provisioning an Instance](https://cloud.ibm.com/docs/log-analysis?topic=log-analysis-provision) to do so.
 
+For the demo, an IBM Cloud Event Streams instance is required. Log into IBM Cloud > services and create your Event Streams instance, refer [Provision Event Streams Instance](https://cloud.ibm.com/docs/EventStreams?topic=EventStreams-connecting#provision_instance)
 
-## Create IBM Event Streams Instance
+Once your IBM Log Stream instance is setup, create a **Service Credential** account and then expand it to show the username, password (apikey) and kafka_brokers_sasl, similar to the screen shown below.
 
-You'll need to use a previous LogDNA instance or create a new one, see [Provisioning an Instance](https://cloud.ibm.com/docs/Activity-Tracker-with-LogDNA?topic=Activity-Tracker-with-LogDNA-provision)
+![Service Credential](./images/Logstreamsplunk_service_cred.png)
 
-For the demo, an IBM Cloud Event Streams instance is required. Log into IBM Cloud > services and create your Event Streams instance, see [Provision Event Streams Instance](https://cloud.ibm.com/docs/EventStreams?topic=EventStreams-connecting#provision_instance)
+Make a copy of the Service Credential username, password and Kafka_brokers_sasl URL.
 
-Once your IBM Event Stream instance is setup, create a **Service Credential** account and then expand it to show the username, password (apikey) and kafka_brokers_sasl, similar to the screen shown below.
-
-![Service Credential](./images/servicecredential1.png)
-
-** Make a copy of the Service Credential username, password and Kafka_brokers_sasl URL**. 
-
-## Setup Event Streams Demo
+## Setup Log Streams Demo
 
 You'll need to setup a sample **Topic**, **Producer** and **Consumer**, see [Getting Started Tutorial](https://cloud.ibm.com/docs/EventStreams?topic=EventStreams-getting_started).
 
@@ -53,8 +48,9 @@ For this demo, choose the **kafka-java-console-sample** from the Git Hub repo, [
 
 Make sure to create the sample topic "**kafka-java-console-sample-topic**" in your IBM Cloud Event Streams instance, similar to the screen shown below.
 
-![Topic](./images/topic.png)
-
+![Topic](./images/LogStreamSplunkTopic.png)
+![Topic](./images/TopicPartition.png)
+![Topic](./images/TopicMessageRetention.png)
 
 Once your **Producer** is up and running with the **kafka-java-console-sample-topic**, you should see a screen similar to the one shown below.
 
@@ -65,30 +61,30 @@ After you've completed the **Getting started Tutorial**, you should now have a *
 ![Consumer](./images/consumer.png)
 
 
-## Configure LogDNA Streaming
+## Configure Log Streaming
 
-**Note:** You'll need an instance of LogDNA, see [Provisioning an Instance](https://cloud.ibm.com/docs/Activity-Tracker-with-LogDNA?topic=Activity-Tracker-with-LogDNA-provision)
+**Note:** You'll need an instance of IBM Log Analysis, see [Provisioning an Instance](https://cloud.ibm.com/docs/activity-tracker?topic=activity-tracker-provision)
 
 Lets get started by following the steps below:
 
-1. Login to IBM Cloud, then go to > Observability > logging, and choose your instance of LogDNA. 
-2. Select **View LogDNA** 
+1. Login to IBM Cloud, then go to > Observability > logging, and choose your instance of IBM Log Analysis. 
+2. Select **View Log Analysis Name* 
 3. Click on the **Settings** gear icon and choose Streaming.
 
 <InlineNotification>
 
-**Note:** You may need to contact IBM Cloud support to have your LogDNA instance whitelisted, for Streaming to show up in the **Settings** menu selection.
+**Note:** You may need to contact IBM Cloud support to have your IBM Log Analysis instance whitelisted, for Streaming to show up in the **Settings** menu selection.
 
 </InlineNotification>
 
-If your LogDNA Streaming has been whitelisted, you should see a screen similar to the one shown below. 
+If your Log Streaming has been whitelisted, you should see a screen similar to the one shown below. 
 
-![LogDNA Streaming](./images/eventstreams2.png)
+![Log Streaming](./images/eventstreams2.png)
 
-** To configure LogDNA Streaming, follow the instructions below:**
+** To configure Event Streaming, follow the instructions below:**
 
 1. Obtain the IBM Cloud Event Streams Service Credential, **username**, **password** and **Kafka_brokers_sasl** URL.
-2. Configure the Event Streams **Service Credential** information in the **LogDNA Streaming** fields.
+2. Configure the Event Streams **Service Credential** information in the **Log Streaming** fields.
 3. Click Save.
 4. Next, you'll need to stop the **Producer** from producing events. 
 5. Stop the **Producer** by typing in the command **Cntrl**+**C**.
@@ -96,9 +92,9 @@ If your LogDNA Streaming has been whitelisted, you should see a screen similar t
 
 ![Consumer](./images/producer_stopped.png)
 
-## Start LogDNA Streaming to Consumer
+## Start Event Streaming to Consumer
 
-Let's go a head and start LogDNA Streaming, you may see a notice from LogDNA Streaming asking if you've received the sample messages similar to the screen shown below, click yes.
+Let's go a head and start Event Streaming, you may see a notice from Event Streaming asking if you've received the sample messages similar to the screen shown below, click yes.
 
 ![Samples](./images/sample_logs.png)
 
@@ -106,17 +102,17 @@ Add in an email recipient and then click start streaming, similar to the screen 
 
 ![Streaming Configuration](./images/streaming_configured.png)
 
-LogDNA should now have been successfully configured. If you have a **Kubernetes cluster**,**VSI** or any other services configured with LogDNA enabled, you should see activity in the **Consumer** terminal, similar to the screen shown below. 
+IBM Log Analysis should now have been successfully configured. If you have a **Kubernetes cluster**,**VSI** or any other services configured with Log enabled, you should see activity in the **Consumer** terminal, similar to the screen shown below. 
 
-![LogDNA Streaming Started](./images/logdna_streaming_start.png)
+![Log Streaming Started](./images/logdna_streaming_start.png)
 
-LogDNA **Streaming** is active, similar to the screen shown below. 
+Event streaming **Streaming** is active, similar to the screen shown below. 
 
-![Consumer Recevied LogDNA Streams](./images/consumer_logdna_activity.png)
+![Consumer Recevied Event Streams](./images/consumer_logdna_activity.png)
 
 <InlineNotification>
 
-**The Consumer is now consuming an event log topic, that LogDNA Streaming is sending to the IBM Cloud Event Streams message bus**. 
+**The Consumer is now consuming an event log topic, that Event Streaming is sending to the IBM Cloud Event Streams message bus**. 
 
 </InlineNotification>
 
