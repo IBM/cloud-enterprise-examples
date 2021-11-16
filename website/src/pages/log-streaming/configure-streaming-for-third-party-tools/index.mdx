@@ -4,13 +4,17 @@ description: How does Log Streaming work & how to leverage it
 keywords: 'ibm cloud'
 ---
 
-In this document, We will show you how to stream log events from LogDNA to [Splunk](https://www.splunk.com/). In order to achieve this, we will use the below two capabilities:
-- the streaming feature of logDNA that can be used to stream events to IBM Event Streams.
+In this document, we will show you how to stream log events from IBM Log Analysis to [Splunk](https://www.splunk.com/). In order to achieve this, we will use the below two capabilities:
+- the streaming feature of IBM Log Analysis that can be used to stream events to IBM Event Streams.
 - the Kafka Splunk connect to stream events from IBM Event Streams to Splunk.
 - Configure a Kafka Splunk Connect custom dashboard.
 
 
 ### Create an instance of IBM Event Streams
+
+The IBM Event Streams is a messaging service that provides the communication channel between the IBM Log Analysis and the Splunk Connector. 
+
+The individual machines must be configured to send their logs to IBM Log Analysis.  For IKS and/or ROKS, a resource controller plug-in configuration is required. 
 
 Click [here](https://cloud.ibm.com/catalog/services/event-streams) to create an instance of IBM Event Streams. Choose a `Standard` plan.
 
@@ -18,11 +22,11 @@ Click [here](https://cloud.ibm.com/catalog/services/event-streams) to create an 
 
 ### Create a topic on Event Streams
 
-On the `Event Streams` console, click on `Manage` and then `Topics`.
+On the `Event Streams` console, click on `Topics` and then click on the `Create topic` option.
 
 ![Click create topic](./images/click_create_topic.png "Click create topic") 
 
-Enter a topic name `logdnatopic` and click `Next`.
+Enter a topic name `ibmloganalysistopic` and click `Next`.
 
 ![Enter topic name](./images/enter_topic_name.png "Enter topic name") 
 
@@ -36,16 +40,35 @@ Select message retention time and click `Create Topic`.
 
 ### Note down credentials on Event Streams
 
-Click on `Service credentials`. Note down the `apikey` and `broker urls`.
+Click on `Service credentials` and then the `New credential`. Copy off the `apikey` and `broker urls` for later use.
 ![Note credentials](./images/note_credentials.png "Note credentials")
 
-### Configure streaming on LogDNA
+### Configure streaming on IBM Log Analysis
 
-On the LogDNA Dashboard,navigate to the navigate to the gear icon (settings) > Streaming to enter the credentials gathered in the previous step as follows:
+The IBM Log Analysis service is a centralized collection of logs with a blazing fast log search capability. 
+
+To create an IBM Log Analysis instance go to the Observability menu option form the Dashboard and select 'Create New' as indicated.
+
+![Note Create New IBM Log Analysis Service](./images/create_new_ibm_log_analysis.png "Create IBM Log Analysis Service")
+
+Select the desired plan and specify the service name, resource group, and optionally, specify tags.  Then check the box to indicate that you accepted the terms of the license agreement and click on the 'Create' button.
+
+![Note Create New IBM Log Analysis Service](./images/create_new_ibm_log_analysis_instance.png "Create IBM Log Analysis Service")
+
+Once the IBM Log Analysis service instance is created, configure the platform logs by clicking on the 'Configure platform' button. 
+
+![Note Enable platform logging](./images/enable_platform_logging.png "Enable Platform Logging")
+
+Navigate to the Dashboard by clicking the blue button at the top right of the screen.
+
+![Note Open the IBM Log Analysis Dashboard](./images/open_ibm_log_analysis_dashboard.png "Open the IBM Log Analysis Dashboard")
+
+On the IBM Log Analysis Dashboard, navigate to the 'settings' using the gear icon > Streaming > Configuration to enter the credentials gathered in the previous step as follows:
 
 a.	Username = user   //always “token”
 
 b.	Password = api_key // apikey from Event Streams credentials.
+
 c.	Kafka URLs = kafka_brokers_sasl // Entered in on individual lines.
 
 d.	Enter the name of a topic that we created earlier in event streams instance and hit 
@@ -53,12 +76,19 @@ d.	Enter the name of a topic that we created earlier in event streams instance a
 
 e. Streaming may take up to 15 minutes to begin.
 
+Once the system is configured, click on the hexagonal icon that contains what looks like a DNA strand and watch for the logs to stream across the screen.
 
-![LogDNA Streams configuration](./images/logdna_streams_config.png "LogDNA Streams Config")
+![IBM Log Analysis Streams configuration](./images/logdna_streams_config.png "IBM Log Analysis Streams Config")
 
 ### Set up Kafka Splunk Connect
 
 #### Download Apache Kafka
+
+The Kafka Splunk Connect provides a communication channel between the IBM Event Streams messaging service and the remote machine that streams the logs into the Splunk SEIM. 
+
+The Kafka Splunk Connect runs outside of Splunk itself and must also be configured to connect to the  Splunk instance to complete the integration. 
+
+The following instructions depict how to connect to a Splunk instance running as a local container.  Typically, companies have Splunk deployed on their internal network and the instructions will have to be adapted for a particular environment.  Nonetheless, these instructions are applicable for a variety of situations. 
 
 Download Apache Kafka [here](https://www.apache.org/dyn/closer.cgi?path=/kafka/2.5.0/kafka_2.13-2.5.0.tgz).
 
@@ -68,11 +98,14 @@ Extract the contents into the directory `kafka_splunk_integration`.
 
 #### Build Kafka Splunk jars
 
-1. Clone the repo from https://github.com/splunk/kafka-connect-splunk
-2. Verify that Java8 JRE or JDK is installed.
-3. Run mvn package. This will build the jar in the /target directory. The name will be splunk-kafka-connect-[VERSION].jar.
+1. Create a directory called `kafka_connect_splunk`.
+2. Clone the repo from https://github.com/splunk/kafka-connect-splunk
+3. Unzip the download into the `kafka_connect_splunk` directory.
+4. Verify that Java8 JRE or JDK is installed.
+5. Move to the `kafka_connect_splunk` directory
+6. Run 'mvn package' command. This will build the jar in the `/target` directory. The name will be `splunk-kafka-connect-[VERSION].jar`.
 
-Create a folder `connector` in the directory `kafka_splunk_integration`. Copy the jar file to the `connector` folder.
+Create a folder called `connector` in the directory `kafka_splunk_integration`. Copy the jar file to the `connector` folder.
 
 #### Modify connect-distributed.properties for Kafka connect
 
@@ -82,6 +115,8 @@ Download the `connect-distributed.properties` [here](https://github.com/IBM/clou
 - Now copy the file `connect-distributed.properties` to the `config` folder under the `kafka_2.13-2.5.0` folder.
 
 ### Run Kafka connect
+
+This completes the connection between the remote machine and the IBM Event Streams service.  
 
 Open a terminal. Run the below commands. The [base dir] is the directory under which we created the folder `kafka_splunk_integration`.
 
@@ -114,13 +149,13 @@ Click on `Settings` and then select `Indexes`.
 Click on `New Index`.
 ![New Index](./images/new_index.png "New Index")  
 
-Enter a name say `logdnaindex` and click on `Save`.
+Enter a name say `ibmindex` and click on `Save`.
 
 ![Index details](./images/index_details.png "Index details")  
 
 
 The index is now created. Make a note of the index name. We will need it to instantiate the connector.
-Next, click on `Settings`-`Data Input`-`HTTP Event Collector` to go to `HTTP Event Collector` page. Click on `General Settings` on HTTP Event Collector page and un-select the `Enable SSL` option.
+Next, click on `Settings`-`Data Input`-`HTTP Event Collector` to go to `HTTP Event Collector` page. Click on `Global Settings` on HTTP Event Collector page and un-select the `Enable SSL` option.
 
 #### Create a token
 
@@ -132,7 +167,7 @@ Click on `Add New` to create a new `Http Event Collector`.
 
 ![Add new HEC](./images/add_new_hec.png "Add new HEC")
 
-Enter a name say `logdnatoken` and select `Enable Indexer`. Click on `Next`.
+Enter a name say `ibmloganalysistoken` and select `Enable Indexer`. Click on `Next`.
 
 ![Enter token details](./images/enter_token_details.png "Enter token details")  
 
@@ -150,7 +185,7 @@ Copy the created token. We will need it to instantiate the connector.
 
 ### Create an instance of Kafka Splunk connector
 
-Open a new terminal. Run the below command after specifying token. Also note that `topics` field is `logdnatopic` that we created earlier in `Event Streams`, and `splunk.indexes` is `logdnaindex` that we created on Splunk.
+Open a new terminal. Run the below command after specifying token. Also note that `topics` field is `ibmloganalysistopic` that we created earlier in `Event Streams`, and `splunk.indexes` is `ibmloganalysisindex` that we created on Splunk.
 
 ```
 $curl localhost:8083/connectors -X POST -H "Content-Type: application/json" -d '{
@@ -158,8 +193,8 @@ $curl localhost:8083/connectors -X POST -H "Content-Type: application/json" -d '
    "config": {
      "connector.class": "com.splunk.kafka.connect.SplunkSinkConnector",
      "tasks.max": "3",
-     "splunk.indexes": "logdnaindex",
-     "topics":"logdnatopic",
+     "splunk.indexes": "ibmloganalysisindex",
+     "topics":"ibmloganalysistopic",
      "splunk.hec.uri": "http://localhost:8088",
      "splunk.hec.token": "[token]"
    }
@@ -191,7 +226,7 @@ Go to `Settings` and choose `Searches, reports, and alerts`.
 
 ![Create dashboard](./images/create_dashboard2.png "Create dashboard")  
 
-Choose the report you wish to run, similar to the screen below.  The `Gsi Logdna` report is used in this screenshot
+Choose the report you wish to run, similar to the screen below.  The `Gsi IBM Log Analysis` report is used in this screenshot
 
 ![Create dashboard](./images/create_dashboard3d.png "Create dashboard") 
 
